@@ -31,6 +31,10 @@ localPort = 36435
 externalPort = 3001
 
 [[ports]]
+localPort = 39457
+externalPort = 6000
+
+[[ports]]
 localPort = 41867
 externalPort = 5173
 
@@ -65,3 +69,9 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[userenv]
+
+[userenv.shared]
+NEXT_PUBLIC_WORDPRESS_URL = "https://cursedtours.com"
+NEXT_PUBLIC_SITE_URL = "https://cursedtours.com"

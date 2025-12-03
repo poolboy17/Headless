@@ -1,4 +1,5 @@
-const WP_API_URL = 'https://cursedtours.com/wp-json/wp/v2';
+const WP_BASE_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL || 'https://cursedtours.com';
+const WP_API_URL = `${WP_BASE_URL}/wp-json/wp/v2`;
 
 export interface WPMedia {
   id: number;
@@ -76,10 +77,29 @@ export interface SinglePostResponse {
   relatedPosts: WPPost[];
 }
 
-async function fetchWP<T>(endpoint: string, revalidate = 300): Promise<T> {
-  const response = await fetch(`${WP_API_URL}${endpoint}`, {
-    next: { revalidate },
-  });
+export const DEFAULT_REVALIDATE = 300;
+
+interface FetchOptions {
+  revalidate?: number | false;
+  tags?: string[];
+}
+
+async function fetchWP<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
+  const { revalidate = DEFAULT_REVALIDATE, tags } = options;
+  
+  const fetchOptions: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } } = {
+    next: {},
+  };
+  
+  if (revalidate !== false) {
+    fetchOptions.next!.revalidate = revalidate;
+  }
+  
+  if (tags?.length) {
+    fetchOptions.next!.tags = tags;
+  }
+  
+  const response = await fetch(`${WP_API_URL}${endpoint}`, fetchOptions);
   
   if (!response.ok) {
     throw new Error(`WordPress API error: ${response.status}`);
@@ -177,16 +197,55 @@ export async function getPost(slug: string): Promise<SinglePostResponse> {
 }
 
 export async function getCategories(): Promise<WPCategory[]> {
-  return fetchWP<WPCategory[]>('/categories?per_page=100&orderby=count&order=desc');
+  return fetchWP<WPCategory[]>('/categories?per_page=100&orderby=count&order=desc', {
+    tags: ['categories'],
+  });
 }
 
 export async function getTags(): Promise<WPTag[]> {
-  return fetchWP<WPTag[]>('/tags?per_page=100&orderby=count&order=desc');
+  return fetchWP<WPTag[]>('/tags?per_page=100&orderby=count&order=desc', {
+    tags: ['tags'],
+  });
 }
 
 export async function getCategoryBySlug(slug: string): Promise<WPCategory | null> {
-  const categories = await fetchWP<WPCategory[]>(`/categories?slug=${slug}`);
+  const categories = await fetchWP<WPCategory[]>(`/categories?slug=${slug}`, {
+    tags: ['categories'],
+  });
   return categories.length > 0 ? categories[0] : null;
+}
+
+export async function getAllPostSlugs(): Promise<string[]> {
+  const slugs: string[] = [];
+  let page = 1;
+  const perPage = 100;
+  
+  while (true) {
+    const response = await fetch(`${WP_API_URL}/posts?per_page=${perPage}&page=${page}&_fields=slug`, {
+      next: { revalidate: 3600 },
+    });
+    
+    if (!response.ok) break;
+    
+    const posts: { slug: string }[] = await response.json();
+    if (posts.length === 0) break;
+    
+    slugs.push(...posts.map(p => p.slug));
+    
+    const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
+    if (page >= totalPages) break;
+    page++;
+  }
+  
+  return slugs;
+}
+
+export async function getAllCategorySlugs(): Promise<string[]> {
+  const categories = await fetchWP<WPCategory[]>('/categories?per_page=100&_fields=slug', {
+    revalidate: 3600,
+    tags: ['categories'],
+  });
+  return categories.map(c => c.slug);
 }
 
 export function stripHtml(html: string): string {

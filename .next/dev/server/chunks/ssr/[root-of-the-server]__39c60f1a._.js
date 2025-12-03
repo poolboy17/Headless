@@ -1212,7 +1212,8 @@ __turbopack_context__.s([
     "stripHtml",
     ()=>stripHtml
 ]);
-const WP_API_URL = 'https://cursedtours.com/wp-json/wp/v2';
+const WP_BASE_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL || 'https://cursedtours.com';
+const WP_API_URL = `${WP_BASE_URL}/wp-json/wp/v2`;
 async function fetchWP(endpoint, revalidate = 300) {
     const response = await fetch(`${WP_API_URL}${endpoint}`, {
         next: {
