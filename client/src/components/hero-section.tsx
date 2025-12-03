@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { EnrichedPost, WPCategory } from "@shared/schema";
+import heroImage from "@assets/file_0000000035b461fb871702e91bfb805a_(4)_1764780560382.png";
 
 interface HeroSectionProps {
   post: EnrichedPost;
@@ -105,21 +106,17 @@ export function HeroSection({ post }: HeroSectionProps) {
         </div>
       </div>
 
-      {/* Featured Image */}
+      {/* Featured Image - Custom Hero */}
       <div className="w-full md:w-4/5 lg:w-2/3 md:ml-auto">
         <Link href={`/post/${post.slug}`} className="block relative group">
           <div className="aspect-[16/12] sm:aspect-[16/9] md:aspect-[16/10] lg:aspect-[16/9] overflow-hidden rounded-3xl">
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt={title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <span className="text-muted-foreground">No image</span>
-              </div>
-            )}
+            <img
+              src={heroImage}
+              alt="Cursed Tours - Paranormal Investigations"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            {/* Dark gradient overlay for atmosphere */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-3xl" />
           </div>
         </Link>
       </div>
