@@ -4,12 +4,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, Clock, ArrowLeft } from 'lucide-react';
 import { SiX, SiFacebook, SiLinkedin } from 'react-icons/si';
-import { getPost, buildSeo } from '@/lib/wordpress';
+import { getPost, buildSeo, getAllPostSlugs } from '@/lib/wordpress';
 import { stripHtml, formatDate, getReadingTime, getFeaturedImage, getAuthor, getCategories_Post, getTags_Post } from '@/lib/wordpress';
 import { PostCard } from '@/components/post-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const slugs = await getAllPostSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
 interface PostPageProps {
   params: Promise<{ slug: string }>;

@@ -1,9 +1,16 @@
 import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getPosts, getCategories, getCategoryBySlug } from '@/lib/wordpress';
+import { getPosts, getCategories, getCategoryBySlug, getAllCategorySlugs } from '@/lib/wordpress';
 import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
+
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const slugs = await getAllCategorySlugs();
+  return slugs.map((slug) => ({ slug }));
+}
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
