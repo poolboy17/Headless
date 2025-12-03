@@ -19,7 +19,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('next/image', () => ({
-  default: ({ src, alt, ...props }: any) => {
+  default: ({ src, alt, fill, priority, sizes, width, height, ...props }: any) => {
     return <img src={src} alt={alt} {...props} />;
   },
 }));

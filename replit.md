@@ -143,3 +143,29 @@ The app runs via a custom Express server that integrates Next.js, serving on por
 - `npm run build` runs Next.js build then bundles Express server
 - Production artifacts: `.next/` folder and `dist/index.cjs`
 - `npm run start` runs the production server
+
+### Testing
+
+**Test Framework:** Vitest with React Testing Library
+
+**Run Tests:**
+```bash
+npx vitest run        # Run all tests once
+npx vitest            # Watch mode
+npx vitest --coverage # With coverage report
+```
+
+**Test Structure:**
+```
+tests/
+├── setup.tsx           # Test setup with mocks for Next.js
+├── lib/
+│   └── wordpress.test.ts   # WordPress utility tests
+└── components/
+    └── post-card.test.tsx  # Component tests
+```
+
+**Key Test Utilities:**
+- WordPress utilities: stripHtml, formatDate, getReadingTime, getAuthor, etc.
+- Component tests for PostCard with all variants (default, featured, compact)
+- Mocks for next/navigation, next/image, and window.matchMedia
