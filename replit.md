@@ -24,7 +24,8 @@ Preferred communication style: Simple, everyday language.
 - **Shadcn/ui** component library built on Radix UI primitives
 - **Tailwind CSS** for utility-first styling with custom theme configuration
 - **Class Variance Authority (CVA)** for component variant management
-- Design system inspired by Medium, The Verge, Substack, and Ghost
+- Design system inspired by **Ncmaz Next.js headless WordPress theme**
+- Ncmaz design patterns: indigo primary color (HSL 239 84% 67%), teal secondary, rounded-3xl corners, glassmorphism effects
 - Custom theme supporting both light and dark modes with persistent user preference
 
 **State Management:**

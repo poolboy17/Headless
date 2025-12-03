@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { Mail } from "lucide-react";
-import { SiTwitter, SiFacebook, SiInstagram, SiYoutube } from "react-icons/si";
+import { SiX, SiFacebook, SiInstagram, SiYoutube } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { WPCategory, EnrichedPost } from "@shared/schema";
@@ -139,7 +139,7 @@ export function Footer({ categories, recentPosts }: FooterProps) {
               className="text-muted-foreground hover:text-foreground transition-colors"
               data-testid="social-twitter"
             >
-              <SiTwitter className="h-5 w-5" />
+              <SiX className="h-5 w-5" />
             </a>
             <a
               href="#"

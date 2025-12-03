@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute, Link } from "wouter";
 import { ArrowLeft, Calendar, Clock, Tag, Share2 } from "lucide-react";
-import { SiTwitter, SiFacebook, SiLinkedin } from "react-icons/si";
+import { SiX, SiFacebook, SiLinkedin } from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -202,7 +202,7 @@ export default function SinglePost() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <SiTwitter className="h-4 w-4" />
+                    <SiX className="h-4 w-4" />
                   </a>
                 </Button>
                 <Button

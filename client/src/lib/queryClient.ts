@@ -24,12 +24,50 @@ export async function apiRequest(
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
+
+function buildUrl(queryKey: readonly unknown[]): string {
+  const [baseUrl, ...rest] = queryKey;
+  
+  if (typeof baseUrl !== "string") {
+    throw new Error("First element of queryKey must be a string URL");
+  }
+  
+  // If there are additional parts, process them
+  if (rest.length === 0) {
+    return baseUrl;
+  }
+  
+  // Check if the next part is an object (query params) or a string (path segment)
+  const params = rest[0];
+  
+  if (typeof params === "object" && params !== null && !Array.isArray(params)) {
+    // It's a query params object
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && value !== "") {
+        searchParams.append(key, String(value));
+      }
+    }
+    const queryString = searchParams.toString();
+    return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+  }
+  
+  // It's a path segment (like a slug)
+  if (typeof params === "string") {
+    return `${baseUrl}/${params}`;
+  }
+  
+  return baseUrl;
+}
+
 export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const url = buildUrl(queryKey);
+    
+    const res = await fetch(url, {
       credentials: "include",
     });
 
