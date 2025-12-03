@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/runner/workspace/app/post/%5Bslug%5D/loading.tsx"],"sourcesContent":["import { ArticleSkeleton } from '@/components/loading-skeleton';\n\nexport default function PostLoading() {\n  return <ArticleSkeleton />;\n}\n"],"names":[],"mappings":";;;;;AAAA;;;AAEe,SAAS;IACtB,qBAAO,8OAAC,qJAAe;;;;;AACzB"}}]
-}
