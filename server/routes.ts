@@ -7,6 +7,15 @@ const WP_API_URL = "https://cursedtours.com/wp-json/wp/v2";
 const cache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+class WordPressAPIError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+    this.name = "WordPressAPIError";
+  }
+}
+
 async function fetchWithCache(url: string, cacheKey: string): Promise<any> {
   const cached = cache.get(cacheKey);
   if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -15,7 +24,11 @@ async function fetchWithCache(url: string, cacheKey: string): Promise<any> {
 
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`WordPress API error: ${response.status}`);
+    const errorText = await response.text().catch(() => "Unknown error");
+    throw new WordPressAPIError(
+      `WordPress API error: ${response.status} - ${errorText}`,
+      response.status
+    );
   }
 
   const data = await response.json();
@@ -41,7 +54,8 @@ export async function registerRoutes(
       res.json(data);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      res.status(500).json({ error: "Failed to fetch categories" });
+      const status = error instanceof WordPressAPIError ? error.status : 500;
+      res.status(status).json({ error: "Failed to fetch categories" });
     }
   });
 
@@ -55,7 +69,8 @@ export async function registerRoutes(
       res.json(data);
     } catch (error) {
       console.error("Error fetching tags:", error);
-      res.status(500).json({ error: "Failed to fetch tags" });
+      const status = error instanceof WordPressAPIError ? error.status : 500;
+      res.status(status).json({ error: "Failed to fetch tags" });
     }
   });
 
@@ -114,7 +129,8 @@ export async function registerRoutes(
       });
     } catch (error) {
       console.error("Error fetching posts:", error);
-      res.status(500).json({ error: "Failed to fetch posts" });
+      const status = error instanceof WordPressAPIError ? error.status : 500;
+      res.status(status).json({ error: "Failed to fetch posts" });
     }
   });
 
@@ -152,7 +168,8 @@ export async function registerRoutes(
       });
     } catch (error) {
       console.error("Error fetching post:", error);
-      res.status(500).json({ error: "Failed to fetch post" });
+      const status = error instanceof WordPressAPIError ? error.status : 500;
+      res.status(status).json({ error: "Failed to fetch post" });
     }
   });
 
@@ -166,7 +183,8 @@ export async function registerRoutes(
       res.json(data);
     } catch (error) {
       console.error("Error fetching authors:", error);
-      res.status(500).json({ error: "Failed to fetch authors" });
+      const status = error instanceof WordPressAPIError ? error.status : 500;
+      res.status(status).json({ error: "Failed to fetch authors" });
     }
   });
 
@@ -181,7 +199,8 @@ export async function registerRoutes(
       res.json(data);
     } catch (error) {
       console.error("Error fetching author:", error);
-      res.status(500).json({ error: "Failed to fetch author" });
+      const status = error instanceof WordPressAPIError ? error.status : 500;
+      res.status(status).json({ error: "Failed to fetch author" });
     }
   });
 
