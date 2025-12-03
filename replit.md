@@ -183,15 +183,47 @@ npx vitest --coverage # With coverage report
 **Test Structure:**
 ```
 tests/
-├── setup.tsx           # Test setup with mocks for Next.js
+├── setup.tsx                         # Test setup with mocks for Next.js
 ├── lib/
-│   └── wordpress.test.ts   # WordPress utility tests
+│   └── wordpress.test.ts             # WordPress utility tests (52 tests)
 └── components/
-    └── post-card.test.tsx  # Component tests
+    ├── post-card.test.tsx            # PostCard variants (14 tests)
+    ├── hero-section.test.tsx         # HeroSection (12 tests)
+    ├── header.test.tsx               # Header/search/mobile (15 tests)
+    ├── category-nav.test.tsx         # CategoryNav active states (12 tests)
+    ├── footer.test.tsx               # Footer links (22 tests)
+    ├── pagination.test.tsx           # Pagination navigation (23 tests)
+    └── loading-skeleton.test.tsx     # Skeleton components (24 tests)
 ```
 
+**Test Coverage (174 tests total):**
+
+1. **WordPress Utilities (52 tests)**
+   - stripHtml, formatDate, getReadingTime
+   - getFeaturedImage, getAuthor, getCategories_Post, getTags_Post
+   - buildSeo with edge cases (missing OG images, empty excerpts, author avatars)
+   - Data fetching: getPosts, getPost, getCategories, getCategoryBySlug
+   - getAllPostSlugs, getAllCategorySlugs pagination
+   - Error handling for API failures
+
+2. **Component Tests (122 tests)**
+   - PostCard: variants (default, featured, compact), links, images, accessibility
+   - HeroSection: rendering, image loading, author display, categories
+   - Header: search functionality, mobile menu, navigation links
+   - CategoryNav: active state styling, URL generation
+   - Footer: navigation links, social icons, copyright
+   - Pagination: page navigation, ellipsis, URL params
+   - Loading Skeletons: PostCard, Hero, Article skeleton variants
+
+3. **E2E Tests (Playwright)**
+   - Health endpoint (/api/health)
+   - Homepage with hero, categories, post grid
+   - Category navigation and filtering
+   - Post detail pages
+   - Search functionality
+   - Theme toggle (dark/light mode)
+
 **Key Test Utilities:**
-- WordPress utilities: stripHtml, formatDate, getReadingTime, getAuthor, buildSeo, etc.
-- SEO metadata fallback tests: title, description, canonical, ogTitle, ogDescription, ogImage, altText
-- Component tests for PostCard with all variants (default, featured, compact)
-- Mocks for next/navigation, next/image, and window.matchMedia
+- Mocks for next/navigation (usePathname, useRouter, useSearchParams)
+- Mocks for next/image (renders standard img)
+- Mocks for window.matchMedia (responsive testing)
