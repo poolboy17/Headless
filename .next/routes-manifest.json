@@ -57,6 +57,18 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/api/preview",
+      "regex": "^/api/preview(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/preview(?:/)?$"
+    },
+    {
+      "page": "/api/preview/exit",
+      "regex": "^/api/preview/exit(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/preview/exit(?:/)?$"
+    },
+    {
       "page": "/search",
       "regex": "^/search(?:/)?$",
       "routeKeys": {},

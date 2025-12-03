@@ -1,6 +1,8 @@
 {
   "/_global-error/page": "app/_global-error/page.js",
   "/_not-found/page": "app/_not-found/page.js",
+  "/api/preview/exit/route": "app/api/preview/exit/route.js",
+  "/api/preview/route": "app/api/preview/route.js",
   "/category/[slug]/page": "app/category/[slug]/page.js",
   "/page": "app/page.js",
   "/post/[slug]/page": "app/post/[slug]/page.js",

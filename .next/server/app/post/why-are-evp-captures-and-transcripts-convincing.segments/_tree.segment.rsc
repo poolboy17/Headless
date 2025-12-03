@@ -1,0 +1,4 @@
+:HL["/_next/static/chunks/0e9dfcdd3637a488.css","style"]
+:HL["/_next/static/media/83afe278b6a6bb3c.p.3a6ba036.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/8c2eb9ceedecfc8e.p.21935807.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+0:{"buildId":"IgQjqqxpMtX_fksvW2Jql","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"post","paramType":null,"paramKey":"post","hasRuntimePrefetch":false,"slots":{"children":{"name":"slug","paramType":"d","paramKey":"why-are-evp-captures-and-transcripts-convincing","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
