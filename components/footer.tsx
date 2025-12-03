@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { SiX, SiFacebook, SiInstagram, SiYoutube } from 'react-icons/si';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { NewsletterSignup } from '@/components/newsletter-signup';
 import type { WPPost, WPCategory } from '@/lib/wordpress';
 import { stripHtml } from '@/lib/wordpress';
 
@@ -93,21 +92,7 @@ export function Footer({ categories, recentPosts }: FooterProps) {
           </div>
 
           <div className="mt-10 xl:mt-0">
-            <h3 className="text-sm font-semibold leading-6">Subscribe to our newsletter</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              The latest paranormal news, articles, and investigations, sent to your inbox weekly.
-            </p>
-            <form className="mt-6 flex gap-2" onSubmit={(e) => e.preventDefault()}>
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 rounded-full bg-neutral-100 dark:bg-neutral-800 border-0"
-                data-testid="input-newsletter-email"
-              />
-              <Button type="submit" className="rounded-full px-4" data-testid="button-newsletter-subscribe">
-                Subscribe
-              </Button>
-            </form>
+            <NewsletterSignup />
           </div>
         </div>
 

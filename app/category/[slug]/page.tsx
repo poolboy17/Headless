@@ -1,11 +1,13 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getPosts, getCategories, getCategoryBySlug } from '@/lib/wordpress';
 import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
+import { Pagination } from '@/components/pagination';
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
@@ -22,19 +24,28 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   };
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params;
+  const { page } = await searchParams;
+  const requestedPage = Math.max(1, parseInt(page || '1', 10));
+  const postsPerPage = 12;
+
   const [category, categories, postsData] = await Promise.all([
     getCategoryBySlug(slug),
     getCategories(),
-    getPosts({ category: slug, perPage: 12 }),
+    getPosts({ category: slug, perPage: postsPerPage, page: requestedPage }),
   ]);
 
   if (!category) {
     notFound();
   }
 
-  const { posts, totalPosts } = postsData;
+  const { posts, totalPosts, totalPages } = postsData;
+  
+  const currentPage = Math.min(requestedPage, Math.max(1, totalPages));
+  if (requestedPage > totalPages && totalPages > 0) {
+    redirect(totalPages === 1 ? `/category/${slug}` : `/category/${slug}?page=${totalPages}`);
+  }
 
   return (
     <div className="min-h-screen">
@@ -48,8 +59,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
         <CategoryNav categories={categories} className="mb-8" />
 
-        <div className="flex items-center justify-between mb-8">
-          <span className="text-sm text-muted-foreground">{totalPosts} articles</span>
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <span className="text-sm text-muted-foreground">
+            {currentPage > 1 ? `Page ${currentPage} of ${totalPages} - ` : ''}{totalPosts} articles
+          </span>
         </div>
 
         {posts.length === 0 ? (
@@ -63,6 +76,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             ))}
           </div>
         )}
+
+        <Pagination 
+          currentPage={currentPage} 
+          totalPages={totalPages} 
+          basePath={`/category/${slug}`} 
+        />
       </div>
     </div>
   );
