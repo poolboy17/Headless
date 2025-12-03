@@ -1185,10 +1185,16 @@ function NewsletterSignup() {
 "use strict";
 
 __turbopack_context__.s([
+    "DEFAULT_REVALIDATE",
+    ()=>DEFAULT_REVALIDATE,
     "buildSeo",
     ()=>buildSeo,
     "formatDate",
     ()=>formatDate,
+    "getAllCategorySlugs",
+    ()=>getAllCategorySlugs,
+    "getAllPostSlugs",
+    ()=>getAllPostSlugs,
     "getAuthor",
     ()=>getAuthor,
     "getCategories",
@@ -1212,14 +1218,21 @@ __turbopack_context__.s([
     "stripHtml",
     ()=>stripHtml
 ]);
-const WP_BASE_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL || 'https://cursedtours.com';
+const WP_BASE_URL = ("TURBOPACK compile-time value", "https://cursedtours.com") || 'https://cursedtours.com';
 const WP_API_URL = `${WP_BASE_URL}/wp-json/wp/v2`;
-async function fetchWP(endpoint, revalidate = 300) {
-    const response = await fetch(`${WP_API_URL}${endpoint}`, {
-        next: {
-            revalidate
-        }
-    });
+const DEFAULT_REVALIDATE = 300;
+async function fetchWP(endpoint, options = {}) {
+    const { revalidate = DEFAULT_REVALIDATE, tags } = options;
+    const fetchOptions = {
+        next: {}
+    };
+    if (revalidate !== false) {
+        fetchOptions.next.revalidate = revalidate;
+    }
+    if (tags?.length) {
+        fetchOptions.next.tags = tags;
+    }
+    const response = await fetch(`${WP_API_URL}${endpoint}`, fetchOptions);
     if (!response.ok) {
         throw new Error(`WordPress API error: ${response.status}`);
     }
@@ -1305,14 +1318,55 @@ async function getPost(slug) {
     };
 }
 async function getCategories() {
-    return fetchWP('/categories?per_page=100&orderby=count&order=desc');
+    return fetchWP('/categories?per_page=100&orderby=count&order=desc', {
+        tags: [
+            'categories'
+        ]
+    });
 }
 async function getTags() {
-    return fetchWP('/tags?per_page=100&orderby=count&order=desc');
+    return fetchWP('/tags?per_page=100&orderby=count&order=desc', {
+        tags: [
+            'tags'
+        ]
+    });
 }
 async function getCategoryBySlug(slug) {
-    const categories = await fetchWP(`/categories?slug=${slug}`);
+    const categories = await fetchWP(`/categories?slug=${slug}`, {
+        tags: [
+            'categories'
+        ]
+    });
     return categories.length > 0 ? categories[0] : null;
+}
+async function getAllPostSlugs() {
+    const slugs = [];
+    let page = 1;
+    const perPage = 100;
+    while(true){
+        const response = await fetch(`${WP_API_URL}/posts?per_page=${perPage}&page=${page}&_fields=slug`, {
+            next: {
+                revalidate: 3600
+            }
+        });
+        if (!response.ok) break;
+        const posts = await response.json();
+        if (posts.length === 0) break;
+        slugs.push(...posts.map((p)=>p.slug));
+        const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
+        if (page >= totalPages) break;
+        page++;
+    }
+    return slugs;
+}
+async function getAllCategorySlugs() {
+    const categories = await fetchWP('/categories?per_page=100&_fields=slug', {
+        revalidate: 3600,
+        tags: [
+            'categories'
+        ]
+    });
+    return categories.map((c)=>c.slug);
 }
 function stripHtml(html) {
     return html.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').trim();
@@ -1373,7 +1427,7 @@ function getTags_Post(post) {
     if (!Array.isArray(terms)) return [];
     return terms.filter((t)=>'count' in t);
 }
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://cursedtours.com';
+const SITE_URL = ("TURBOPACK compile-time value", "https://cursedtours.com") || 'https://cursedtours.com';
 const DEFAULT_OG_IMAGE_URL = `${SITE_URL}/og-default.png`;
 function buildSeo(post, seoFields) {
     const title = stripHtml(post.title.rendered);
