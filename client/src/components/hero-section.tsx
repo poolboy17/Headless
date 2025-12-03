@@ -112,7 +112,7 @@ export function HeroSection({ post }: HeroSectionProps) {
           <div className="aspect-[16/12] sm:aspect-[16/9] md:aspect-[16/10] lg:aspect-[16/9] overflow-hidden rounded-3xl">
             <img
               src={heroImage}
-              alt="Cursed Tours - Paranormal Investigations"
+              alt="CURSED TOURS - Some boundaries aren't meant to be crossed"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             {/* Dark gradient overlay for atmosphere */}

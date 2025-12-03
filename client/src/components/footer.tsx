@@ -163,9 +163,10 @@ export function Footer({ categories, recentPosts }: FooterProps) {
               <SiYoutube className="h-5 w-5" />
             </a>
           </div>
-          <p className="mt-8 text-sm leading-5 text-muted-foreground md:order-1 md:mt-0">
-            &copy; {currentYear} Cursed Tours. All rights reserved.
-          </p>
+          <div className="mt-8 md:order-1 md:mt-0">
+            <p className="text-sm font-semibold text-foreground tracking-tight">CURSED TOURS</p>
+            <p className="text-xs text-muted-foreground mt-0.5">&copy; {currentYear} All rights reserved. Some boundaries aren't meant to be crossed.</p>
+          </div>
         </div>
       </div>
     </footer>

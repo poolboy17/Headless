@@ -46,10 +46,11 @@ export function Header({ categories, onSearch }: HeaderProps) {
                 <nav className="flex flex-col p-6">
                   <Link 
                     href="/" 
-                    className="text-2xl font-bold mb-8 text-primary"
+                    className="mb-8"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Cursed Tours
+                    <span className="block text-2xl font-bold text-primary tracking-tight">CURSED TOURS</span>
+                    <span className="block text-[10px] text-muted-foreground tracking-widest uppercase mt-0.5">Some boundaries aren't meant to be crossed</span>
                   </Link>
                   
                   <Link href="/" onClick={() => setMobileMenuOpen(false)}>
@@ -94,10 +95,11 @@ export function Header({ categories, onSearch }: HeaderProps) {
           <div className="hidden items-center gap-x-3 sm:gap-x-8 lg:flex">
             <Link 
               href="/" 
-              className="flex items-center gap-2 shrink-0" 
+              className="flex flex-col shrink-0" 
               data-testid="link-home"
             >
-              <span className="font-bold text-xl text-primary">Cursed Tours</span>
+              <span className="font-bold text-xl text-primary tracking-tight">CURSED TOURS</span>
+              <span className="text-[9px] text-muted-foreground tracking-widest uppercase -mt-0.5">Some boundaries aren't meant to be crossed</span>
             </Link>
 
             <div className="hidden h-8 border-s border-neutral-200 dark:border-neutral-700 md:block" />
@@ -121,10 +123,11 @@ export function Header({ categories, onSearch }: HeaderProps) {
           {/* Mobile Logo */}
           <Link 
             href="/" 
-            className="flex items-center lg:hidden" 
+            className="flex flex-col items-center justify-center lg:hidden" 
             data-testid="link-home-mobile"
           >
-            <span className="font-bold text-lg text-primary">Cursed Tours</span>
+            <span className="font-bold text-lg text-primary tracking-tight">CURSED TOURS</span>
+            <span className="text-[8px] text-muted-foreground tracking-widest uppercase -mt-0.5">Some boundaries aren't meant to be crossed</span>
           </Link>
 
           {/* Desktop Navigation & Actions */}
