@@ -57,15 +57,32 @@ public/
 
 **API Endpoint:** https://cursedtours.com/wp-json/wp/v2
 
+**Environment Variables:**
+- `NEXT_PUBLIC_WORDPRESS_URL` - WordPress base URL (default: https://cursedtours.com)
+- `NEXT_PUBLIC_SITE_URL` - Frontend site URL (default: https://cursedtours.com)
+- `PREVIEW_SECRET` - Secret token for draft preview mode (optional)
+
 **Content Stats:**
 - 261 posts
 - 8 categories
 - 100 tags
 
-**Data Fetching:**
-- Server-side fetching with 5-minute revalidation
+**Data Fetching & Caching:**
+- Server-side fetching with ISR (Incremental Static Regeneration)
+- Default revalidation: 300 seconds (5 minutes)
+- Slug enumeration revalidation: 3600 seconds (1 hour)
+- Cache tags support for targeted revalidation
 - Embedded data for authors, media, and taxonomies
 - Utility functions for extracting post metadata
+
+**Static Generation:**
+- `generateStaticParams` for post pages via `getAllPostSlugs()`
+- `generateStaticParams` for category pages via `getAllCategorySlugs()`
+- `dynamicParams = true` enables blocking fallback for new content
+
+**Preview Mode:**
+- `/api/preview?secret=TOKEN&slug=SLUG&type=post` - Enable draft mode
+- `/api/preview/exit` - Disable draft mode and return to home
 
 ### Deployment
 
