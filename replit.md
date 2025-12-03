@@ -109,3 +109,25 @@ The app runs via a custom Express server that integrates Next.js, serving on por
 - Glassmorphism effects on cards
 - Subtle shadows and borders
 - Purple gradient and glow utility classes available
+
+### Performance Optimizations (December 2025)
+
+**Image Optimization:**
+- Hero image uses `priority` for LCP optimization
+- All other images use `loading="lazy"`
+- Proper `sizes` attributes for responsive images
+- `bg-muted` placeholder backgrounds prevent CLS
+
+**Loading States:**
+- Skeleton components for all routes (home, category, post, search)
+- `loading.tsx` files for streaming SSR
+
+**Mobile Accessibility:**
+- Mobile search uses accessible Dialog component (not blocking prompt)
+- DialogDescription for screen readers
+- Minimum 44px touch targets
+
+**Article Typography:**
+- `.wp-content` class wrapper for WordPress content
+- Lora serif font applied with high CSS specificity
+- Purple link colors in article content
