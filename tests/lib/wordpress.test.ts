@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   stripHtml,
   formatDate,
@@ -8,6 +8,12 @@ import {
   getCategories_Post,
   getTags_Post,
   buildSeo,
+  getPosts,
+  getPost,
+  getCategories,
+  getCategoryBySlug,
+  getAllPostSlugs,
+  getAllCategorySlugs,
 } from '@/lib/wordpress';
 import type { WPPost, WPAuthor, WPMedia, WPCategory, WPTag, PostSeoFields } from '@/lib/wordpress';
 
@@ -362,6 +368,284 @@ describe('WordPress Utilities', () => {
       const post = createMockPost();
       const seo = buildSeo(post);
       expect(seo.altText).toBe('Test Post Title');
+    });
+
+    it('handles empty excerpt gracefully', () => {
+      const post = createMockPost({ excerpt: { rendered: '' } });
+      const seo = buildSeo(post);
+      expect(seo.description).toBe('');
+    });
+
+    it('handles missing excerpt object', () => {
+      const post = createMockPost({ excerpt: undefined });
+      const seo = buildSeo(post);
+      expect(seo.description).toBe('');
+    });
+
+    it('returns default OG image URL format', () => {
+      const post = createMockPost();
+      const seo = buildSeo(post);
+      expect(seo.ogImage).toContain('og-default.png');
+    });
+  });
+});
+
+describe('Data Fetching Functions', () => {
+  let fetchSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    fetchSpy = vi.spyOn(global, 'fetch');
+  });
+
+  afterEach(() => {
+    fetchSpy.mockRestore();
+  });
+
+  describe('getPosts', () => {
+    it('fetches posts with default parameters', async () => {
+      const mockPosts = [{ id: 1, title: { rendered: 'Test Post' } }];
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockPosts),
+        headers: new Headers({
+          'X-WP-TotalPages': '5',
+          'X-WP-Total': '50',
+        }),
+      } as Response);
+
+      const result = await getPosts();
+      
+      expect(result.posts).toEqual(mockPosts);
+      expect(result.totalPages).toBe(5);
+      expect(result.totalPosts).toBe(50);
+    });
+
+    it('throws error on API failure', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      } as Response);
+
+      await expect(getPosts()).rejects.toThrow('WordPress API error: 500');
+    });
+
+    it('handles missing pagination headers', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([]),
+        headers: new Headers({}),
+      } as Response);
+
+      const result = await getPosts();
+      expect(result.totalPages).toBe(1);
+      expect(result.totalPosts).toBe(0);
+    });
+
+    it('fetches posts by category slug', async () => {
+      const mockCategories = [{ id: 5, slug: 'ghost-stories' }];
+      const mockPosts = [{ id: 1, title: { rendered: 'Ghost Story' } }];
+      
+      fetchSpy
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockCategories),
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockPosts),
+          headers: new Headers({ 'X-WP-TotalPages': '1', 'X-WP-Total': '1' }),
+        } as Response);
+
+      const result = await getPosts({ category: 'ghost-stories' });
+      expect(result.posts).toEqual(mockPosts);
+    });
+
+    it('fetches posts by search query', async () => {
+      const mockPosts = [{ id: 1, title: { rendered: 'Haunted House' } }];
+      
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockPosts),
+        headers: new Headers({ 'X-WP-TotalPages': '1', 'X-WP-Total': '1' }),
+      } as Response);
+
+      const result = await getPosts({ search: 'haunted' });
+      expect(result.posts).toEqual(mockPosts);
+    });
+  });
+
+  describe('getPost', () => {
+    it('fetches single post by slug', async () => {
+      const mockPost = { id: 1, slug: 'test-post', categories: [1] };
+      const mockRelated = [{ id: 2, slug: 'related-post' }];
+      
+      fetchSpy
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve([mockPost]),
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockRelated),
+        } as Response);
+
+      const result = await getPost('test-post');
+      expect(result.post).toEqual(mockPost);
+      expect(result.relatedPosts).toEqual(mockRelated);
+    });
+
+    it('throws error when post not found', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([]),
+      } as Response);
+
+      await expect(getPost('nonexistent')).rejects.toThrow('Post not found');
+    });
+
+    it('throws error on API failure', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      } as Response);
+
+      await expect(getPost('test')).rejects.toThrow('WordPress API error: 404');
+    });
+
+    it('handles post without categories gracefully', async () => {
+      const mockPost = { id: 1, slug: 'test-post', categories: [] };
+      
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([mockPost]),
+      } as Response);
+
+      const result = await getPost('test-post');
+      expect(result.relatedPosts).toEqual([]);
+    });
+
+    it('handles failed related posts fetch gracefully', async () => {
+      const mockPost = { id: 1, slug: 'test-post', categories: [1] };
+      
+      fetchSpy
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve([mockPost]),
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+        } as Response);
+
+      const result = await getPost('test-post');
+      expect(result.relatedPosts).toEqual([]);
+    });
+  });
+
+  describe('getCategories', () => {
+    it('fetches all categories', async () => {
+      const mockCategories = [
+        { id: 1, name: 'Ghost Stories', slug: 'ghost-stories' },
+        { id: 2, name: 'Investigations', slug: 'investigations' },
+      ];
+      
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockCategories),
+      } as Response);
+
+      const result = await getCategories();
+      expect(result).toEqual(mockCategories);
+    });
+
+    it('throws error on API failure', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+      } as Response);
+
+      await expect(getCategories()).rejects.toThrow('WordPress API error: 503');
+    });
+  });
+
+  describe('getCategoryBySlug', () => {
+    it('returns category when found', async () => {
+      const mockCategory = { id: 1, name: 'Ghost Stories', slug: 'ghost-stories' };
+      
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([mockCategory]),
+      } as Response);
+
+      const result = await getCategoryBySlug('ghost-stories');
+      expect(result).toEqual(mockCategory);
+    });
+
+    it('returns null when category not found', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([]),
+      } as Response);
+
+      const result = await getCategoryBySlug('nonexistent');
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('getAllPostSlugs', () => {
+    it('fetches all post slugs across pages', async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve([{ slug: 'post-1' }, { slug: 'post-2' }]),
+          headers: new Headers({ 'X-WP-TotalPages': '2' }),
+        } as Response)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve([{ slug: 'post-3' }]),
+          headers: new Headers({ 'X-WP-TotalPages': '2' }),
+        } as Response);
+
+      const result = await getAllPostSlugs();
+      expect(result).toEqual(['post-1', 'post-2', 'post-3']);
+    });
+
+    it('stops on API failure', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      } as Response);
+
+      const result = await getAllPostSlugs();
+      expect(result).toEqual([]);
+    });
+
+    it('stops when receiving empty response', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([]),
+        headers: new Headers({ 'X-WP-TotalPages': '1' }),
+      } as Response);
+
+      const result = await getAllPostSlugs();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getAllCategorySlugs', () => {
+    it('fetches all category slugs', async () => {
+      const mockCategories = [
+        { slug: 'ghost-stories' },
+        { slug: 'investigations' },
+      ];
+      
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockCategories),
+      } as Response);
+
+      const result = await getAllCategorySlugs();
+      expect(result).toEqual(['ghost-stories', 'investigations']);
     });
   });
 });
