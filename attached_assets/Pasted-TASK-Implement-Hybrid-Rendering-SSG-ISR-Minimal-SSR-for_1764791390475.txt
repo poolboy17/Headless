@@ -1,0 +1,338 @@
+TASK: Implement Hybrid Rendering (SSG + ISR + Minimal SSR) for CursedTours (NCmaz-based Next.js Frontend)
+
+CONTEXT / ASSUMPTIONS
+- Frontend: Next.js (NCmaz-based) repo, e.g. `cursedtours-next`
+- Backend: WordPress headless CMS at `https://cms.cursedtours.com` with:
+  - WPGraphQL enabled at `/graphql`
+  - CORS already handled (via MU-plugin or equivalent)
+- Deployment target: Vercel
+- Routing: Assume Next.js “pages” router (`/pages`) is in use (not app router)
+
+GOAL
+Implement a hybrid rendering strategy:
+- Static Generation (SSG) + Incremental Static Regeneration (ISR) for:
+  - Home page
+  - Blog listing/archive pages
+  - Single post pages
+  - Category/location/silo pages (if present)
+- Server-Side Rendering (SSR) only where truly necessary (e.g. preview route, future dashboards)
+Do NOT change design or visual layout; only change data fetching and rendering mode.
+
+----------------------------------------------------------------------
+1. ENVIRONMENT & CONFIG
+----------------------------------------------------------------------
+
+1.1 Ensure the following environment variables exist (for local dev and production):
+
+- In `.env.local` (and to be mirrored in Vercel later):
+
+  NEXT_PUBLIC_WORDPRESS_URL=https://cms.cursedtours.com
+  GRAPHQL_ENDPOINT=https://cms.cursedtours.com/graphql
+  NEXT_PUBLIC_SITE_URL=https://cursedtours.com
+
+(If project already uses different names, adapt, but keep the semantics: base WP URL, GraphQL endpoint, public site URL.)
+
+1.2 Update `next.config.js` to expose the environment variables:
+
+  /** @type {import('next').NextConfig} */
+  const nextConfig = {
+    env: {
+      NEXT_PUBLIC_WORDPRESS_URL: process.env.NEXT_PUBLIC_WORDPRESS_URL,
+      GRAPHQL_ENDPOINT: process.env.GRAPHQL_ENDPOINT,
+      NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    },
+  };
+
+  module.exports = nextConfig;
+
+If a `nextConfig` object already exists, just merge the `env` section accordingly.
+
+1.3 Create a small GraphQL client helper if one does not already exist.
+
+- File: `lib/graphqlClient.ts` or `lib/graphqlClient.js`
+
+  const GRAPHQL_ENDPOINT =
+    process.env.GRAPHQL_ENDPOINT || 'https://cms.cursedtours.com/graphql';
+
+  export async function fetchGraphQL(query, variables = {}) {
+    const res = await fetch(GRAPHQL_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query, variables }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`GraphQL error: ${res.status} ${res.statusText}`);
+    }
+
+    const json = await res.json();
+
+    if (json.errors) {
+      console.error(JSON.stringify(json.errors, null, 2));
+      throw new Error('GraphQL returned errors');
+    }
+
+    return json.data;
+  }
+
+Use `fetchGraphQL` everywhere for WPGraphQL calls.
+
+----------------------------------------------------------------------
+2. HOME PAGE → SSG + ISR
+----------------------------------------------------------------------
+
+Target file:
+- `pages/index.tsx` or `pages/index.js` (whichever exists in the project)
+
+Requirements:
+- Implement `getStaticProps` to fetch homepage data from WPGraphQL.
+- Enable ISR with a `revalidate` value (e.g. 300 seconds / 5 minutes).
+- Reuse existing NCmaz components/layout; DO NOT break the UI.
+
+Example pattern (adapt to current component structure):
+
+  import { GetStaticProps } from 'next';
+  import { fetchGraphQL } from '../lib/graphqlClient';
+
+  const HOME_PAGE_QUERY = `
+    query HomePagePosts {
+      posts(first: 10, where: { status: PUBLISH }) {
+        nodes {
+          id
+          slug
+          title
+          excerpt
+          date
+          featuredImage {
+            node {
+              sourceUrl
+              altText
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  export const getStaticProps: GetStaticProps = async () => {
+    const data = await fetchGraphQL(HOME_PAGE_QUERY);
+
+    return {
+      props: {
+        posts: data?.posts?.nodes || [],
+      },
+      revalidate: 300, // ISR: rebuild at most every 5 minutes
+    };
+  };
+
+  export default function HomePage({ posts }) {
+    // Integrate with existing NCmaz layout/components, passing `posts` in as needed.
+    return (
+      <div>
+        {/* Existing NCmaz homepage layout goes here */}
+      </div>
+    );
+  }
+
+Acceptance Criteria:
+- `npm run build` passes.
+- `npm run dev` renders homepage with server-rendered content (no client-side fetch errors).
+- Content updates in WordPress appear after the revalidation window without a full redeploy.
+
+----------------------------------------------------------------------
+3. SINGLE POST PAGES → SSG + ISR WITH getStaticPaths
+----------------------------------------------------------------------
+
+Target file:
+- Likely `pages/post/[slug].tsx`, `pages/[slug].tsx`, or similar.
+- Use whatever path NCmaz expects for single posts.
+
+Requirements:
+- Implement `getStaticPaths` to pre-generate post paths from WPGraphQL.
+- Implement `getStaticProps` for single post data.
+- Use `fallback: 'blocking'` to allow new posts to generate on first request.
+- Enable ISR via `revalidate`.
+
+Example pattern:
+
+  import { GetStaticPaths, GetStaticProps } from 'next';
+  import { fetchGraphQL } from '../../lib/graphqlClient';
+
+  const ALL_POST_SLUGS_QUERY = `
+    query AllPostSlugs {
+      posts(first: 1000, where: { status: PUBLISH }) {
+        nodes {
+          slug
+        }
+      }
+    }
+  `;
+
+  const SINGLE_POST_QUERY = `
+    query SinglePost($slug: ID!) {
+      post(id: $slug, idType: SLUG) {
+        id
+        slug
+        title
+        content
+        date
+        excerpt
+        featuredImage {
+          node {
+            sourceUrl
+            altText
+          }
+        }
+      }
+    }
+  `;
+
+  export const getStaticPaths: GetStaticPaths = async () => {
+    const data = await fetchGraphQL(ALL_POST_SLUGS_QUERY);
+
+    const paths =
+      data?.posts?.nodes?.map((node) => ({
+        params: { slug: node.slug },
+      })) || [];
+
+    return {
+      paths,
+      fallback: 'blocking', // Enable ISR for new posts
+    };
+  };
+
+  export const getStaticProps: GetStaticProps = async ({ params }) => {
+    const slug = params?.slug as string;
+
+    const data = await fetchGraphQL(SINGLE_POST_QUERY, { slug });
+
+    if (!data?.post) {
+      return { notFound: true };
+    }
+
+    return {
+      props: {
+        post: data.post,
+      },
+      revalidate: 300, // ISR: refresh every 5 minutes
+    };
+  };
+
+  export default function PostPage({ post }) {
+    // Integrate with NCmaz post layout.
+    return (
+      <article>
+        {/* Existing NCmaz single post components */}
+      </article>
+    );
+  }
+
+Acceptance Criteria:
+- All existing posts are statically built at build time.
+- New posts created after build are generated on first request (due to `fallback: 'blocking'`).
+- Subsequent requests serve regenerated static HTML (ISR behavior).
+
+----------------------------------------------------------------------
+4. CATEGORY / LOCATION / SILO PAGES → SSG + ISR
+----------------------------------------------------------------------
+
+If the theme contains taxonomy pages (categories, tags, locations, etc.), implement the same pattern:
+
+Likely paths:
+- `pages/category/[slug].tsx`
+- `pages/tag/[slug].tsx`
+- `pages/location/[slug].tsx`
+(or whatever NCmaz uses for archives/silos)
+
+Requirements:
+- `getStaticPaths`: fetch all term slugs via WPGraphQL.
+- `getStaticProps`: fetch posts for that term.
+- `fallback: 'blocking'` for new terms if needed.
+- `revalidate` for ISR.
+
+Pattern is identical to single post pages; only the queries change (use taxonomy queries in WPGraphQL).
+
+Acceptance Criteria:
+- Category/location pages build statically.
+- New categories/locations appear via ISR behavior.
+- No client-side GraphQL errors on these pages.
+
+----------------------------------------------------------------------
+5. SSR ONLY WHERE NECESSARY (PREVIEW, FUTURE DASHBOARDS)
+----------------------------------------------------------------------
+
+Goal: Keep SSR minimal and intentional.
+
+5.1 Preview API route
+
+Create `pages/api/preview.ts` (or `.js`) if not present:
+
+  import { NextApiRequest, NextApiResponse } from 'next';
+
+  export default async function preview(req: NextApiRequest, res: NextApiResponse) {
+    const { secret, slug } = req.query;
+
+    if (secret !== process.env.PREVIEW_SECRET || !slug) {
+      return res.status(401).json({ message: 'Invalid token or slug' });
+    }
+
+    // Activate preview mode
+    res.setPreviewData({});
+    res.writeHead(307, { Location: `/post/${slug}` });
+    res.end();
+  }
+
+This enables WordPress to hit the preview URL with `secret` + `slug` and trigger Next.js preview mode.
+
+5.2 Future SSR-only pages (optional for now)
+
+If/when a user-specific dashboard is added (e.g., `/dashboard`), it should use:
+
+  export async function getServerSideProps(context) {
+    // Perform auth/session checks and fetch user-specific data here
+    return {
+      props: {
+        // ...
+      },
+    };
+  }
+
+For this task, just ensure the SSR infrastructure is ready or stubbed, but do NOT implement a complex dashboard.
+
+----------------------------------------------------------------------
+6. BUILD & RUNTIME VALIDATION
+----------------------------------------------------------------------
+
+The agent should:
+
+1. Run:
+
+   npm install
+   npm run build
+   npm run dev
+
+2. Confirm:
+   - Home page uses `getStaticProps` with a `revalidate` value.
+   - Single post pages use `getStaticPaths`, `getStaticProps`, `fallback: 'blocking'`, and `revalidate`.
+   - Category/location/silo pages (if present) follow the same pattern.
+   - There are no runtime GraphQL errors in `npm run dev`.
+   - No hard-coded WordPress URLs remain; all use environment variables (`GRAPHQL_ENDPOINT`, etc.).
+
+3. Leave behind:
+   - A working `lib/graphqlClient` helper.
+   - Updated `next.config.js` with env exposure.
+   - Implemented SSG + ISR on key content routes.
+   - A functional preview API route ready for linkage from WordPress.
+
+----------------------------------------------------------------------
+7. CONSTRAINTS
+----------------------------------------------------------------------
+
+- Do NOT change UI/UX or design beyond what’s necessary for data wiring.
+- Do NOT convert the project to the app router.
+- Do NOT introduce new dependencies unless absolutely required; use built-in `fetch`.
+- Keep code TypeScript-safe if the repo is already using TypeScript; otherwise, use plain JS.
+
+END OF TASK SPEC
