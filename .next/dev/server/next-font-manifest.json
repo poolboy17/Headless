@@ -3,6 +3,10 @@
     "[project]/app/page": [
       "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
       "static/media/8c2eb9ceedecfc8e.p.21935807.woff2"
+    ],
+    "[project]/app/post/[slug]/page": [
+      "static/media/83afe278b6a6bb3c.p.3a6ba036.woff2",
+      "static/media/8c2eb9ceedecfc8e.p.21935807.woff2"
     ]
   },
   "appUsingSizeAdjust": false,

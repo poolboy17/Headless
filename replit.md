@@ -134,6 +134,14 @@ The app runs via a custom Express server that integrates Next.js, serving on por
 - All other images use `loading="lazy"`
 - Proper `sizes` attributes for responsive images
 - `bg-muted` placeholder backgrounds prevent CLS
+- 60 second minimum cache TTL for optimized images
+
+**Allowed Image Domains (next.config.mjs):**
+- cursedtours.com, www.cursedtours.com, cms.cursedtours.com
+- Jetpack CDN: i0.wp.com, i1.wp.com, i2.wp.com, i3.wp.com
+- WordPress.com: s0.wp.com, s1.wp.com, s2.wp.com
+- secure.gravatar.com (author avatars)
+- images.unsplash.com (stock photos)
 
 **Loading States:**
 - Skeleton components for all routes (home, category, post, search)
