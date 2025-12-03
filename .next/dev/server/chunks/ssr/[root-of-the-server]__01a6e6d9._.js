@@ -638,19 +638,32 @@ async function generateMetadata({ params }) {
     const { slug } = await params;
     try {
         const { post } = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$wordpress$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getPost"])(slug);
-        const title = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$wordpress$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["stripHtml"])(post.title.rendered);
-        const description = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$wordpress$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["stripHtml"])(post.excerpt.rendered).slice(0, 160);
-        const featuredImage = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$wordpress$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["getFeaturedImage"])(post, 'large');
+        const seo = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$wordpress$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["buildSeo"])(post);
         return {
-            title,
-            description,
+            title: seo.title,
+            description: seo.description,
+            alternates: {
+                canonical: seo.canonical
+            },
             openGraph: {
-                title,
-                description,
+                title: seo.ogTitle,
+                description: seo.ogDescription,
                 type: 'article',
-                images: featuredImage ? [
-                    featuredImage.url
-                ] : []
+                url: seo.canonical,
+                images: [
+                    {
+                        url: seo.ogImage,
+                        alt: seo.altText
+                    }
+                ]
+            },
+            twitter: {
+                card: 'summary_large_image',
+                title: seo.ogTitle,
+                description: seo.ogDescription,
+                images: [
+                    seo.ogImage
+                ]
             }
         };
     } catch  {
@@ -692,19 +705,19 @@ async function PostPage({ params }) {
                                 className: "mr-2 h-4 w-4"
                             }, void 0, false, {
                                 fileName: "[project]/app/post/[slug]/page.tsx",
-                                lineNumber: 68,
+                                lineNumber: 79,
                                 columnNumber: 13
                             }, this),
                             "Back to articles"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/post/[slug]/page.tsx",
-                        lineNumber: 67,
+                        lineNumber: 78,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/post/[slug]/page.tsx",
-                    lineNumber: 66,
+                    lineNumber: 77,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
@@ -720,17 +733,17 @@ async function PostPage({ params }) {
                                         children: cat.name
                                     }, void 0, false, {
                                         fileName: "[project]/app/post/[slug]/page.tsx",
-                                        lineNumber: 78,
+                                        lineNumber: 89,
                                         columnNumber: 19
                                     }, this)
                                 }, cat.id, false, {
                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                    lineNumber: 77,
+                                    lineNumber: 88,
                                     columnNumber: 17
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/app/post/[slug]/page.tsx",
-                            lineNumber: 75,
+                            lineNumber: 86,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -739,7 +752,7 @@ async function PostPage({ params }) {
                             children: title
                         }, void 0, false, {
                             fileName: "[project]/app/post/[slug]/page.tsx",
-                            lineNumber: 89,
+                            lineNumber: 100,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -756,7 +769,7 @@ async function PostPage({ params }) {
                                                     alt: author.name
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                                    lineNumber: 97,
+                                                    lineNumber: 108,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["AvatarFallback"], {
@@ -764,13 +777,13 @@ async function PostPage({ params }) {
                                                     children: author.name.charAt(0)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                                    lineNumber: 98,
+                                                    lineNumber: 109,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/post/[slug]/page.tsx",
-                                            lineNumber: 96,
+                                            lineNumber: 107,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -779,18 +792,18 @@ async function PostPage({ params }) {
                                                 children: author.name
                                             }, void 0, false, {
                                                 fileName: "[project]/app/post/[slug]/page.tsx",
-                                                lineNumber: 103,
+                                                lineNumber: 114,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/post/[slug]/page.tsx",
-                                            lineNumber: 102,
+                                            lineNumber: 113,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                    lineNumber: 95,
+                                    lineNumber: 106,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -803,14 +816,14 @@ async function PostPage({ params }) {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                                    lineNumber: 109,
+                                                    lineNumber: 120,
                                                     columnNumber: 17
                                                 }, this),
                                                 (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$wordpress$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["formatDate"])(post.date)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/post/[slug]/page.tsx",
-                                            lineNumber: 108,
+                                            lineNumber: 119,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -820,7 +833,7 @@ async function PostPage({ params }) {
                                                     className: "h-4 w-4"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                                    lineNumber: 113,
+                                                    lineNumber: 124,
                                                     columnNumber: 17
                                                 }, this),
                                                 readingTime,
@@ -828,25 +841,25 @@ async function PostPage({ params }) {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/post/[slug]/page.tsx",
-                                            lineNumber: 112,
+                                            lineNumber: 123,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                    lineNumber: 107,
+                                    lineNumber: 118,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/post/[slug]/page.tsx",
-                            lineNumber: 93,
+                            lineNumber: 104,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/post/[slug]/page.tsx",
-                    lineNumber: 73,
+                    lineNumber: 84,
                     columnNumber: 9
                 }, this),
                 featuredImage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -863,17 +876,17 @@ async function PostPage({ params }) {
                             "data-testid": "post-featured-image"
                         }, void 0, false, {
                             fileName: "[project]/app/post/[slug]/page.tsx",
-                            lineNumber: 123,
+                            lineNumber: 134,
                             columnNumber: 15
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/post/[slug]/page.tsx",
-                        lineNumber: 122,
+                        lineNumber: 133,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/post/[slug]/page.tsx",
-                    lineNumber: 121,
+                    lineNumber: 132,
                     columnNumber: 11
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -886,7 +899,7 @@ async function PostPage({ params }) {
                             }
                         }, void 0, false, {
                             fileName: "[project]/app/post/[slug]/page.tsx",
-                            lineNumber: 137,
+                            lineNumber: 148,
                             columnNumber: 11
                         }, this),
                         tags.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -897,7 +910,7 @@ async function PostPage({ params }) {
                                     children: "Tags"
                                 }, void 0, false, {
                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                    lineNumber: 144,
+                                    lineNumber: 155,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -909,18 +922,18 @@ async function PostPage({ params }) {
                                             children: tag.name
                                         }, tag.id, false, {
                                             fileName: "[project]/app/post/[slug]/page.tsx",
-                                            lineNumber: 147,
+                                            lineNumber: 158,
                                             columnNumber: 19
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                    lineNumber: 145,
+                                    lineNumber: 156,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/post/[slug]/page.tsx",
-                            lineNumber: 143,
+                            lineNumber: 154,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -931,7 +944,7 @@ async function PostPage({ params }) {
                                     children: "Share this article"
                                 }, void 0, false, {
                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                    lineNumber: 161,
+                                    lineNumber: 172,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -947,12 +960,12 @@ async function PostPage({ params }) {
                                                 className: "h-5 w-5"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/post/[slug]/page.tsx",
-                                                lineNumber: 170,
+                                                lineNumber: 181,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/post/[slug]/page.tsx",
-                                            lineNumber: 163,
+                                            lineNumber: 174,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -965,12 +978,12 @@ async function PostPage({ params }) {
                                                 className: "h-5 w-5"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/post/[slug]/page.tsx",
-                                                lineNumber: 179,
+                                                lineNumber: 190,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/post/[slug]/page.tsx",
-                                            lineNumber: 172,
+                                            lineNumber: 183,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -983,24 +996,24 @@ async function PostPage({ params }) {
                                                 className: "h-5 w-5"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/post/[slug]/page.tsx",
-                                                lineNumber: 188,
+                                                lineNumber: 199,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/post/[slug]/page.tsx",
-                                            lineNumber: 181,
+                                            lineNumber: 192,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                    lineNumber: 162,
+                                    lineNumber: 173,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/post/[slug]/page.tsx",
-                            lineNumber: 160,
+                            lineNumber: 171,
                             columnNumber: 11
                         }, this),
                         author && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1016,7 +1029,7 @@ async function PostPage({ params }) {
                                                 alt: author.name
                                             }, void 0, false, {
                                                 fileName: "[project]/app/post/[slug]/page.tsx",
-                                                lineNumber: 197,
+                                                lineNumber: 208,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$avatar$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["AvatarFallback"], {
@@ -1024,13 +1037,13 @@ async function PostPage({ params }) {
                                                 children: author.name.charAt(0)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/post/[slug]/page.tsx",
-                                                lineNumber: 198,
+                                                lineNumber: 209,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/post/[slug]/page.tsx",
-                                        lineNumber: 196,
+                                        lineNumber: 207,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1040,7 +1053,7 @@ async function PostPage({ params }) {
                                                 children: author.name
                                             }, void 0, false, {
                                                 fileName: "[project]/app/post/[slug]/page.tsx",
-                                                lineNumber: 203,
+                                                lineNumber: 214,
                                                 columnNumber: 19
                                             }, this),
                                             author.description && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1050,30 +1063,30 @@ async function PostPage({ params }) {
                                                 }
                                             }, void 0, false, {
                                                 fileName: "[project]/app/post/[slug]/page.tsx",
-                                                lineNumber: 205,
+                                                lineNumber: 216,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/post/[slug]/page.tsx",
-                                        lineNumber: 202,
+                                        lineNumber: 213,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/post/[slug]/page.tsx",
-                                lineNumber: 195,
+                                lineNumber: 206,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/post/[slug]/page.tsx",
-                            lineNumber: 194,
+                            lineNumber: 205,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/post/[slug]/page.tsx",
-                    lineNumber: 136,
+                    lineNumber: 147,
                     columnNumber: 9
                 }, this),
                 relatedPosts.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -1084,7 +1097,7 @@ async function PostPage({ params }) {
                             children: "Related Articles"
                         }, void 0, false, {
                             fileName: "[project]/app/post/[slug]/page.tsx",
-                            lineNumber: 215,
+                            lineNumber: 226,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1094,29 +1107,29 @@ async function PostPage({ params }) {
                                     variant: "featured"
                                 }, relatedPost.id, false, {
                                     fileName: "[project]/app/post/[slug]/page.tsx",
-                                    lineNumber: 218,
+                                    lineNumber: 229,
                                     columnNumber: 17
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/app/post/[slug]/page.tsx",
-                            lineNumber: 216,
+                            lineNumber: 227,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/post/[slug]/page.tsx",
-                    lineNumber: 214,
+                    lineNumber: 225,
                     columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/post/[slug]/page.tsx",
-            lineNumber: 65,
+            lineNumber: 76,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/post/[slug]/page.tsx",
-        lineNumber: 64,
+        lineNumber: 75,
         columnNumber: 5
     }, this);
 }

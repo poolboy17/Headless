@@ -1167,6 +1167,8 @@ function NewsletterSignup() {
 "use strict";
 
 __turbopack_context__.s([
+    "buildSeo",
+    ()=>buildSeo,
     "formatDate",
     ()=>formatDate,
     "getAuthor",
@@ -1351,6 +1353,22 @@ function getTags_Post(post) {
     const terms = post._embedded?.['wp:term']?.[1];
     if (!Array.isArray(terms)) return [];
     return terms.filter((t)=>'count' in t);
+}
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://cursedtours.com';
+const DEFAULT_OG_IMAGE_URL = `${SITE_URL}/og-default.png`;
+function buildSeo(post, seoFields) {
+    const title = stripHtml(post.title.rendered);
+    const excerpt = stripHtml(post.excerpt?.rendered || '');
+    const featuredImage = getFeaturedImage(post, 'large');
+    return {
+        title: seoFields?.seoTitle || title,
+        description: seoFields?.seoDescription || excerpt.slice(0, 160),
+        canonical: seoFields?.canonicalUrl || `${SITE_URL}/post/${post.slug}`,
+        ogTitle: seoFields?.ogTitle || seoFields?.seoTitle || title,
+        ogDescription: seoFields?.ogDescription || seoFields?.seoDescription || excerpt,
+        ogImage: seoFields?.ogImage?.url || featuredImage?.url || DEFAULT_OG_IMAGE_URL,
+        altText: seoFields?.featuredImageAlt || featuredImage?.alt || title
+    };
 }
 }),
 "[project]/components/footer.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {

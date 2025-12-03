@@ -260,3 +260,42 @@ export function getTags_Post(post: WPPost): WPTag[] {
   if (!Array.isArray(terms)) return [];
   return terms.filter((t): t is WPTag => 'count' in t);
 }
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://cursedtours.com';
+const DEFAULT_OG_IMAGE_URL = `${SITE_URL}/og-default.png`;
+
+export interface SeoData {
+  title: string;
+  description: string;
+  canonical: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
+  altText: string;
+}
+
+export interface PostSeoFields {
+  seoTitle?: string;
+  seoDescription?: string;
+  canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: { url: string };
+  featuredImageAlt?: string;
+}
+
+export function buildSeo(post: WPPost, seoFields?: PostSeoFields): SeoData {
+  const title = stripHtml(post.title.rendered);
+  const excerpt = stripHtml(post.excerpt?.rendered || '');
+  const featuredImage = getFeaturedImage(post, 'large');
+
+  return {
+    title: seoFields?.seoTitle || title,
+    description: seoFields?.seoDescription || excerpt.slice(0, 160),
+    canonical: seoFields?.canonicalUrl || `${SITE_URL}/post/${post.slug}`,
+    ogTitle: seoFields?.ogTitle || seoFields?.seoTitle || title,
+    ogDescription: seoFields?.ogDescription || seoFields?.seoDescription || excerpt,
+    ogImage: seoFields?.ogImage?.url || featuredImage?.url || DEFAULT_OG_IMAGE_URL,
+    altText: seoFields?.featuredImageAlt || featuredImage?.alt || title,
+  };
+}

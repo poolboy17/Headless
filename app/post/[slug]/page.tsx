@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, Clock, ArrowLeft } from 'lucide-react';
 import { SiX, SiFacebook, SiLinkedin } from 'react-icons/si';
-import { getPost } from '@/lib/wordpress';
+import { getPost, buildSeo } from '@/lib/wordpress';
 import { stripHtml, formatDate, getReadingTime, getFeaturedImage, getAuthor, getCategories_Post, getTags_Post } from '@/lib/wordpress';
 import { PostCard } from '@/components/post-card';
 import { Button } from '@/components/ui/button';
@@ -20,18 +20,29 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
   
   try {
     const { post } = await getPost(slug);
-    const title = stripHtml(post.title.rendered);
-    const description = stripHtml(post.excerpt.rendered).slice(0, 160);
-    const featuredImage = getFeaturedImage(post, 'large');
+    const seo = buildSeo(post);
 
     return {
-      title,
-      description,
+      title: seo.title,
+      description: seo.description,
+      alternates: {
+        canonical: seo.canonical,
+      },
       openGraph: {
-        title,
-        description,
+        title: seo.ogTitle,
+        description: seo.ogDescription,
         type: 'article',
-        images: featuredImage ? [featuredImage.url] : [],
+        url: seo.canonical,
+        images: [{
+          url: seo.ogImage,
+          alt: seo.altText,
+        }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: seo.ogTitle,
+        description: seo.ogDescription,
+        images: [seo.ogImage],
       },
     };
   } catch {
