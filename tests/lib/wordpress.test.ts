@@ -7,8 +7,9 @@ import {
   getAuthor,
   getCategories_Post,
   getTags_Post,
+  buildSeo,
 } from '@/lib/wordpress';
-import type { WPPost, WPAuthor, WPMedia, WPCategory, WPTag } from '@/lib/wordpress';
+import type { WPPost, WPAuthor, WPMedia, WPCategory, WPTag, PostSeoFields } from '@/lib/wordpress';
 
 describe('WordPress Utilities', () => {
   describe('stripHtml', () => {
@@ -190,6 +191,177 @@ describe('WordPress Utilities', () => {
     it('returns empty array when no tags', () => {
       const post = {} as WPPost;
       expect(getTags_Post(post)).toEqual([]);
+    });
+  });
+
+  describe('buildSeo', () => {
+    const createMockPost = (overrides?: Partial<WPPost>): WPPost => ({
+      id: 1,
+      date: '2024-01-15T10:30:00',
+      date_gmt: '2024-01-15T10:30:00',
+      modified: '2024-01-15T10:30:00',
+      modified_gmt: '2024-01-15T10:30:00',
+      slug: 'test-post',
+      status: 'publish',
+      type: 'post',
+      link: 'https://example.com/test-post',
+      title: { rendered: 'Test Post Title' },
+      content: { rendered: '<p>Test content</p>' },
+      excerpt: { rendered: '<p>This is the test excerpt for the post.</p>' },
+      author: 1,
+      featured_media: 1,
+      categories: [1],
+      tags: [1],
+      ...overrides,
+    });
+
+    it('uses post title when no SEO title provided', () => {
+      const post = createMockPost();
+      const seo = buildSeo(post);
+      expect(seo.title).toBe('Test Post Title');
+    });
+
+    it('prefers seoTitle over post title', () => {
+      const post = createMockPost();
+      const seoFields: PostSeoFields = { seoTitle: 'Custom SEO Title' };
+      const seo = buildSeo(post, seoFields);
+      expect(seo.title).toBe('Custom SEO Title');
+    });
+
+    it('uses excerpt for description when no SEO description', () => {
+      const post = createMockPost();
+      const seo = buildSeo(post);
+      expect(seo.description).toBe('This is the test excerpt for the post.');
+    });
+
+    it('prefers seoDescription over excerpt', () => {
+      const post = createMockPost();
+      const seoFields: PostSeoFields = { seoDescription: 'Custom meta description' };
+      const seo = buildSeo(post, seoFields);
+      expect(seo.description).toBe('Custom meta description');
+    });
+
+    it('truncates description to 160 characters', () => {
+      const longExcerpt = 'A'.repeat(200);
+      const post = createMockPost({ excerpt: { rendered: longExcerpt } });
+      const seo = buildSeo(post);
+      expect(seo.description.length).toBe(160);
+    });
+
+    it('generates canonical URL from slug', () => {
+      const post = createMockPost({ slug: 'my-article' });
+      const seo = buildSeo(post);
+      expect(seo.canonical).toBe('https://cursedtours.com/post/my-article');
+    });
+
+    it('prefers canonicalUrl when provided', () => {
+      const post = createMockPost();
+      const seoFields: PostSeoFields = { canonicalUrl: 'https://custom.com/article' };
+      const seo = buildSeo(post, seoFields);
+      expect(seo.canonical).toBe('https://custom.com/article');
+    });
+
+    it('uses fallback chain for ogTitle: ogTitle -> seoTitle -> title', () => {
+      const post = createMockPost();
+      
+      const seo1 = buildSeo(post);
+      expect(seo1.ogTitle).toBe('Test Post Title');
+
+      const seo2 = buildSeo(post, { seoTitle: 'SEO Title' });
+      expect(seo2.ogTitle).toBe('SEO Title');
+
+      const seo3 = buildSeo(post, { ogTitle: 'OG Title', seoTitle: 'SEO Title' });
+      expect(seo3.ogTitle).toBe('OG Title');
+    });
+
+    it('uses fallback chain for ogDescription: ogDescription -> seoDescription -> excerpt', () => {
+      const post = createMockPost();
+      
+      const seo1 = buildSeo(post);
+      expect(seo1.ogDescription).toBe('This is the test excerpt for the post.');
+
+      const seo2 = buildSeo(post, { seoDescription: 'SEO Desc' });
+      expect(seo2.ogDescription).toBe('SEO Desc');
+
+      const seo3 = buildSeo(post, { ogDescription: 'OG Desc', seoDescription: 'SEO Desc' });
+      expect(seo3.ogDescription).toBe('OG Desc');
+    });
+
+    it('uses featured image for ogImage when available', () => {
+      const mockMedia: WPMedia = {
+        id: 1,
+        source_url: 'https://example.com/image.jpg',
+        alt_text: 'Test image',
+        media_details: {
+          width: 1200,
+          height: 800,
+          sizes: {
+            large: {
+              source_url: 'https://example.com/image-large.jpg',
+              width: 1024,
+              height: 683,
+            },
+          },
+        },
+      };
+
+      const post = createMockPost({
+        _embedded: {
+          'wp:featuredmedia': [mockMedia],
+        },
+      });
+
+      const seo = buildSeo(post);
+      expect(seo.ogImage).toBe('https://example.com/image-large.jpg');
+    });
+
+    it('uses default OG image when no featured image', () => {
+      const post = createMockPost();
+      const seo = buildSeo(post);
+      expect(seo.ogImage).toBe('https://cursedtours.com/og-default.png');
+    });
+
+    it('prefers seoFields ogImage over featured image', () => {
+      const mockMedia: WPMedia = {
+        id: 1,
+        source_url: 'https://example.com/image.jpg',
+      };
+
+      const post = createMockPost({
+        _embedded: {
+          'wp:featuredmedia': [mockMedia],
+        },
+      });
+
+      const seoFields: PostSeoFields = {
+        ogImage: { url: 'https://custom.com/og-image.jpg' },
+      };
+
+      const seo = buildSeo(post, seoFields);
+      expect(seo.ogImage).toBe('https://custom.com/og-image.jpg');
+    });
+
+    it('uses featured image alt or title for altText', () => {
+      const mockMedia: WPMedia = {
+        id: 1,
+        source_url: 'https://example.com/image.jpg',
+        alt_text: 'Custom alt text',
+      };
+
+      const post = createMockPost({
+        _embedded: {
+          'wp:featuredmedia': [mockMedia],
+        },
+      });
+
+      const seo = buildSeo(post);
+      expect(seo.altText).toBe('Custom alt text');
+    });
+
+    it('falls back to title for altText when no image alt', () => {
+      const post = createMockPost();
+      const seo = buildSeo(post);
+      expect(seo.altText).toBe('Test Post Title');
     });
   });
 });

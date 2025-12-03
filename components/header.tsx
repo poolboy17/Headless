@@ -7,7 +7,7 @@ import { Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import type { WPCategory } from '@/lib/wordpress';
 
@@ -45,6 +45,10 @@ export function Header({ categories }: HeaderProps) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-80 p-0">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Browse categories and navigate the site
+                </SheetDescription>
                 <nav className="flex flex-col p-6">
                   <Link 
                     href="/" 

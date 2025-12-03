@@ -166,6 +166,7 @@ tests/
 ```
 
 **Key Test Utilities:**
-- WordPress utilities: stripHtml, formatDate, getReadingTime, getAuthor, etc.
+- WordPress utilities: stripHtml, formatDate, getReadingTime, getAuthor, buildSeo, etc.
+- SEO metadata fallback tests: title, description, canonical, ogTitle, ogDescription, ogImage, altText
 - Component tests for PostCard with all variants (default, featured, compact)
 - Mocks for next/navigation, next/image, and window.matchMedia
