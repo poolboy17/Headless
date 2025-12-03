@@ -1,1 +1,11 @@
-{"version":4,"routes":{"/category/abandoned-asylums-hospitals":{},"/category/cultural-ghost-folklore":{},"/category/ghost-hunting-techniques-tools":{},"/category/haunted-castles-estates":{},"/category/haunted-places-case-studies":{},"/category/historical-hauntings-insights":{},"/category/paranormal-evidence-archive":{},"/category/personal-ghost-encounters":{}},"dynamicRoutes":{"/category/[slug]":{"dataRoute":null,"dataRouteRegex":null,"fallback":null,"fallbackRevalidate":false,"fallbackSourceRoute":"/category/[slug]","routeRegex":"^\\/category\\/([^/]+?)(?:\\/)?$","allowHeader":[]}},"notFoundRoutes":[],"preview":{"previewModeId":"a631f7404a00436f4828db4453bcace8","previewModeSigningKey":"9b000fd800dd7a2949d904fc6004dfbef1f8e4536ab5979e0f58bf932b91bc87","previewModeEncryptionKey":"38f4218df1935557bea5dc7a77b24b012e4c1f5546036818af5f3d811d2a589b"}}
+{
+  "version": 4,
+  "routes": {},
+  "dynamicRoutes": {},
+  "notFoundRoutes": [],
+  "preview": {
+    "previewModeId": "9220f4c43029e20bb6ad1f5995d2a7f0",
+    "previewModeSigningKey": "325d2231ff8493b35abdbbaf7dad37cb5b5a6eef9262940545ebf0f3106a0670",
+    "previewModeEncryptionKey": "8e72178da44c22f4cb20862f97a2e2348aa74aaaf2ca85fddc0fb539303c5643"
+  }
+}
