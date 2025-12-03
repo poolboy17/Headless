@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/runner/workspace/app/not-found.tsx"],"sourcesContent":["import Link from 'next/link';\nimport { Button } from '@/components/ui/button';\n\nexport default function NotFound() {\n  return (\n    <div className=\"min-h-[60vh] flex items-center justify-center px-4\">\n      <div className=\"text-center\">\n        <h1 className=\"text-6xl font-bold text-primary mb-4\">404</h1>\n        <h2 className=\"text-2xl font-semibold mb-2\">Page Not Found</h2>\n        <p className=\"text-muted-foreground mb-8\">\n          The page you&apos;re looking for doesn&apos;t exist or has been moved.\n        </p>\n        <Link href=\"/\">\n          <Button data-testid=\"button-go-home\">\n            Return Home\n          </Button>\n        </Link>\n      </div>\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;;AAAA;AACA;;;;AAEe,SAAS;IACtB,qBACE,8OAAC;QAAI,WAAU;kBACb,cAAA,8OAAC;YAAI,WAAU;;8BACb,8OAAC;oBAAG,WAAU;8BAAuC;;;;;;8BACrD,8OAAC;oBAAG,WAAU;8BAA8B;;;;;;8BAC5C,8OAAC;oBAAE,WAAU;8BAA6B;;;;;;8BAG1C,8OAAC,0LAAI;oBAAC,MAAK;8BACT,cAAA,8OAAC,qIAAM;wBAAC,eAAY;kCAAiB;;;;;;;;;;;;;;;;;;;;;;AAO/C"}}]
+}

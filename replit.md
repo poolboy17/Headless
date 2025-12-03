@@ -1,124 +1,108 @@
-# Cursed Tours - Headless WordPress Blog
+# Cursed Tours - Headless WordPress Blog (Next.js)
 
 ## Overview
 
-Cursed Tours is a modern, headless WordPress blog/magazine application focused on paranormal investigations and ghost stories. The application uses WordPress as a headless CMS, consuming data via the WordPress REST API, while the frontend is built as a Single Page Application (SPA) using React, TypeScript, and modern UI components.
+Cursed Tours is a modern, headless WordPress blog/magazine focused on paranormal investigations and ghost stories. The application uses WordPress as a headless CMS, consuming data via the WordPress REST API, with a Next.js frontend for optimal SEO and performance.
 
-The architecture separates content management (WordPress backend) from content presentation (React frontend), enabling a fast, responsive user experience with server-side caching and optimized data fetching.
-
-## User Preferences
-
-Preferred communication style: Simple, everyday language.
+**Site Branding:** "CURSED TOURS" with tagline "Some Boundaries Aren't Meant to Be Crossed"
 
 ## System Architecture
 
-### Frontend Architecture
+### Frontend (Next.js App Router)
 
 **Framework & Build Tools:**
-- **React 18** with TypeScript for type-safe component development
-- **Vite** as the build tool and development server, providing fast HMR (Hot Module Replacement)
-- **Wouter** for lightweight client-side routing instead of React Router
-- **TanStack Query (React Query)** for server state management, data fetching, and caching
+- **Next.js 16** with App Router for server-side rendering and static generation
+- **TypeScript** for type-safe development
+- **Tailwind CSS** for utility-first styling
+- **next-themes** for dark/light mode support
 
 **UI Component System:**
-- **Shadcn/ui** component library built on Radix UI primitives
-- **Tailwind CSS** for utility-first styling with custom theme configuration
-- **Class Variance Authority (CVA)** for component variant management
-- Design system inspired by **Ncmaz Next.js headless WordPress theme**
-- Ncmaz design patterns: indigo primary color (HSL 239 84% 67%), teal secondary, rounded-3xl corners, glassmorphism effects
-- Custom theme supporting both light and dark modes with persistent user preference
+- **Shadcn/ui** components built on Radix UI primitives
+- **Lucide React** for iconography
+- **React Icons** for social media logos
+- Design inspired by Ncmaz Next.js theme (indigo primary, teal secondary, rounded-3xl, glassmorphism)
 
-**State Management:**
-- Server state managed through React Query with 5-minute cache TTL
-- Client state handled via React hooks and context (ThemeProvider)
-- No global state management library needed due to headless CMS architecture
+### Key Files
+
+```
+app/
+├── layout.tsx          # Root layout with Header/Footer
+├── page.tsx            # Homepage with hero and post grid
+├── globals.css         # Tailwind styles and theme variables
+├── category/[slug]/    # Category archive pages
+├── post/[slug]/        # Single post pages
+└── search/             # Search results page
+
+components/
+├── header.tsx          # Site header with navigation
+├── footer.tsx          # Site footer with links
+├── hero-section.tsx    # Featured post hero
+├── post-card.tsx       # Post card component
+├── category-nav.tsx    # Category filter chips
+├── theme-provider.tsx  # Dark mode provider
+├── theme-toggle.tsx    # Dark/light toggle
+└── ui/                 # Shadcn UI components
+
+lib/
+├── wordpress.ts        # WordPress API fetchers
+├── types.ts           # TypeScript types
+└── utils.ts           # Utility functions
+
+public/
+└── assets/
+    └── hero.png        # Custom hero image
+```
+
+### WordPress Integration
+
+**API Endpoint:** https://cursedtours.com/wp-json/wp/v2
+
+**Content Stats:**
+- 261 posts
+- 8 categories
+- 100 tags
+
+**Data Fetching:**
+- Server-side fetching with 5-minute revalidation
+- Embedded data for authors, media, and taxonomies
+- Utility functions for extracting post metadata
+
+### Deployment
+
+**Target Platform:** Vercel (user preference)
+
+The app is configured for Vercel deployment with:
+- `next.config.mjs` - Image optimization for WordPress media
+- Server components with async data fetching
+- Automatic ISR (Incremental Static Regeneration)
+
+**To deploy on Vercel:**
+1. Push to GitHub repository
+2. Import project in Vercel dashboard
+3. Deploy (no configuration needed - Vercel auto-detects Next.js)
+
+### Development
+
+**Run locally:**
+```bash
+npm run dev
+```
+
+The app runs via a custom Express server that integrates Next.js, serving on port 5000.
+
+### Design System
+
+**Colors (Ncmaz-inspired):**
+- Primary: Indigo (HSL 239 84% 67%)
+- Secondary: Teal accents
+- Dark mode: Neutral 900 backgrounds
 
 **Typography:**
-- Primary: Inter for headings and UI elements
-- Secondary: Lora for article body text (optimal readability)
-- Monospace: JetBrains Mono for code blocks
+- Headings: Inter
+- Body: Lora (serif for readability)
+- Code: JetBrains Mono
 
-**Layout System:**
-- Responsive design with mobile-first approach
-- Container-based layouts (max-width constraints)
-- Grid and flexbox for component composition
-- Sticky header and category navigation
-
-### Backend Architecture
-
-**Server Framework:**
-- **Express.js** with TypeScript for the Node.js server
-- HTTP server creation via Node's `http` module
-- Custom middleware for request logging and JSON parsing
-
-**API Layer:**
-- RESTful API endpoints that proxy requests to WordPress
-- Server-side caching layer using in-memory Map with 5-minute TTL
-- Endpoints for posts, categories, tags, single posts, and search functionality
-
-**Development vs Production:**
-- Development: Vite dev server with HMR through middleware mode
-- Production: Static file serving from compiled dist directory
-- Conditional Replit-specific plugins for development environment
-
-**Build Process:**
-- Client builds via Vite (SPA compilation)
-- Server builds via esbuild (bundled with select dependencies)
-- Dependency bundling strategy using allowlist to reduce syscalls
-
-### Data Storage Solutions
-
-**Content Management:**
-- **WordPress** (hosted at cursedtours.com) serves as headless CMS
-- WordPress REST API v2 for all content retrieval
-- No database in the application itself - all content stored in WordPress
-
-**Caching Strategy:**
-- In-memory caching (Map-based) for WordPress API responses
-- 5-minute TTL on cached data
-- Cache keys based on API endpoint and query parameters
-
-**Schema Definition:**
-- Zod schemas for WordPress API response validation
-- Type-safe data structures for Posts, Categories, Tags, Authors, and Media
-- Drizzle ORM configured (though not actively used - likely for future user data)
-
-### Authentication and Authorization
-
-Currently, the application does not implement user authentication. There is skeleton code for a user system (storage.ts with IStorage interface), but it's not integrated into the application flow. This suggests potential future features for user accounts, but currently all content is publicly accessible.
-
-### External Dependencies
-
-**WordPress Integration:**
-- **WordPress REST API v2** at cursedtours.com/wp-json/wp/v2
-- Embedded data fetching (_embed parameter) for authors, media, and taxonomies
-- WordPress serves all content including posts, categories, tags, and media
-
-**UI Component Libraries:**
-- **Radix UI** primitives for accessible, unstyled components
-- **Lucide React** and **React Icons** for iconography
-- **Embla Carousel** for carousel/slider functionality
-- **cmdk** for command palette functionality
-
-**Styling:**
-- **Tailwind CSS** for utility-first CSS
-- **PostCSS** with Autoprefixer for CSS processing
-- Custom CSS variables for theming (defined in index.css)
-
-**Development Tools:**
-- **Replit-specific plugins** for development environment integration
-- **TSX** for TypeScript execution in development
-- **Drizzle Kit** for database schema management (configured but not actively used)
-
-**Database Configuration:**
-- **Drizzle ORM** configured with PostgreSQL dialect
-- **Neon Database** serverless driver configured
-- Currently not used in production flow - likely reserved for future features like user accounts, comments, or analytics
-
-**Fonts:**
-- **Google Fonts** for Inter and Lora typefaces
-- Preconnect optimization for font loading performance
-
-**Package Management:**
-- NPM with lock file for dependency versioning
-- ESM module system throughout the application
+**Components:**
+- Rounded-3xl corners
+- Glassmorphism effects on cards
+- Subtle shadows and borders

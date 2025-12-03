@@ -1,0 +1,240 @@
+const WP_API_URL = 'https://cursedtours.com/wp-json/wp/v2';
+
+export interface WPMedia {
+  id: number;
+  source_url: string;
+  alt_text?: string;
+  media_details?: {
+    width?: number;
+    height?: number;
+    sizes?: Record<string, {
+      source_url: string;
+      width: number;
+      height: number;
+    }>;
+  };
+}
+
+export interface WPCategory {
+  id: number;
+  count: number;
+  name: string;
+  slug: string;
+  description?: string;
+  link: string;
+}
+
+export interface WPTag {
+  id: number;
+  count: number;
+  name: string;
+  slug: string;
+  link: string;
+}
+
+export interface WPAuthor {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  avatar_urls?: Record<string, string>;
+  link: string;
+}
+
+export interface WPPost {
+  id: number;
+  date: string;
+  date_gmt: string;
+  modified: string;
+  modified_gmt: string;
+  slug: string;
+  status: string;
+  type: string;
+  link: string;
+  title: { rendered: string };
+  content: { rendered: string; protected?: boolean };
+  excerpt: { rendered: string; protected?: boolean };
+  author: number;
+  featured_media: number;
+  categories: number[];
+  tags: number[];
+  _embedded?: {
+    author?: WPAuthor[];
+    'wp:featuredmedia'?: WPMedia[];
+    'wp:term'?: (WPCategory | WPTag)[][];
+  };
+}
+
+export interface PostsResponse {
+  posts: WPPost[];
+  totalPages: number;
+  totalPosts: number;
+}
+
+export interface SinglePostResponse {
+  post: WPPost;
+  relatedPosts: WPPost[];
+}
+
+async function fetchWP<T>(endpoint: string, revalidate = 300): Promise<T> {
+  const response = await fetch(`${WP_API_URL}${endpoint}`, {
+    next: { revalidate },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`WordPress API error: ${response.status}`);
+  }
+  
+  return response.json();
+}
+
+export async function getPosts(params: {
+  page?: number;
+  perPage?: number;
+  category?: string;
+  tag?: string;
+  search?: string;
+} = {}): Promise<PostsResponse> {
+  const { page = 1, perPage = 10, category, tag, search } = params;
+  
+  const queryParams = new URLSearchParams({
+    page: page.toString(),
+    per_page: perPage.toString(),
+    _embed: 'true',
+  });
+  
+  if (category) {
+    const catResponse = await fetch(
+      `${WP_API_URL}/categories?slug=${category}`,
+      { next: { revalidate: 300 } }
+    );
+    const categories = await catResponse.json();
+    if (categories.length > 0) {
+      queryParams.append('categories', categories[0].id.toString());
+    }
+  }
+  
+  if (tag) {
+    const tagResponse = await fetch(
+      `${WP_API_URL}/tags?slug=${tag}`,
+      { next: { revalidate: 300 } }
+    );
+    const tags = await tagResponse.json();
+    if (tags.length > 0) {
+      queryParams.append('tags', tags[0].id.toString());
+    }
+  }
+  
+  if (search) {
+    queryParams.append('search', search);
+  }
+  
+  const response = await fetch(`${WP_API_URL}/posts?${queryParams}`, {
+    next: { revalidate: 300 },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`WordPress API error: ${response.status}`);
+  }
+  
+  const posts = await response.json();
+  const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
+  const totalPosts = parseInt(response.headers.get('X-WP-Total') || '0');
+  
+  return { posts, totalPages, totalPosts };
+}
+
+export async function getPost(slug: string): Promise<SinglePostResponse> {
+  const response = await fetch(
+    `${WP_API_URL}/posts?slug=${slug}&_embed=true`,
+    { next: { revalidate: 300 } }
+  );
+  
+  if (!response.ok) {
+    throw new Error(`WordPress API error: ${response.status}`);
+  }
+  
+  const posts = await response.json();
+  
+  if (posts.length === 0) {
+    throw new Error('Post not found');
+  }
+  
+  const post = posts[0];
+  
+  let relatedPosts: WPPost[] = [];
+  if (post.categories?.length > 0) {
+    const relatedResponse = await fetch(
+      `${WP_API_URL}/posts?categories=${post.categories[0]}&exclude=${post.id}&per_page=4&_embed=true`,
+      { next: { revalidate: 300 } }
+    );
+    if (relatedResponse.ok) {
+      relatedPosts = await relatedResponse.json();
+    }
+  }
+  
+  return { post, relatedPosts };
+}
+
+export async function getCategories(): Promise<WPCategory[]> {
+  return fetchWP<WPCategory[]>('/categories?per_page=100&orderby=count&order=desc');
+}
+
+export async function getTags(): Promise<WPTag[]> {
+  return fetchWP<WPTag[]>('/tags?per_page=100&orderby=count&order=desc');
+}
+
+export async function getCategoryBySlug(slug: string): Promise<WPCategory | null> {
+  const categories = await fetchWP<WPCategory[]>(`/categories?slug=${slug}`);
+  return categories.length > 0 ? categories[0] : null;
+}
+
+export function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').trim();
+}
+
+export function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+export function getReadingTime(content: string): number {
+  const text = stripHtml(content);
+  const wordsPerMinute = 200;
+  const wordCount = text.split(/\s+/).length;
+  return Math.ceil(wordCount / wordsPerMinute);
+}
+
+export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' | 'large' = 'medium_large') {
+  const media = post._embedded?.['wp:featuredmedia']?.[0];
+  if (!media) return null;
+  
+  const sizes = media.media_details?.sizes;
+  const selectedSize = sizes?.[size] || sizes?.large || sizes?.medium_large;
+  
+  return {
+    url: selectedSize?.source_url || media.source_url,
+    width: selectedSize?.width || media.media_details?.width || 800,
+    height: selectedSize?.height || media.media_details?.height || 600,
+    alt: media.alt_text || stripHtml(post.title.rendered),
+  };
+}
+
+export function getAuthor(post: WPPost) {
+  return post._embedded?.author?.[0];
+}
+
+export function getCategories_Post(post: WPPost): WPCategory[] {
+  const terms = post._embedded?.['wp:term']?.[0];
+  if (!Array.isArray(terms)) return [];
+  return terms.filter((t): t is WPCategory => 'count' in t);
+}
+
+export function getTags_Post(post: WPPost): WPTag[] {
+  const terms = post._embedded?.['wp:term']?.[1];
+  if (!Array.isArray(terms)) return [];
+  return terms.filter((t): t is WPTag => 'count' in t);
+}
