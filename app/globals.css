@@ -10,90 +10,86 @@
   --elevate-2: rgba(0,0,0, .08);
   
   --background: 0 0% 100%;
-  --foreground: 224 71% 4%;
-  --border: 220 13% 91%;
+  --foreground: 270 10% 10%;
+  --border: 270 10% 90%;
   
   --card: 0 0% 100%;
-  --card-foreground: 224 71% 4%;
-  --card-border: 220 13% 91%;
+  --card-foreground: 270 10% 10%;
+  --card-border: 270 10% 88%;
   
   --popover: 0 0% 100%;
-  --popover-foreground: 224 71% 4%;
-  --popover-border: 220 13% 91%;
+  --popover-foreground: 270 10% 10%;
+  --popover-border: 270 10% 88%;
   
-  --primary: 239 84% 67%;
+  --primary: 270 70% 55%;
   --primary-foreground: 0 0% 100%;
   
-  --secondary: 220 14% 96%;
-  --secondary-foreground: 224 71% 4%;
+  --secondary: 270 15% 95%;
+  --secondary-foreground: 270 10% 15%;
   
-  --muted: 220 14% 96%;
-  --muted-foreground: 220 9% 46%;
+  --muted: 270 10% 96%;
+  --muted-foreground: 270 5% 45%;
   
-  --accent: 239 30% 95%;
-  --accent-foreground: 239 84% 50%;
+  --accent: 270 40% 94%;
+  --accent-foreground: 270 70% 45%;
   
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   
-  --input: 220 13% 91%;
-  --ring: 239 84% 67%;
+  --input: 270 10% 90%;
+  --ring: 270 70% 55%;
   
-  --chart-1: 239 84% 67%;
-  --chart-2: 168 76% 42%;
-  --chart-3: 280 65% 60%;
-  --chart-4: 32 95% 55%;
-  --chart-5: 340 75% 55%;
-  
-  --font-sans: Inter, system-ui, sans-serif;
-  --font-serif: Lora, Georgia, serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --chart-1: 270 70% 55%;
+  --chart-2: 180 65% 45%;
+  --chart-3: 320 70% 55%;
+  --chart-4: 45 90% 55%;
+  --chart-5: 200 75% 50%;
   
   --radius: 0.75rem;
 }
 
 .dark {
-  --button-outline: rgba(255,255,255, .10);
-  --badge-outline: rgba(255,255,255, .05);
+  --button-outline: rgba(255,255,255, .12);
+  --badge-outline: rgba(255,255,255, .06);
   --opaque-button-border-intensity: 9;
-  --elevate-1: rgba(255,255,255, .04);
-  --elevate-2: rgba(255,255,255, .09);
+  --elevate-1: rgba(255,255,255, .05);
+  --elevate-2: rgba(255,255,255, .10);
   
-  --background: 224 71% 4%;
-  --foreground: 210 40% 98%;
-  --border: 217 33% 17%;
+  --background: 270 15% 6%;
+  --foreground: 270 10% 95%;
+  --border: 270 15% 18%;
   
-  --card: 224 71% 6%;
-  --card-foreground: 210 40% 98%;
-  --card-border: 217 33% 15%;
+  --card: 270 15% 9%;
+  --card-foreground: 270 10% 95%;
+  --card-border: 270 15% 15%;
   
-  --popover: 224 71% 7%;
-  --popover-foreground: 210 40% 98%;
-  --popover-border: 217 33% 17%;
+  --popover: 270 15% 8%;
+  --popover-foreground: 270 10% 95%;
+  --popover-border: 270 15% 18%;
   
-  --primary: 239 84% 67%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 270 80% 65%;
+  --primary-foreground: 270 15% 5%;
   
-  --secondary: 217 33% 17%;
-  --secondary-foreground: 210 40% 98%;
+  --secondary: 270 15% 18%;
+  --secondary-foreground: 270 10% 90%;
   
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%;
+  --muted: 270 12% 18%;
+  --muted-foreground: 270 8% 60%;
   
-  --accent: 239 30% 20%;
-  --accent-foreground: 239 84% 80%;
+  --accent: 270 35% 22%;
+  --accent-foreground: 270 80% 75%;
   
-  --destructive: 0 84% 60%;
+  --destructive: 0 75% 55%;
   --destructive-foreground: 0 0% 100%;
   
-  --input: 217 33% 25%;
-  --ring: 239 84% 67%;
+  --input: 270 15% 22%;
+  --ring: 270 80% 65%;
   
-  --chart-1: 239 84% 70%;
-  --chart-2: 168 76% 50%;
-  --chart-3: 280 65% 70%;
-  --chart-4: 32 95% 65%;
-  --chart-5: 340 75% 65%;
+  --chart-1: 270 80% 70%;
+  --chart-2: 180 70% 55%;
+  --chart-3: 320 75% 65%;
+  --chart-4: 45 95% 65%;
+  --chart-5: 200 80% 60%;
 }
 
 @layer base {
@@ -102,80 +98,158 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply antialiased bg-background text-foreground;
+    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
 
-  .wp-content {
-    @apply font-serif text-lg leading-relaxed text-foreground;
-  }
+/* Article content styling - higher specificity for WordPress content */
+.wp-content {
+  font-family: var(--font-lora), Georgia, 'Times New Roman', serif !important;
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: hsl(var(--foreground));
+}
 
-  .wp-content h1 {
-    @apply font-sans text-4xl font-bold mt-10 mb-5 text-foreground;
-  }
+.wp-content p,
+.wp-content li,
+.wp-content span {
+  font-family: var(--font-lora), Georgia, 'Times New Roman', serif !important;
+}
 
-  .wp-content h2 {
-    @apply font-sans text-3xl font-semibold mt-10 mb-4 text-foreground;
-  }
+.wp-content h1,
+.wp-content h2,
+.wp-content h3,
+.wp-content h4,
+.wp-content h5,
+.wp-content h6 {
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  color: hsl(var(--foreground));
+  letter-spacing: -0.02em;
+}
 
-  .wp-content h3 {
-    @apply font-sans text-2xl font-semibold mt-8 mb-4 text-foreground;
-  }
+.wp-content h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+}
 
-  .wp-content h4 {
-    @apply font-sans text-xl font-semibold mt-6 mb-3 text-foreground;
-  }
+.wp-content h2 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
 
-  .wp-content p {
-    @apply mb-6 text-foreground/90;
-  }
+.wp-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
 
-  .wp-content ul, .wp-content ol {
-    @apply mb-6 pl-6;
-  }
+.wp-content h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
 
-  .wp-content ul {
-    @apply list-disc;
-  }
+.wp-content p {
+  margin-bottom: 1.5rem;
+  color: hsl(var(--foreground) / 0.9);
+}
 
-  .wp-content ol {
-    @apply list-decimal;
-  }
+.wp-content ul,
+.wp-content ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
 
-  .wp-content li {
-    @apply mb-2;
-  }
+.wp-content ul {
+  list-style-type: disc;
+}
 
-  .wp-content blockquote {
-    @apply border-l-4 border-primary pl-6 py-3 my-8 italic bg-primary/5 rounded-r-xl;
-  }
+.wp-content ol {
+  list-style-type: decimal;
+}
 
-  .wp-content a {
-    @apply text-primary underline underline-offset-2 hover:text-primary/80 transition-colors;
-  }
+.wp-content li {
+  margin-bottom: 0.5rem;
+}
 
-  .wp-content img {
-    @apply rounded-2xl my-8 w-full shadow-lg;
-  }
+.wp-content blockquote {
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 1.5rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  font-style: italic;
+  background: hsl(var(--primary) / 0.05);
+  border-radius: 0 0.75rem 0.75rem 0;
+}
 
-  .wp-content pre, .wp-content code {
-    @apply font-mono bg-muted rounded-lg px-2 py-1 text-sm;
-  }
+/* Links in article content - force purple color */
+.wp-content a,
+.wp-content a:link,
+.wp-content a:visited,
+.wp-content a strong,
+.wp-content strong a {
+  color: hsl(var(--primary)) !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
 
-  .wp-content pre {
-    @apply p-5 overflow-x-auto my-8;
-  }
+.wp-content a:hover {
+  color: hsl(var(--primary) / 0.8) !important;
+}
 
-  .wp-content pre code {
-    @apply bg-transparent p-0;
-  }
+.wp-content img {
+  border-radius: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
 
-  .wp-content figure {
-    @apply my-8;
-  }
+.wp-content pre,
+.wp-content code {
+  font-family: var(--font-mono), 'SF Mono', Monaco, 'Cascadia Code', monospace !important;
+  background: hsl(var(--muted));
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
 
-  .wp-content figcaption {
-    @apply text-center text-sm text-muted-foreground mt-3;
-  }
+.wp-content pre {
+  padding: 1.25rem;
+  overflow-x: auto;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.wp-content pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.wp-content figure {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.wp-content figcaption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin-top: 0.75rem;
 }
 
 @layer utilities {
@@ -203,5 +277,13 @@
 
   .glass-card {
     @apply bg-white/60 dark:bg-neutral-900/60 backdrop-blur-xl backdrop-filter shadow-xl;
+  }
+  
+  .text-gradient-purple {
+    @apply bg-gradient-to-r from-purple-400 via-violet-500 to-purple-600 bg-clip-text text-transparent;
+  }
+  
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.15), 0 0 40px rgba(168, 85, 247, 0.1);
   }
 }

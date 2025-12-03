@@ -92,17 +92,20 @@ The app runs via a custom Express server that integrates Next.js, serving on por
 
 ### Design System
 
-**Colors (Ncmaz-inspired):**
-- Primary: Indigo (HSL 239 84% 67%)
-- Secondary: Teal accents
-- Dark mode: Neutral 900 backgrounds
+**Colors (Purple Theme - December 2025):**
+- Primary: Purple (HSL 270 70% 55% light / 270 80% 65% dark)
+- Accent: Complementary purple tints
+- Dark mode: Deep purple-tinted backgrounds (270 15% 6%)
 
-**Typography:**
-- Headings: Inter
-- Body: Lora (serif for readability)
-- Code: JetBrains Mono
+**Typography (2025 Best Practices):**
+- UI/Headings: Inter (variable font, preloaded, with font-feature-settings)
+- Article Body: Lora (serif for readability, preloaded)
+- Code: JetBrains Mono (loaded on-demand)
+- All fonts use `display: 'swap'` for faster initial render
+- Proper fallback stacks for each font family
 
 **Components:**
 - Rounded-3xl corners
 - Glassmorphism effects on cards
 - Subtle shadows and borders
+- Purple gradient and glow utility classes available
