@@ -119,14 +119,15 @@ export default async function PostPage({ params }: PostPageProps) {
 
         {featuredImage && (
           <div className="max-w-5xl mx-auto mb-12">
-            <div className="aspect-[16/9] relative overflow-hidden rounded-3xl">
+            <div className="aspect-[16/9] relative overflow-hidden rounded-3xl bg-muted">
               <Image
                 src={featuredImage.url}
                 alt={featuredImage.alt}
                 fill
                 className="object-cover"
                 priority
-                sizes="(max-width: 1200px) 100vw, 1200px"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                data-testid="post-featured-image"
               />
             </div>
           </div>

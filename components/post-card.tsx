@@ -24,13 +24,14 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
       <Link href={`/post/${post.slug}`}>
         <div className="group flex gap-4 p-3 rounded-2xl hover:bg-muted/50 transition-colors cursor-pointer">
           {featuredImage && (
-            <div className="w-20 h-20 shrink-0 overflow-hidden rounded-xl relative">
+            <div className="w-20 h-20 shrink-0 overflow-hidden rounded-xl relative bg-muted">
               <Image
                 src={featuredImage.url}
                 alt={featuredImage.alt}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="80px"
+                loading="lazy"
               />
             </div>
           )}
@@ -54,14 +55,15 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
     return (
       <Link href={`/post/${post.slug}`}>
         <div className="nc-Card11 group relative flex flex-col overflow-hidden rounded-3xl bg-white dark:bg-neutral-900 h-full cursor-pointer border border-neutral-100 dark:border-neutral-800 hover:shadow-xl transition-shadow duration-300">
-          <div className="relative z-10 block w-full flex-shrink-0 overflow-hidden rounded-t-3xl aspect-[4/3]">
+          <div className="relative z-10 block w-full flex-shrink-0 overflow-hidden rounded-t-3xl aspect-[4/3] bg-muted">
             {featuredImage ? (
               <Image
                 src={featuredImage.url}
                 alt={featuredImage.alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                loading="lazy"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
@@ -124,15 +126,16 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
 
   return (
     <Link href={`/post/${post.slug}`}>
-      <div className="nc-Card11 group relative flex flex-col overflow-hidden rounded-3xl bg-white dark:bg-neutral-900 h-full cursor-pointer border border-neutral-100 dark:border-neutral-800 hover:shadow-lg transition-shadow duration-300">
-        <div className="relative z-10 block w-full flex-shrink-0 overflow-hidden rounded-t-3xl aspect-[16/9]">
+      <div className="nc-Card11 group relative flex flex-col overflow-hidden rounded-3xl bg-white dark:bg-neutral-900 h-full cursor-pointer border border-neutral-100 dark:border-neutral-800 hover:shadow-lg transition-shadow duration-300" data-testid={`card-post-${post.slug}`}>
+        <div className="relative z-10 block w-full flex-shrink-0 overflow-hidden rounded-t-3xl aspect-[16/9] bg-muted">
           {featuredImage ? (
             <Image
               src={featuredImage.url}
               alt={featuredImage.alt}
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              loading="lazy"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">

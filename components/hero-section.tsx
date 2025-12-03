@@ -76,14 +76,14 @@ export function HeroSection({ post }: HeroSectionProps) {
 
       <div className="w-full md:w-4/5 lg:w-2/3 md:ml-auto">
         <Link href={`/post/${post.slug}`} className="block relative group">
-          <div className="aspect-[16/12] sm:aspect-[16/9] md:aspect-[16/10] lg:aspect-[16/9] overflow-hidden rounded-3xl relative">
+          <div className="aspect-[16/12] sm:aspect-[16/9] md:aspect-[16/10] lg:aspect-[16/9] overflow-hidden rounded-3xl relative bg-muted">
             <Image
               src="/assets/hero.png"
               alt="CURSED TOURS - Some boundaries aren't meant to be crossed"
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
               priority
-              sizes="(max-width: 768px) 100vw, 66vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 66vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-3xl" />
           </div>

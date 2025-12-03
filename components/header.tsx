@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, Menu } from 'lucide-react';
+import { Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import type { WPCategory } from '@/lib/wordpress';
 
 interface HeaderProps {
@@ -19,24 +20,27 @@ export function Header({ categories }: HeaderProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setMobileSearchOpen(false);
+      setSearchQuery('');
     }
   };
 
   const isActive = (path: string) => pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-neutral-200/70 dark:border-transparent bg-white dark:bg-neutral-900">
+    <header className="sticky top-0 z-50 w-full border-b border-neutral-200/70 dark:border-neutral-800/70 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:dark:bg-neutral-900/80">
       <div className="px-4 xl:container">
         <div className="flex h-16 sm:h-20 justify-between">
           <div className="flex flex-1 items-center lg:hidden">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button size="icon" variant="ghost" data-testid="button-mobile-menu">
+                <Button size="icon" variant="ghost" data-testid="button-mobile-menu" aria-label="Open menu">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -149,20 +153,44 @@ export function Header({ categories }: HeaderProps) {
 
             <ThemeToggle />
 
-            <Button
-              size="icon"
-              variant="ghost"
-              className="lg:hidden"
-              onClick={() => {
-                const query = prompt('Search articles...');
-                if (query) {
-                  router.push(`/search?q=${encodeURIComponent(query)}`);
-                }
-              }}
-              data-testid="button-search-mobile"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
+            <Dialog open={mobileSearchOpen} onOpenChange={setMobileSearchOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="lg:hidden min-h-[44px] min-w-[44px]"
+                  data-testid="button-search-mobile"
+                  aria-label="Search"
+                >
+                  <Search className="h-5 w-5" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Search Articles</DialogTitle>
+                  <DialogDescription>
+                    Find paranormal investigations, ghost stories, and haunted locations.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSearch} className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      type="search"
+                      placeholder="Search articles..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9"
+                      data-testid="input-search-mobile"
+                      autoFocus
+                    />
+                  </div>
+                  <Button type="submit" data-testid="button-search-submit">
+                    Search
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>

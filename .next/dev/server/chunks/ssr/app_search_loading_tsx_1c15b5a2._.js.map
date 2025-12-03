@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/runner/workspace/app/search/loading.tsx"],"sourcesContent":["import { PostCardSkeletonGrid } from '@/components/loading-skeleton';\nimport { Skeleton } from '@/components/ui/skeleton';\n\nexport default function SearchLoading() {\n  return (\n    <div className=\"min-h-screen\">\n      <div className=\"container mx-auto px-4 py-12\">\n        <Skeleton className=\"h-10 w-72 mb-2\" />\n        <Skeleton className=\"h-6 w-48 mb-8\" />\n        <PostCardSkeletonGrid count={6} />\n      </div>\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;;AAAA;AACA;;;;AAEe,SAAS;IACtB,qBACE,8OAAC;QAAI,WAAU;kBACb,cAAA,8OAAC;YAAI,WAAU;;8BACb,8OAAC,yIAAQ;oBAAC,WAAU;;;;;;8BACpB,8OAAC,yIAAQ;oBAAC,WAAU;;;;;;8BACpB,8OAAC,0JAAoB;oBAAC,OAAO;;;;;;;;;;;;;;;;;AAIrC"}}]
+}
