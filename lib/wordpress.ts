@@ -223,8 +223,30 @@ export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' |
   };
 }
 
+const AUTHOR_AVATARS: Record<string, string> = {
+  'marcus-hale': '/author-marcus-hale.png',
+  'marcus hale': '/author-marcus-hale.png',
+};
+
 export function getAuthor(post: WPPost) {
-  return post._embedded?.author?.[0];
+  const author = post._embedded?.author?.[0];
+  if (!author) return undefined;
+  
+  const authorSlug = author.slug?.toLowerCase() || author.name?.toLowerCase() || '';
+  const customAvatar = AUTHOR_AVATARS[authorSlug];
+  
+  if (customAvatar) {
+    return {
+      ...author,
+      avatar_urls: {
+        '24': customAvatar,
+        '48': customAvatar,
+        '96': customAvatar,
+      },
+    };
+  }
+  
+  return author;
 }
 
 export function getCategories_Post(post: WPPost): WPCategory[] {
