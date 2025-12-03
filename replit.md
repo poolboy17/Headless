@@ -131,3 +131,15 @@ The app runs via a custom Express server that integrates Next.js, serving on por
 - `.wp-content` class wrapper for WordPress content
 - Lora serif font applied with high CSS specificity
 - Purple link colors in article content
+
+### Production Deployment
+
+**Health Check:**
+- `/api/health` endpoint returns immediate 200 response
+- Does not perform any database or external API calls
+- Used for deployment health checks
+
+**Build Process:**
+- `npm run build` runs Next.js build then bundles Express server
+- Production artifacts: `.next/` folder and `dist/index.cjs`
+- `npm run start` runs the production server
