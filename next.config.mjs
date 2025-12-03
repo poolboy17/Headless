@@ -19,11 +19,6 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.wp.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'i0.wp.com',
         pathname: '/**',
       },
@@ -35,6 +30,26 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'i2.wp.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i3.wp.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 's0.wp.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 's1.wp.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 's2.wp.com',
         pathname: '/**',
       },
       {

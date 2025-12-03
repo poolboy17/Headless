@@ -47,7 +47,7 @@
       "loaderFile": "",
       "domains": [],
       "disableStaticImages": false,
-      "minimumCacheTTL": 14400,
+      "minimumCacheTTL": 60,
       "formats": [
         "image/avif",
         "image/webp"
@@ -67,11 +67,46 @@
         {
           "protocol": "https",
           "hostname": "cursedtours.com",
-          "pathname": "/wp-content/**"
+          "pathname": "/**"
+        },
+        {
+          "protocol": "https",
+          "hostname": "www.cursedtours.com",
+          "pathname": "/**"
+        },
+        {
+          "protocol": "https",
+          "hostname": "cms.cursedtours.com",
+          "pathname": "/**"
+        },
+        {
+          "protocol": "https",
+          "hostname": "*.wp.com",
+          "pathname": "/**"
+        },
+        {
+          "protocol": "https",
+          "hostname": "i0.wp.com",
+          "pathname": "/**"
+        },
+        {
+          "protocol": "https",
+          "hostname": "i1.wp.com",
+          "pathname": "/**"
+        },
+        {
+          "protocol": "https",
+          "hostname": "i2.wp.com",
+          "pathname": "/**"
         },
         {
           "protocol": "https",
           "hostname": "secure.gravatar.com",
+          "pathname": "/**"
+        },
+        {
+          "protocol": "https",
+          "hostname": "images.unsplash.com",
           "pathname": "/**"
         }
       ],
