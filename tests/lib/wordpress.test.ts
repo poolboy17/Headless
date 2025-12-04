@@ -420,13 +420,16 @@ describe('Data Fetching Functions', () => {
       expect(result.totalPosts).toBe(50);
     });
 
-    it('throws error on API failure', async () => {
+    it('returns empty data on API failure', async () => {
       fetchSpy.mockResolvedValueOnce({
         ok: false,
         status: 500,
       } as Response);
 
-      await expect(getPosts()).rejects.toThrow('WordPress API error: 500');
+      const result = await getPosts();
+      expect(result.posts).toEqual([]);
+      expect(result.totalPages).toBe(0);
+      expect(result.totalPosts).toBe(0);
     });
 
     it('handles missing pagination headers', async () => {
@@ -558,13 +561,14 @@ describe('Data Fetching Functions', () => {
       expect(result).toEqual(mockCategories);
     });
 
-    it('throws error on API failure', async () => {
+    it('returns empty array on API failure', async () => {
       fetchSpy.mockResolvedValueOnce({
         ok: false,
         status: 503,
       } as Response);
 
-      await expect(getCategories()).rejects.toThrow('WordPress API error: 503');
+      const result = await getCategories();
+      expect(result).toEqual([]);
     });
   });
 
