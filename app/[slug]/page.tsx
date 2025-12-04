@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { getPage, getAllPageSlugs, stripHtml, WPPage } from '@/lib/wordpress';
+import { sanitizeContent } from '@/lib/sanitize-content';
 import { Button } from '@/components/ui/button';
 
 export const dynamic = 'force-dynamic';
@@ -115,7 +116,7 @@ export default async function PageRoute({ params }: PageProps) {
         <div className="max-w-3xl mx-auto">
           <div
             className="wp-content"
-            dangerouslySetInnerHTML={{ __html: page.content.rendered }}
+            dangerouslySetInnerHTML={{ __html: sanitizeContent(page.content.rendered) }}
           />
         </div>
       </div>
