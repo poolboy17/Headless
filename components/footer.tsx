@@ -28,6 +28,11 @@ export function Footer({ categories, recentPosts }: FooterProps) {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/about-us" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
+                    About Us
+                  </Link>
+                </li>
+                <li>
                   <Link href="/contact-us" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
                     Contact Us
                   </Link>
