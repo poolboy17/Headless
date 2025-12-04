@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { WPPost, WPCategory } from '@/lib/wordpress';
-import { stripHtml, formatDate, getReadingTime, getAuthor, getCategories_Post } from '@/lib/wordpress';
+import { stripHtml, formatDate, getReadingTime, getAuthor, getCategories_Post, getFeaturedImage } from '@/lib/wordpress';
 
 interface HeroSectionProps {
   post: WPPost;
@@ -15,7 +15,9 @@ export function HeroSection({ post }: HeroSectionProps) {
   const author = getAuthor(post);
   const categories = getCategories_Post(post);
   const title = stripHtml(post.title.rendered);
+  const excerpt = stripHtml(post.excerpt.rendered);
   const readingTime = getReadingTime(post.content.rendered);
+  const featuredImage = getFeaturedImage(post, 'large');
 
   return (
     <section className="relative flex flex-col-reverse justify-end md:flex-row py-8 md:py-12 container mx-auto px-4">
@@ -41,6 +43,12 @@ export function HeroSection({ post }: HeroSectionProps) {
               {title}
             </Link>
           </h2>
+
+          {excerpt && (
+            <p className="text-muted-foreground text-sm sm:text-base line-clamp-2 leading-relaxed">
+              {excerpt}
+            </p>
+          )}
 
           {author && (
             <div className="flex items-center gap-3">
@@ -77,15 +85,26 @@ export function HeroSection({ post }: HeroSectionProps) {
       <div className="w-full md:w-4/5 lg:w-2/3 md:ml-auto">
         <Link href={`/post/${post.slug}`} className="block relative group">
           <div className="aspect-[16/12] sm:aspect-[16/9] md:aspect-[16/10] lg:aspect-[16/9] overflow-hidden rounded-3xl relative bg-muted">
-            <Image
-              src="/assets/hero.png"
-              alt="CURSED TOURS - Some boundaries aren't meant to be crossed"
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              priority
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 66vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-3xl" />
+            {featuredImage ? (
+              <Image
+                src={featuredImage.url}
+                alt={featuredImage.alt}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                priority
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 66vw"
+              />
+            ) : (
+              <Image
+                src="/assets/hero.png"
+                alt="CURSED TOURS - Some boundaries aren't meant to be crossed"
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                priority
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 66vw"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent rounded-3xl" />
           </div>
         </Link>
       </div>

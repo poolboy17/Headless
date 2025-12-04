@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Clock } from 'lucide-react';
+import { Clock, Tag } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { WPPost, WPCategory } from '@/lib/wordpress';
-import { stripHtml, formatDate, getReadingTime, getFeaturedImage, getAuthor, getCategories_Post } from '@/lib/wordpress';
+import { stripHtml, formatDate, getReadingTime, getFeaturedImage, getAuthor, getCategories_Post, getTags_Post } from '@/lib/wordpress';
 
 interface PostCardProps {
   post: WPPost;
@@ -15,6 +15,7 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
   const author = getAuthor(post);
   const featuredImage = getFeaturedImage(post);
   const categories = getCategories_Post(post);
+  const tags = getTags_Post(post);
   const title = stripHtml(post.title.rendered);
   const excerpt = stripHtml(post.excerpt.rendered);
   const readingTime = getReadingTime(post.content.rendered);
@@ -177,6 +178,20 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
           </h3>
 
           <p className="text-muted-foreground text-sm line-clamp-2">{excerpt}</p>
+
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {tags.slice(0, 3).map((tag) => (
+                <span
+                  key={tag.id}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-[10px] text-muted-foreground font-medium"
+                >
+                  <Tag className="h-2.5 w-2.5" />
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
 
           <div className="mt-auto flex flex-wrap items-end justify-between gap-2.5 pt-2">
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
