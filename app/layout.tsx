@@ -6,6 +6,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { BackToTop } from '@/components/back-to-top';
 import { getCategories, getPosts } from '@/lib/wordpress';
+import { Analytics } from '@vercel/analytics/next';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -96,6 +97,7 @@ export default async function RootLayout({
             <BackToTop />
           </div>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
