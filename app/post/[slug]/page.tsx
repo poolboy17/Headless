@@ -14,8 +14,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const slugs = await getAllPostSlugs();
-  return slugs.map((slug) => ({ slug }));
+  try {
+    const slugs = await getAllPostSlugs();
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    // Return empty array to allow dynamic generation at request time
+    return [];
+  }
 }
 
 interface PostPageProps {

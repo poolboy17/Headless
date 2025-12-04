@@ -1,4 +1,23 @@
-const WP_BASE_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL || 'https://cursedtours.com';
+// Ensure we always have a valid URL - fallback to production URL if env var is missing or invalid
+function getWordPressBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL;
+  const fallbackUrl = 'https://cursedtours.com';
+
+  if (!envUrl) {
+    return fallbackUrl;
+  }
+
+  // Validate that it's a proper URL
+  try {
+    new URL(envUrl);
+    return envUrl;
+  } catch {
+    console.warn(`Invalid NEXT_PUBLIC_WORDPRESS_URL: ${envUrl}, using fallback`);
+    return fallbackUrl;
+  }
+}
+
+const WP_BASE_URL = getWordPressBaseUrl();
 const WP_API_URL = `${WP_BASE_URL}/wp-json/wp/v2`;
 
 export interface WPMedia {
