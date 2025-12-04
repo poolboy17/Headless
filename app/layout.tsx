@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import { BackToTop } from '@/components/back-to-top';
 import { getCategories, getPosts } from '@/lib/wordpress';
 
 const inter = Inter({ 
@@ -92,6 +93,7 @@ export default async function RootLayout({
               {children}
             </main>
             <Footer categories={categories} recentPosts={postsData.posts} />
+            <BackToTop />
           </div>
         </ThemeProvider>
       </body>

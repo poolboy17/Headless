@@ -1,9 +1,12 @@
 import { redirect } from 'next/navigation';
 import { getPosts, getCategories } from '@/lib/wordpress';
 import { HeroSection } from '@/components/hero-section';
-import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
+import { NewsletterCTA } from '@/components/newsletter-cta';
+import { AnimatedPostGrid } from '@/components/animated-post-grid';
+import { TrendingPosts } from '@/components/trending-posts';
+import { NoPostsFound } from '@/components/empty-state';
 
 // Force dynamic rendering to avoid build-time API calls
 export const dynamic = 'force-dynamic';
@@ -37,12 +40,19 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   }
   const featuredPost = currentPage === 1 ? posts[0] : null;
   const gridPosts = currentPage === 1 ? posts.slice(1) : posts;
+  // Use posts 2-5 as "trending" on first page (in production, this would be based on analytics)
+  const trendingPosts = currentPage === 1 ? posts.slice(1, 5) : [];
 
   return (
     <div className="min-h-screen">
       {featuredPost && <HeroSection post={featuredPost} />}
 
       <div className="container mx-auto px-4 py-12">
+        {/* Trending section - only show on first page with enough posts */}
+        {currentPage === 1 && trendingPosts.length >= 4 && (
+          <TrendingPosts posts={trendingPosts} className="mb-8" />
+        )}
+
         <CategoryNav categories={categories} className="mb-8" />
 
         <div className="flex items-center justify-between gap-4 mb-8">
@@ -52,13 +62,25 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <span className="text-sm text-muted-foreground">{totalPosts} articles</span>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {gridPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
+        {/* Posts grid or empty state */}
+        {gridPosts.length > 0 ? (
+          <>
+            {/* First row of posts - animated */}
+            <AnimatedPostGrid posts={gridPosts.slice(0, 6)} staggerDelay={80} />
 
-        <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/" />
+            {/* Newsletter CTA - only show on first page when there are enough posts */}
+            {currentPage === 1 && gridPosts.length >= 6 && <NewsletterCTA />}
+
+            {/* Remaining posts - animated */}
+            {gridPosts.length > 6 && (
+              <AnimatedPostGrid posts={gridPosts.slice(6)} staggerDelay={80} />
+            )}
+
+            <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/" />
+          </>
+        ) : (
+          <NoPostsFound />
+        )}
       </div>
     </div>
   );

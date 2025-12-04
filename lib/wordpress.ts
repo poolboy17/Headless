@@ -355,6 +355,64 @@ export function getTags_Post(post: WPPost): WPTag[] {
   return terms.filter((t): t is WPTag => 'count' in t);
 }
 
+// WordPress Pages
+export interface WPPage {
+  id: number;
+  date: string;
+  date_gmt: string;
+  modified: string;
+  modified_gmt: string;
+  slug: string;
+  status: string;
+  type: string;
+  link: string;
+  title: { rendered: string };
+  content: { rendered: string; protected?: boolean };
+  excerpt: { rendered: string; protected?: boolean };
+  author: number;
+  featured_media: number;
+  parent: number;
+  menu_order: number;
+  _embedded?: {
+    author?: WPAuthor[];
+    'wp:featuredmedia'?: WPMedia[];
+  };
+}
+
+export async function getPage(slug: string): Promise<WPPage | null> {
+  try {
+    const response = await fetch(
+      `${WP_API_URL}/pages?slug=${slug}&_embed=true`,
+      { next: { revalidate: 300 } }
+    );
+
+    if (!response.ok) {
+      console.warn(`WordPress API error: ${response.status}`);
+      return null;
+    }
+
+    const pages = await response.json();
+    return pages.length > 0 ? pages[0] : null;
+  } catch (error) {
+    console.warn('WordPress API fetch failed:', error);
+    return null;
+  }
+}
+
+export async function getPages(): Promise<WPPage[]> {
+  return fetchWP<WPPage[]>('/pages?per_page=100&_embed=true', {
+    tags: ['pages'],
+  }, []);
+}
+
+export async function getAllPageSlugs(): Promise<string[]> {
+  const pages = await fetchWP<WPPage[]>('/pages?per_page=100&_fields=slug', {
+    revalidate: 3600,
+    tags: ['pages'],
+  }, []);
+  return pages.map(p => p.slug);
+}
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://cursedtours.com';
 const DEFAULT_OG_IMAGE_URL = `${SITE_URL}/og-default.png`;
 

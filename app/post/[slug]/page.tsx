@@ -6,6 +6,7 @@ import { Calendar, Clock, ArrowLeft } from 'lucide-react';
 import { SiX, SiFacebook, SiLinkedin } from 'react-icons/si';
 import { getPost, buildSeo, getAllPostSlugs } from '@/lib/wordpress';
 import { stripHtml, formatDate, getReadingTime, getFeaturedImage, getAuthor, getCategories_Post, getTags_Post } from '@/lib/wordpress';
+import { sanitizeContent } from '@/lib/sanitize-content';
 import { PostCard } from '@/components/post-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -160,7 +161,7 @@ export default async function PostPage({ params }: PostPageProps) {
         <div className="max-w-3xl mx-auto">
           <div
             className="wp-content"
-            dangerouslySetInnerHTML={{ __html: post.content.rendered }}
+            dangerouslySetInnerHTML={{ __html: sanitizeContent(post.content.rendered) }}
           />
 
           {tags.length > 0 && (
@@ -226,7 +227,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 <div>
                   <h3 className="font-semibold text-lg mb-1">{author.name}</h3>
                   {author.description && (
-                    <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: author.description }} />
+                    <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: sanitizeContent(author.description) }} />
                   )}
                 </div>
               </div>

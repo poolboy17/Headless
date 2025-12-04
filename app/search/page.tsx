@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { getPosts, getCategories } from '@/lib/wordpress';
-import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
+import { AnimatedPostGrid } from '@/components/animated-post-grid';
+import { NoSearchResults } from '@/components/empty-state';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,19 +51,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <CategoryNav categories={categories} className="mb-8" />
 
         {!q ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Enter a search term to find articles.</p>
-          </div>
+          <NoSearchResults />
         ) : posts.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No articles found for &quot;{q}&quot;.</p>
-          </div>
+          <NoSearchResults query={q} />
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
+          <AnimatedPostGrid posts={posts} staggerDelay={80} />
         )}
       </div>
     </div>
