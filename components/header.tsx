@@ -140,17 +140,6 @@ export function Header({ categories }: HeaderProps) {
                   Home
                 </Button>
               </Link>
-              {categories.slice(0, 4).map((category) => (
-                <Link key={category.id} href={`/category/${category.slug}`}>
-                  <Button
-                    variant={isActive(`/category/${category.slug}`) ? 'secondary' : 'ghost'}
-                    className="text-sm"
-                    data-testid={`nav-category-${category.slug}`}
-                  >
-                    {category.name}
-                  </Button>
-                </Link>
-              ))}
             </nav>
 
             <div className="mx-2 hidden h-8 self-center border-l border-neutral-200 dark:border-neutral-700 md:block" />
