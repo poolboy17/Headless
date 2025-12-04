@@ -133,6 +133,52 @@
 - Social media icons
 - Copyright info centered at bottom
 
+### AnimatedPostGrid
+- Grid layout with staggered fade-in animations
+- Uses Intersection Observer to trigger animations on scroll
+- Configurable stagger delay between cards (default: 100ms)
+- Cards translate up 30px while fading in
+
+### TrendingPosts
+- Horizontal grid of 4 trending posts (sm:grid-cols-2 lg:grid-cols-4)
+- Each card shows rank badge (1-4) with orange gradient
+- Flame icon header with "Trending Now" title
+- Compact card with thumbnail, title, and trending indicator
+
+### NewsletterCTA
+- Mid-page call-to-action section
+- Gradient background (primary to secondary colors)
+- Email input with subscribe button
+- Centered layout with max-width constraint
+
+### ScrollReveal
+- Wrapper component for scroll-triggered animations
+- Uses Intersection Observer with 0.1 threshold
+- Fade-in with translateY animation
+- Once triggered, animation does not repeat
+
+### BackToTop
+- Floating button fixed to bottom-right (bottom-6 right-6)
+- Appears after scrolling 400px
+- Smooth scroll to top on click
+- Transition animation for show/hide states
+
+### Skeletons
+Loading state components that match actual content layout:
+- **Skeleton**: Base component with pulse animation
+- **PostCardSkeleton**: Matches PostCard layout
+- **PostGridSkeleton**: Grid of PostCardSkeletons
+- **HeroSkeleton**: Matches HeroSection layout
+- **CategoryNavSkeleton**: Horizontal row of pill shapes
+- **TrendingPostsSkeleton**: Matches TrendingPosts layout
+
+### EmptyState
+Friendly fallback UI components:
+- **NoPostsFound**: When no posts exist in category
+- **NoSearchResults**: When search returns no results
+- Centered layout with icon, title, and description
+- Muted colors, encouraging messaging
+
 ---
 
 ## Images
@@ -164,3 +210,41 @@
 **Mobile**: Single column, stacked cards, simplified hero section
 
 All touch targets minimum 44x44px. Generous tap areas on cards (entire card clickable).
+
+---
+
+## Animations
+
+**Scroll Reveal**: Elements fade in and translate up when entering viewport
+- Duration: 500ms
+- Easing: ease-out
+- Transform: translateY(20-30px) to none
+
+**Staggered Grid**: Post cards animate sequentially
+- Base delay: 80-100ms between items
+- Same animation as scroll reveal
+
+**Hover Effects**:
+- Cards: subtle scale (1.02) and shadow increase
+- Images: scale(1.05) with overflow hidden
+- Buttons: background color shift, optional scale
+
+**Transitions**:
+- Color transitions: 200-300ms
+- Transform transitions: 300-500ms
+- Opacity transitions: 300-500ms
+
+**Back to Top Button**:
+- Fade in/out with translateY
+- Show threshold: 400px scroll
+
+---
+
+## Category Navigation
+
+Enhanced horizontal scrollable category pills:
+- Gradient fade overlays on scroll edges
+- Navigation chevron buttons appear when scrollable
+- Active category highlighted with primary color
+- Smooth scroll behavior
+- Scroll position tracked for fade indicators
