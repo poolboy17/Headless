@@ -28,13 +28,8 @@ export function Footer({ categories, recentPosts }: FooterProps) {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/about" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
-                    Contact
+                  <Link href="/contact-us" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
+                    Contact Us
                   </Link>
                 </li>
               </ul>
@@ -78,13 +73,23 @@ export function Footer({ categories, recentPosts }: FooterProps) {
               <h3 className="text-sm font-semibold leading-6">Legal</h3>
               <ul className="mt-6 space-y-4">
                 <li>
-                  <Link href="/privacy" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
+                  <Link href="/privacy-policy" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
+                  <Link href="/terms-of-service" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
                     Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/cookie-policy" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
+                    Cookie Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/affiliate-disclosure" className="text-sm leading-6 text-muted-foreground hover:text-foreground transition-colors">
+                    Affiliate Disclosure
                   </Link>
                 </li>
               </ul>
