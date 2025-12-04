@@ -5,6 +5,7 @@ import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
 
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export async function generateStaticParams() {

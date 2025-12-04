@@ -65,10 +65,17 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [categories, postsData] = await Promise.all([
-    getCategories(),
-    getPosts({ perPage: 4 }),
-  ]);
+  let categories: Awaited<ReturnType<typeof getCategories>> = [];
+  let postsData: Awaited<ReturnType<typeof getPosts>> = { posts: [], totalPosts: 0, totalPages: 0 };
+
+  try {
+    [categories, postsData] = await Promise.all([
+      getCategories(),
+      getPosts({ perPage: 4 }),
+    ]);
+  } catch {
+    // Fallback if WordPress API is unavailable
+  }
 
   return (
     <html lang="en" suppressHydrationWarning>

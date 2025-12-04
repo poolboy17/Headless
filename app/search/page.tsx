@@ -3,6 +3,8 @@ import { getPosts, getCategories } from '@/lib/wordpress';
 import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
 
+export const dynamic = 'force-dynamic';
+
 interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;
 }
@@ -16,10 +18,18 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q } = await searchParams;
-  const [categories, postsData] = await Promise.all([
-    getCategories(),
-    q ? getPosts({ search: q, perPage: 20 }) : Promise.resolve({ posts: [], totalPosts: 0, totalPages: 0 }),
-  ]);
+
+  let categories: Awaited<ReturnType<typeof getCategories>> = [];
+  let postsData: Awaited<ReturnType<typeof getPosts>> = { posts: [], totalPosts: 0, totalPages: 0 };
+
+  try {
+    [categories, postsData] = await Promise.all([
+      getCategories(),
+      q ? getPosts({ search: q, perPage: 20 }) : Promise.resolve({ posts: [], totalPosts: 0, totalPages: 0 }),
+    ]);
+  } catch {
+    // Fallback if WordPress API is unavailable
+  }
 
   const { posts, totalPosts } = postsData;
 
