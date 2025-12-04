@@ -5,11 +5,17 @@ import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
 
+export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const slugs = await getAllCategorySlugs();
-  return slugs.map((slug) => ({ slug }));
+  try {
+    const slugs = await getAllCategorySlugs();
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    // Return empty array to allow dynamic generation at request time
+    return [];
+  }
 }
 
 interface CategoryPageProps {

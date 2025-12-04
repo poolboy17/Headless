@@ -5,6 +5,9 @@ import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
 
+// Force dynamic rendering to avoid build-time API calls
+export const dynamic = 'force-dynamic';
+
 interface HomePageProps {
   searchParams: Promise<{ page?: string }>;
 }
@@ -14,10 +17,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const requestedPage = Math.max(1, parseInt(page || '1', 10));
   const postsPerPage = 10;
 
-  const [postsData, categories] = await Promise.all([
-    getPosts({ perPage: postsPerPage, page: requestedPage }),
-    getCategories(),
-  ]);
+  let postsData: Awaited<ReturnType<typeof getPosts>> = { posts: [], totalPosts: 0, totalPages: 0 };
+  let categories: Awaited<ReturnType<typeof getCategories>> = [];
+
+  try {
+    [postsData, categories] = await Promise.all([
+      getPosts({ perPage: postsPerPage, page: requestedPage }),
+      getCategories(),
+    ]);
+  } catch {
+    // Return empty data if WordPress API is unavailable
+  }
 
   const { posts, totalPosts, totalPages } = postsData;
   

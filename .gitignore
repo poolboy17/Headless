@@ -4,3 +4,14 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Next.js build output
+.next
+
+# Environment files (keep .env.example for reference)
+.env
+.env.local
+.env.*.local
+
+# TypeScript build info
+tsconfig.tsbuildinfo

@@ -1,4 +1,23 @@
-const WP_BASE_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL || 'https://cursedtours.com';
+// Ensure we always have a valid URL - fallback to production URL if env var is missing or invalid
+function getWordPressBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL;
+  const fallbackUrl = 'https://cursedtours.com';
+
+  if (!envUrl) {
+    return fallbackUrl;
+  }
+
+  // Validate that it's a proper URL
+  try {
+    new URL(envUrl);
+    return envUrl;
+  } catch {
+    console.warn(`Invalid NEXT_PUBLIC_WORDPRESS_URL: ${envUrl}, using fallback`);
+    return fallbackUrl;
+  }
+}
+
+const WP_BASE_URL = getWordPressBaseUrl();
 const WP_API_URL = `${WP_BASE_URL}/wp-json/wp/v2`;
 
 export interface WPMedia {
@@ -84,28 +103,34 @@ interface FetchOptions {
   tags?: string[];
 }
 
-async function fetchWP<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-  const { revalidate = DEFAULT_REVALIDATE, tags } = options;
-  
-  const fetchOptions: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } } = {
-    next: {},
-  };
-  
-  if (revalidate !== false) {
-    fetchOptions.next!.revalidate = revalidate;
+async function fetchWP<T>(endpoint: string, options: FetchOptions = {}, defaultValue: T): Promise<T> {
+  try {
+    const { revalidate = DEFAULT_REVALIDATE, tags } = options;
+
+    const fetchOptions: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } } = {
+      next: {},
+    };
+
+    if (revalidate !== false) {
+      fetchOptions.next!.revalidate = revalidate;
+    }
+
+    if (tags?.length) {
+      fetchOptions.next!.tags = tags;
+    }
+
+    const response = await fetch(`${WP_API_URL}${endpoint}`, fetchOptions);
+
+    if (!response.ok) {
+      console.warn(`WordPress API error: ${response.status}`);
+      return defaultValue;
+    }
+
+    return response.json();
+  } catch (error) {
+    console.warn('WordPress API fetch failed:', error);
+    return defaultValue;
   }
-  
-  if (tags?.length) {
-    fetchOptions.next!.tags = tags;
-  }
-  
-  const response = await fetch(`${WP_API_URL}${endpoint}`, fetchOptions);
-  
-  if (!response.ok) {
-    throw new Error(`WordPress API error: ${response.status}`);
-  }
-  
-  return response.json();
 }
 
 export async function getPosts(params: {
@@ -115,53 +140,63 @@ export async function getPosts(params: {
   tag?: string;
   search?: string;
 } = {}): Promise<PostsResponse> {
-  const { page = 1, perPage = 10, category, tag, search } = params;
-  
-  const queryParams = new URLSearchParams({
-    page: page.toString(),
-    per_page: perPage.toString(),
-    _embed: 'true',
-  });
-  
-  if (category) {
-    const catResponse = await fetch(
-      `${WP_API_URL}/categories?slug=${category}`,
-      { next: { revalidate: 300 } }
-    );
-    const categories = await catResponse.json();
-    if (categories.length > 0) {
-      queryParams.append('categories', categories[0].id.toString());
+  try {
+    const { page = 1, perPage = 10, category, tag, search } = params;
+
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      per_page: perPage.toString(),
+      _embed: 'true',
+    });
+
+    if (category) {
+      const catResponse = await fetch(
+        `${WP_API_URL}/categories?slug=${category}`,
+        { next: { revalidate: 300 } }
+      );
+      if (catResponse.ok) {
+        const categories = await catResponse.json();
+        if (categories.length > 0) {
+          queryParams.append('categories', categories[0].id.toString());
+        }
+      }
     }
-  }
-  
-  if (tag) {
-    const tagResponse = await fetch(
-      `${WP_API_URL}/tags?slug=${tag}`,
-      { next: { revalidate: 300 } }
-    );
-    const tags = await tagResponse.json();
-    if (tags.length > 0) {
-      queryParams.append('tags', tags[0].id.toString());
+
+    if (tag) {
+      const tagResponse = await fetch(
+        `${WP_API_URL}/tags?slug=${tag}`,
+        { next: { revalidate: 300 } }
+      );
+      if (tagResponse.ok) {
+        const tags = await tagResponse.json();
+        if (tags.length > 0) {
+          queryParams.append('tags', tags[0].id.toString());
+        }
+      }
     }
+
+    if (search) {
+      queryParams.append('search', search);
+    }
+
+    const response = await fetch(`${WP_API_URL}/posts?${queryParams}`, {
+      next: { revalidate: 300 },
+    });
+
+    if (!response.ok) {
+      console.warn(`WordPress API error: ${response.status}`);
+      return { posts: [], totalPages: 0, totalPosts: 0 };
+    }
+
+    const posts = await response.json();
+    const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
+    const totalPosts = parseInt(response.headers.get('X-WP-Total') || '0');
+
+    return { posts, totalPages, totalPosts };
+  } catch (error) {
+    console.warn('WordPress API fetch failed:', error);
+    return { posts: [], totalPages: 0, totalPosts: 0 };
   }
-  
-  if (search) {
-    queryParams.append('search', search);
-  }
-  
-  const response = await fetch(`${WP_API_URL}/posts?${queryParams}`, {
-    next: { revalidate: 300 },
-  });
-  
-  if (!response.ok) {
-    throw new Error(`WordPress API error: ${response.status}`);
-  }
-  
-  const posts = await response.json();
-  const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
-  const totalPosts = parseInt(response.headers.get('X-WP-Total') || '0');
-  
-  return { posts, totalPages, totalPosts };
 }
 
 export async function getPost(slug: string): Promise<SinglePostResponse> {
@@ -199,19 +234,19 @@ export async function getPost(slug: string): Promise<SinglePostResponse> {
 export async function getCategories(): Promise<WPCategory[]> {
   return fetchWP<WPCategory[]>('/categories?per_page=100&orderby=count&order=desc', {
     tags: ['categories'],
-  });
+  }, []);
 }
 
 export async function getTags(): Promise<WPTag[]> {
   return fetchWP<WPTag[]>('/tags?per_page=100&orderby=count&order=desc', {
     tags: ['tags'],
-  });
+  }, []);
 }
 
 export async function getCategoryBySlug(slug: string): Promise<WPCategory | null> {
   const categories = await fetchWP<WPCategory[]>(`/categories?slug=${slug}`, {
     tags: ['categories'],
-  });
+  }, []);
   return categories.length > 0 ? categories[0] : null;
 }
 
@@ -244,7 +279,7 @@ export async function getAllCategorySlugs(): Promise<string[]> {
   const categories = await fetchWP<WPCategory[]>('/categories?per_page=100&_fields=slug', {
     revalidate: 3600,
     tags: ['categories'],
-  });
+  }, []);
   return categories.map(c => c.slug);
 }
 
