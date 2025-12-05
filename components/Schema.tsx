@@ -24,13 +24,8 @@ export function OrganizationSchema() {
     },
     image: SITE_CONFIG.logo,
     description: SITE_CONFIG.description,
-    // Add your social profiles here for Knowledge Panel
-    sameAs: [
-      // 'https://twitter.com/cursedtours',
-      // 'https://facebook.com/cursedtours',
-      // 'https://instagram.com/cursedtours',
-      // 'https://youtube.com/@cursedtours',
-    ].filter(Boolean),
+    // Add social profiles here when available for Knowledge Panel
+    // sameAs: ['https://twitter.com/cursedtours', 'https://facebook.com/cursedtours'],
   };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
 }
