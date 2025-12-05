@@ -69,12 +69,35 @@ const nextConfig = {
       },
     ],
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 86400,
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
     },
+  },
+  allowedDevOrigins: [
+    'localhost',
+    '*.replit.dev',
+    '*.repl.co',
+  ],
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+        ],
+      },
+    ];
   },
 };
 

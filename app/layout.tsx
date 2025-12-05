@@ -82,6 +82,12 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="dns-prefetch" href="https://wp.cursedtours.com" />
+        <link rel="preconnect" href="https://wp.cursedtours.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <SiteSchema />
       </head>
       <body className={`${inter.variable} ${lora.variable} ${jetbrainsMono.variable} antialiased`}>
