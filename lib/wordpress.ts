@@ -33,32 +33,72 @@ const VALID_NON_POST_PATHS = [
   'cookie-policy', 'affiliate-disclosure', 'category', 'tag', 'search', 'api',
 ];
 
+/**
+ * Aggressively fix corrupted HTML content
+ * Handles multiple levels of encoding corruption
+ */
 function transformPostContent(content: string): string {
   if (!content) return content;
 
   let transformed = content;
-  let previousContent = '';
-  let iterations = 0;
-  
-  while (transformed !== previousContent && iterations < 5) {
-    previousContent = transformed;
-    iterations++;
-    
-    transformed = transformed
-      .replace(/&lt;a\s+href=&quot;([^&]+)&quot;&gt;/gi, '<a href="$1">')
-      .replace(/&lt;a\s+href=&quot;([^&]+)&quot;\s*&gt;/gi, '<a href="$1">')
-      .replace(/&lt;\/a&gt;/gi, '</a>')
-      .replace(/&lt;(\/?)(strong|em|b|i)&gt;/gi, '<$1$2>')
-      .replace(/href=&quot;([^"&]+)&quot;/gi, 'href="$1"')
-      .replace(/&#8221;/g, '"')
-      .replace(/&#8220;/g, '"');
-  }
 
+  // STEP 1: Remove deeply nested broken link structures FIRST
+  // These are unfixable - pattern like: &lt;a href="url-&lt;a href="url">text</a>-more"&gt;
+  // Remove them entirely to prevent visible garbage
+  
+  // Pattern 1: Encoded opening tag containing another link
   transformed = transformed.replace(
-    /<a\s+href="https?:\/\/[^"]*<a\s+href="[^"]*">[^<]*<\/a>[^"]*">/gi,
+    /&lt;a\s+href=["&quot;][^"]*?<a\s+href=[^>]+>[^<]*<\/a>[^"]*?["&quot;]&gt;/gi,
+    ''
+  );
+  
+  // Pattern 2: Encoded opening tag with encoded content inside
+  transformed = transformed.replace(
+    /&lt;a\s+href=["&quot;][^"]*?&lt;a\s+href=[^&]*?&gt;[^&]*?&lt;\/a&gt;[^"]*?["&quot;]&gt;/gi,
     ''
   );
 
+  // Pattern 3: Mixed encoding - starts with &lt; but has real quotes
+  transformed = transformed.replace(
+    /&lt;a\s+href="[^"]*?(?:&lt;|<)a\s+href=[^>]*>[^<]*<\/a>[^"]*"&gt;/gi,
+    ''
+  );
+  
+  // Pattern 4: Any &lt;a href= followed by complex nested garbage until &gt;
+  transformed = transformed.replace(
+    /&lt;a\s+href=["&quot;]https?:\/\/cursedtours\.com\/[^"&]*(?:&lt;|<)a[^&>]*(?:&gt;|>)[^&]*(?:&lt;|<)\/a(?:&gt;|>)[^"&]*["&quot;]&gt;/gi,
+    ''
+  );
+
+  // STEP 2: Decode HTML entities iteratively
+  let previousContent = '';
+  let iterations = 0;
+  
+  while (transformed !== previousContent && iterations < 10) {
+    previousContent = transformed;
+    iterations++;
+    
+    // Decode &lt; &gt; for anchor tags (with both &quot; and regular quotes)
+    transformed = transformed
+      .replace(/&lt;a\s+href=&quot;([^&]+)&quot;&gt;/gi, '<a href="$1">')
+      .replace(/&lt;a\s+href=&quot;([^&]+)&quot;\s*&gt;/gi, '<a href="$1">')
+      .replace(/&lt;a\s+href="([^"]+)"&gt;/gi, '<a href="$1">')
+      .replace(/&lt;a\s+href="([^"]+)"\s*&gt;/gi, '<a href="$1">')
+      .replace(/&lt;\/a&gt;/gi, '</a>')
+      .replace(/&lt;(\/?)(strong|em|b|i|p|span|div)&gt;/gi, '<$1$2>')
+      .replace(/href=&quot;([^"&]+)&quot;/gi, 'href="$1"')
+      .replace(/&#8221;/g, '"')
+      .replace(/&#8220;/g, '"')
+      .replace(/&#8217;/g, "'")
+      .replace(/&#8216;/g, "'");
+  }
+
+  // STEP 3: Clean up any remaining broken structures
+  // Remove any remaining &lt;a that didn't get cleaned
+  transformed = transformed.replace(/&lt;a\s+href=[^&]*&gt;/gi, '');
+  transformed = transformed.replace(/&lt;\/a&gt;/gi, '');
+
+  // STEP 4: Fix internal links to use /post/ prefix
   const validPathsPattern = VALID_NON_POST_PATHS.join('|');
   
   transformed = transformed.replace(
@@ -79,6 +119,7 @@ function transformPostContent(content: string): string {
     `href="${SITE_URL}/category/$2"`
   );
 
+  // STEP 5: Transform image URLs
   transformed = transformed.replace(
     /https?:\/\/(www\.)?cursedtours\.com\/wp-content\/uploads/g,
     'https://wp.cursedtours.com/wp-content/uploads'
