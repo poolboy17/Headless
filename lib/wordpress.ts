@@ -20,6 +20,15 @@ function getWordPressBaseUrl(): string {
 const WP_BASE_URL = getWordPressBaseUrl();
 const WP_API_URL = `${WP_BASE_URL}/wp-json/wp/v2`;
 
+// Transform image URLs from old domain to wp subdomain
+function transformImageUrl(url: string): string {
+  if (!url) return url;
+  return url.replace(
+    /https?:\/\/(www\.)?cursedtours\.com\/wp-content\/uploads/g,
+    'https://wp.cursedtours.com/wp-content/uploads'
+  );
+}
+
 export interface WPMedia {
   id: number;
   source_url: string;
@@ -310,7 +319,7 @@ export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' |
   const selectedSize = sizes?.[size] || sizes?.large || sizes?.medium_large;
   
   return {
-    url: selectedSize?.source_url || media.source_url,
+    url: transformImageUrl(selectedSize?.source_url || media.source_url),
     width: selectedSize?.width || media.media_details?.width || 800,
     height: selectedSize?.height || media.media_details?.height || 600,
     alt: media.alt_text || stripHtml(post.title.rendered),
