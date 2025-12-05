@@ -14,6 +14,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'wp.cursedtours.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'cms.cursedtours.com',
         pathname: '/**',
       },
