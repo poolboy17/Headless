@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { SITE_CONFIG } from '@/lib/seo';
 
-const WP_API = process.env.NEXT_PUBLIC_WORDPRESS_API_URL || 'https://cms.cursedtours.com/wp-json/wp/v2';
+const WP_API = process.env.NEXT_PUBLIC_WORDPRESS_URL ? `${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-json/wp/v2` : 'https://wp.cursedtours.com/wp-json/wp/v2';
 
 async function fetchAll(endpoint: string) {
   const items: any[] = [];
