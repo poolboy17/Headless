@@ -380,6 +380,71 @@ const DEFAULT_FALLBACK_IMAGE = {
   alt: 'Mysterious dark forest path with fog and supernatural atmosphere',
 };
 
+const IRRELEVANT_IMAGE_BLOCKLIST = [
+  'neon', 'sign', 'tips', 'travel', 'stock-photo', 'best', 'top-10', 'quote',
+  'banner', 'icon', 'logo', 'badge', 'label', 'tag', 'button', 'arrow',
+  'generic', 'placeholder', 'template', 'mockup', 'shutterstock', 'istock',
+  'getty', 'depositphotos', 'dreamstime', 'fotolia', 'clipart', 'vector',
+  'abstract', 'pattern', 'texture', 'background-image', 'wallpaper',
+  'office', 'business', 'corporate', 'meeting', 'handshake', 'teamwork',
+  'laptop', 'computer', 'desk', 'keyboard', 'mouse', 'phone', 'smartphone',
+  'coffee', 'cafe', 'restaurant', 'food', 'drink', 'wine', 'beer', 'cocktail',
+  'beach', 'vacation', 'holiday', 'summer', 'tropical', 'palm-tree', 'sunset-beach',
+  'city-skyline', 'skyscraper', 'downtown', 'urban-modern', 'architecture-modern',
+  'car', 'vehicle', 'automobile', 'motorcycle', 'bike', 'bicycle',
+  'sports', 'fitness', 'gym', 'workout', 'exercise', 'running', 'yoga',
+  'shopping', 'retail', 'store', 'mall', 'fashion', 'clothing', 'shoes',
+  'money', 'dollar', 'currency', 'finance', 'investment', 'banking', 'credit-card',
+  'medical', 'hospital', 'doctor', 'nurse', 'healthcare', 'medicine', 'pills',
+  'baby', 'child', 'kids', 'family-happy', 'couple-happy', 'friends-happy',
+  'wedding', 'birthday', 'party', 'celebration', 'confetti', 'balloon',
+  'pet', 'dog', 'cat', 'puppy', 'kitten', 'animal-cute',
+  'flower', 'garden', 'plant', 'tree-green', 'nature-bright', 'landscape-sunny',
+  'sky-blue', 'cloud-white', 'rainbow', 'sunrise-bright', 'sunset-orange',
+];
+
+const PARANORMAL_IMAGE_ALLOWLIST = [
+  'ghost', 'haunted', 'spooky', 'creepy', 'scary', 'horror', 'dark', 'eerie',
+  'paranormal', 'supernatural', 'spirit', 'specter', 'phantom', 'apparition',
+  'cemetery', 'graveyard', 'tombstone', 'grave', 'crypt', 'mausoleum',
+  'abandoned', 'ruins', 'decay', 'dilapidated', 'derelict', 'crumbling',
+  'asylum', 'hospital-abandoned', 'sanatorium', 'institution', 'ward',
+  'mansion', 'manor', 'estate', 'castle', 'chateau', 'palace-old', 'victorian',
+  'gothic', 'medieval', 'ancient', 'historic', 'antique', 'vintage-dark',
+  'fog', 'mist', 'shadow', 'darkness', 'night', 'moonlight', 'twilight',
+  'investigation', 'investigator', 'detective', 'flashlight', 'torch',
+  'emf', 'detector', 'equipment', 'device', 'meter', 'sensor', 'recorder',
+  'evp', 'audio', 'recording', 'waveform', 'frequency', 'spirit-box',
+  'seance', 'ouija', 'occult', 'ritual', 'candle', 'candlelight',
+  'corridor', 'hallway', 'staircase', 'door', 'window-broken', 'attic', 'basement',
+  'portrait', 'photograph-old', 'frame-antique', 'mirror', 'reflection',
+  'forest-dark', 'woods', 'path-dark', 'road-abandoned', 'tunnel',
+  'silhouette', 'figure', 'shadow-figure', 'presence', 'entity',
+  'skull', 'skeleton', 'bones', 'death', 'mortality',
+  'church', 'chapel', 'cathedral', 'monastery', 'abbey', 'convent',
+  'prison', 'jail', 'cell', 'dungeon', 'tower', 'fortress',
+  'lighthouse', 'shipwreck', 'ship-old', 'sailor', 'maritime',
+  'hotel', 'inn', 'tavern', 'saloon', 'theater', 'opera-house',
+  'battlefield', 'war', 'soldier', 'military', 'civil-war', 'revolutionary',
+];
+
+function isImageIrrelevant(imageUrl: string, altText: string): boolean {
+  const searchText = `${imageUrl} ${altText}`.toLowerCase();
+  
+  const hasAllowedTerm = PARANORMAL_IMAGE_ALLOWLIST.some(term => 
+    searchText.includes(term.toLowerCase())
+  );
+  if (hasAllowedTerm) {
+    return false;
+  }
+  
+  const hasBlockedTerm = IRRELEVANT_IMAGE_BLOCKLIST.some(term => 
+    searchText.includes(term.toLowerCase())
+  );
+  
+  return hasBlockedTerm;
+}
+
 export interface FeaturedImageResult {
   url: string;
   width: number;
@@ -413,6 +478,30 @@ export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' |
   const media = post._embedded?.['wp:featuredmedia']?.[0];
   
   if (media) {
+    const imageUrl = media.source_url || '';
+    const altText = media.alt_text || '';
+    
+    if (isImageIrrelevant(imageUrl, altText)) {
+      console.info(`[Image Override] Post "${stripHtml(post.title.rendered)}" - irrelevant stock image detected, using category fallback`);
+      const categoryFallback = getCategoryFallbackImage(post);
+      if (categoryFallback) {
+        return {
+          url: categoryFallback.url,
+          width: 1920,
+          height: 1080,
+          alt: buildEnhancedAltText(post, categoryFallback.alt),
+          isFallback: true,
+        };
+      }
+      return {
+        url: DEFAULT_FALLBACK_IMAGE.url,
+        width: 1920,
+        height: 1080,
+        alt: buildEnhancedAltText(post, DEFAULT_FALLBACK_IMAGE.alt),
+        isFallback: true,
+      };
+    }
+    
     const sizes = media.media_details?.sizes;
     const selectedSize = sizes?.[size] || sizes?.large || sizes?.medium_large;
     return {
