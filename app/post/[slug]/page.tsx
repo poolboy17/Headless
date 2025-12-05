@@ -83,7 +83,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const title = stripHtml(post.title.rendered);
   const readingTime = getReadingTime(post.content.rendered);
 
-  const shareUrl = `https://cursedtours.com/post/${post.slug}`;
+  const shareUrl = `https://www.cursedtours.com/post/${post.slug}`;
   const shareText = encodeURIComponent(title);
 
   return (

@@ -7,7 +7,7 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
-const WP_BASE_URL = process.env.WORDPRESS_URL || 'https://cursedtours.com';
+const WP_BASE_URL = process.env.WORDPRESS_URL || 'https://wp.cursedtours.com';
 const WP_API_URL = `${WP_BASE_URL}/wp-json/wp/v2`;
 
 // Helper function to fetch from WordPress API

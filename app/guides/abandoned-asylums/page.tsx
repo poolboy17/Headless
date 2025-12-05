@@ -77,9 +77,9 @@ export default async function AbandonedAsylumsGuidePage() {
             '@type': 'Guide',
             name: 'Abandoned Asylums & Hospitals: Complete Exploration Guide',
             description: 'Comprehensive guide to exploring abandoned mental institutions and hospitals safely.',
-            url: 'https://cursedtours.com/guides/abandoned-asylums',
+            url: 'https://www.cursedtours.com/guides/abandoned-asylums',
             author: { '@type': 'Organization', name: 'Cursed Tours' },
-            publisher: { '@type': 'Organization', name: 'Cursed Tours', url: 'https://cursedtours.com' },
+            publisher: { '@type': 'Organization', name: 'Cursed Tours', url: 'https://www.cursedtours.com' },
           }),
         }}
       />

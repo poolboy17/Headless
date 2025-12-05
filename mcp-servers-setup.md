@@ -40,7 +40,7 @@ Edit `%USERPROFILE%\.claude\settings.json`:
       "command": "node",
       "args": ["D:/New folder/Headless-main/Headless-main/mcp-wordpress/index.js"],
       "env": {
-        "WORDPRESS_URL": "https://cursedtours.com"
+        "WORDPRESS_URL": "https://wp.cursedtours.com"
       }
     },
     "vercel": {
@@ -64,7 +64,7 @@ Edit `~/.claude/settings.json`:
       "command": "node",
       "args": ["/path/to/Headless/mcp-wordpress/index.js"],
       "env": {
-        "WORDPRESS_URL": "https://cursedtours.com"
+        "WORDPRESS_URL": "https://wp.cursedtours.com"
       }
     },
     "vercel": {

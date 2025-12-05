@@ -77,7 +77,7 @@ export default async function GhostHuntingEquipmentGuidePage() {
             '@type': 'Guide',
             name: 'Ghost Hunting Equipment Guide',
             description: 'Complete guide to paranormal investigation equipment and tools.',
-            url: 'https://cursedtours.com/guides/ghost-hunting-equipment',
+            url: 'https://www.cursedtours.com/guides/ghost-hunting-equipment',
             author: { '@type': 'Organization', name: 'Cursed Tours' },
           }),
         }}

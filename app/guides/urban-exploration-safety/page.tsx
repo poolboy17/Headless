@@ -120,7 +120,7 @@ export default async function UrbanExplorationSafetyGuidePage() {
             '@type': 'Guide',
             name: 'Urban Exploration Safety Guide',
             description: 'Comprehensive safety guide for urban explorers and paranormal investigators.',
-            url: 'https://cursedtours.com/guides/urban-exploration-safety',
+            url: 'https://www.cursedtours.com/guides/urban-exploration-safety',
             author: { '@type': 'Organization', name: 'Cursed Tours' },
           }),
         }}

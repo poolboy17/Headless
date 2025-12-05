@@ -59,7 +59,7 @@ public/
 
 **Environment Variables:**
 - `NEXT_PUBLIC_WORDPRESS_URL` - WordPress backend URL (default: https://wp.cursedtours.com)
-- `NEXT_PUBLIC_SITE_URL` - Frontend site URL (default: https://cursedtours.com)
+- `NEXT_PUBLIC_SITE_URL` - Frontend site URL (default: https://www.cursedtours.com)
 - `PREVIEW_SECRET` - Secret token for draft preview mode (optional)
 
 **Content Stats:**

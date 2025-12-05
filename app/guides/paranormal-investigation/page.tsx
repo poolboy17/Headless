@@ -86,7 +86,7 @@ export default async function ParanormalInvestigationGuidePage() {
             '@type': 'Guide',
             name: 'Complete Guide to Paranormal Investigation',
             description: 'Comprehensive guide covering all aspects of paranormal investigation including equipment, techniques, safety, and evidence documentation.',
-            url: 'https://cursedtours.com/guides/paranormal-investigation',
+            url: 'https://www.cursedtours.com/guides/paranormal-investigation',
             author: {
               '@type': 'Organization',
               name: 'Cursed Tours',
@@ -94,7 +94,7 @@ export default async function ParanormalInvestigationGuidePage() {
             publisher: {
               '@type': 'Organization',
               name: 'Cursed Tours',
-              url: 'https://cursedtours.com',
+              url: 'https://www.cursedtours.com',
             },
           }),
         }}
