@@ -69,6 +69,16 @@ export function Header({ categories }: HeaderProps) {
                     </Button>
                   </Link>
                   
+                  <Link href="/guides" onClick={() => setMobileMenuOpen(false)}>
+                    <Button
+                      variant={isActive('/guides') ? 'secondary' : 'ghost'}
+                      className="w-full justify-start text-base mb-1"
+                      data-testid="mobile-nav-guides"
+                    >
+                      Guides
+                    </Button>
+                  </Link>
+                  
                   <div className="my-4 border-t border-border" />
                   <p className="px-4 py-2 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                     Categories
@@ -138,6 +148,15 @@ export function Header({ categories }: HeaderProps) {
                   data-testid="nav-home"
                 >
                   Home
+                </Button>
+              </Link>
+              <Link href="/guides">
+                <Button
+                  variant={isActive('/guides') ? 'secondary' : 'ghost'}
+                  className="text-sm"
+                  data-testid="nav-guides"
+                >
+                  Guides
                 </Button>
               </Link>
             </nav>
