@@ -4,6 +4,18 @@
  */
 import { SITE_CONFIG, WPPostSEO, getSeoTitle, getSeoDescription, getFeaturedImage, getAuthorInfo, getCategories, stripHtml } from '@/lib/seo';
 
+function JsonLd({ data }: { data: object }) {
+  return (
+    <script
+      type="application/ld+json"
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(data),
+      }}
+    />
+  );
+}
+
 // ============================================
 // SITE-WIDE SCHEMAS
 // ============================================
@@ -27,7 +39,7 @@ export function OrganizationSchema() {
     // Add social profiles here when available for Knowledge Panel
     // sameAs: ['https://twitter.com/cursedtours', 'https://facebook.com/cursedtours'],
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+  return <JsonLd data={schema} />;
 }
 
 // WebSite Schema with SearchAction
@@ -50,7 +62,7 @@ export function WebSiteSchema() {
       'query-input': 'required name=search_term_string',
     },
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+  return <JsonLd data={schema} />;
 }
 
 // ============================================
@@ -96,7 +108,7 @@ export function ArticleSchema({ post }: { post: WPPostSEO }) {
     inLanguage: 'en-US',
     isAccessibleForFree: true,
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+  return <JsonLd data={schema} />;
 }
 
 
@@ -125,7 +137,7 @@ export function FAQSchema({ faqs }: { faqs: FAQItem[] }) {
       },
     })),
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+  return <JsonLd data={schema} />;
 }
 
 // Auto-extract FAQs from post content (looks for Q: or Question: patterns)
@@ -198,7 +210,7 @@ export function HowToSchema({
       ...(step.image && { image: step.image }),
     })),
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+  return <JsonLd data={schema} />;
 }
 
 // Auto-extract HowTo steps from numbered lists in content
@@ -251,7 +263,7 @@ export function ItemListSchema({
       name: getSeoTitle(post),
     })),
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+  return <JsonLd data={schema} />;
 }
 
 // ============================================
@@ -269,7 +281,7 @@ export function BreadcrumbSchema({ items }: { items: Array<{ name: string; url: 
       item: item.url,
     })),
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+  return <JsonLd data={schema} />;
 }
 
 // Auto-generated breadcrumb for posts
@@ -302,7 +314,7 @@ export function WebPageSchema({ post, type = 'WebPage' }: { post: WPPostSEO; typ
     dateModified: post.modified,
     inLanguage: 'en-US',
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+  return <JsonLd data={schema} />;
 }
 
 // CollectionPage Schema for category/tag archives
@@ -340,7 +352,7 @@ export function CollectionPageSchema({
       })),
     },
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />;
+  return <JsonLd data={schema} />;
 }
 
 
