@@ -1,7 +1,7 @@
 // Ensure we always have a valid URL - fallback to production URL if env var is missing or invalid
 function getWordPressBaseUrl(): string {
   const envUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL;
-  const fallbackUrl = 'https://cursedtours.com';
+  const fallbackUrl = 'https://wp.cursedtours.com';
 
   if (!envUrl) {
     return fallbackUrl;

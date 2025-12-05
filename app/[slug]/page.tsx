@@ -10,8 +10,19 @@ import { Button } from '@/components/ui/button';
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-// Reserved slugs that should not be handled by this route
-const RESERVED_SLUGS = ['post', 'category', 'search', 'api'];
+// Reserved slugs that should not be handled by this route (handled by static pages)
+const RESERVED_SLUGS = [
+  'post',
+  'category',
+  'search',
+  'api',
+  'about-us',
+  'contact-us',
+  'privacy-policy',
+  'terms-of-service',
+  'cookie-policy',
+  'affiliate-disclosure',
+];
 
 export async function generateStaticParams() {
   try {
