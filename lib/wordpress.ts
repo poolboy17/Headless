@@ -340,16 +340,107 @@ export function getReadingTime(content: string): number {
   return Math.ceil(wordCount / wordsPerMinute);
 }
 
-export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' | 'large' = 'medium_large') {
+const CATEGORY_FALLBACK_IMAGES: Record<string, { url: string; alt: string }> = {
+  'abandoned-asylums-hospitals': {
+    url: '/assets/fallbacks/abandoned_asylum_dark_corridor.png',
+    alt: 'Eerie abandoned asylum corridor with peeling walls and moonlight',
+  },
+  'cultural-ghost-folklore': {
+    url: '/assets/fallbacks/historical_haunting_victorian_sepia.png',
+    alt: 'Historical Victorian haunted photograph with antique aesthetic',
+  },
+  'ghost-hunting-techniques-tools': {
+    url: '/assets/fallbacks/ghost_hunting_equipment_display.png',
+    alt: 'Professional ghost hunting equipment including EMF detectors and spirit boxes',
+  },
+  'haunted-castles-estates': {
+    url: '/assets/fallbacks/haunted_victorian_mansion_night.png',
+    alt: 'Haunted Victorian mansion at night with fog and moonlight',
+  },
+  'haunted-places-case-studies': {
+    url: '/assets/fallbacks/paranormal_investigation_team_silhouettes.png',
+    alt: 'Paranormal investigation team exploring a dark historic location',
+  },
+  'historical-hauntings-insights': {
+    url: '/assets/fallbacks/historical_haunting_victorian_sepia.png',
+    alt: 'Historical Victorian haunted photograph with antique aesthetic',
+  },
+  'paranormal-evidence-archive': {
+    url: '/assets/fallbacks/evp_spirit_communication_equipment.png',
+    alt: 'EVP spirit communication equipment with vintage audio recorders',
+  },
+  'personal-ghost-encounters': {
+    url: '/assets/fallbacks/misty_dark_forest_supernatural.png',
+    alt: 'Mysterious dark forest path with fog and supernatural atmosphere',
+  },
+};
+
+const DEFAULT_FALLBACK_IMAGE = {
+  url: '/assets/fallbacks/misty_dark_forest_supernatural.png',
+  alt: 'Mysterious dark forest path with fog and supernatural atmosphere',
+};
+
+export interface FeaturedImageResult {
+  url: string;
+  width: number;
+  height: number;
+  alt: string;
+  isFallback?: boolean;
+}
+
+function getCategoryFallbackImage(post: WPPost): { url: string; alt: string } | null {
+  const categories = getCategories_Post(post);
+  for (const category of categories) {
+    const slug = category.slug.toLowerCase();
+    if (CATEGORY_FALLBACK_IMAGES[slug]) {
+      return CATEGORY_FALLBACK_IMAGES[slug];
+    }
+  }
+  return null;
+}
+
+function buildEnhancedAltText(post: WPPost, mediaAlt?: string): string {
+  if (mediaAlt && mediaAlt.trim().length > 10) {
+    return mediaAlt;
+  }
+  const title = stripHtml(post.title.rendered);
+  const categories = getCategories_Post(post);
+  const primaryCategory = categories[0]?.name || 'Paranormal';
+  return `${title} - ${primaryCategory} - Cursed Tours`;
+}
+
+export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' | 'large' = 'medium_large'): FeaturedImageResult | null {
   const media = post._embedded?.['wp:featuredmedia']?.[0];
-  if (!media) return null;
-  const sizes = media.media_details?.sizes;
-  const selectedSize = sizes?.[size] || sizes?.large || sizes?.medium_large;
+  
+  if (media) {
+    const sizes = media.media_details?.sizes;
+    const selectedSize = sizes?.[size] || sizes?.large || sizes?.medium_large;
+    return {
+      url: transformImageUrl(selectedSize?.source_url || media.source_url),
+      width: selectedSize?.width || media.media_details?.width || 800,
+      height: selectedSize?.height || media.media_details?.height || 600,
+      alt: buildEnhancedAltText(post, media.alt_text),
+      isFallback: false,
+    };
+  }
+  
+  const categoryFallback = getCategoryFallbackImage(post);
+  if (categoryFallback) {
+    return {
+      url: categoryFallback.url,
+      width: 1920,
+      height: 1080,
+      alt: buildEnhancedAltText(post, categoryFallback.alt),
+      isFallback: true,
+    };
+  }
+  
   return {
-    url: transformImageUrl(selectedSize?.source_url || media.source_url),
-    width: selectedSize?.width || media.media_details?.width || 800,
-    height: selectedSize?.height || media.media_details?.height || 600,
-    alt: media.alt_text || stripHtml(post.title.rendered),
+    url: DEFAULT_FALLBACK_IMAGE.url,
+    width: 1920,
+    height: 1080,
+    alt: buildEnhancedAltText(post, DEFAULT_FALLBACK_IMAGE.alt),
+    isFallback: true,
   };
 }
 
