@@ -11,6 +11,7 @@ import { PostCard } from '@/components/post-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { PostSchema } from '@/components/Schema';
 
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
@@ -87,6 +88,7 @@ export default async function PostPage({ params }: PostPageProps) {
 
   return (
     <article className="min-h-screen">
+      <PostSchema post={post} />
       <div className="container mx-auto px-4 py-8">
         <Link href="/">
           <Button variant="ghost" className="mb-6 -ml-2" data-testid="button-back">

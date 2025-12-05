@@ -6,6 +6,7 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { BackToTop } from '@/components/back-to-top';
 import { getCategories, getPosts } from '@/lib/wordpress';
+import { SiteSchema } from '@/components/Schema';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -80,6 +81,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <SiteSchema />
+      </head>
       <body className={`${inter.variable} ${lora.variable} ${jetbrainsMono.variable} antialiased`}>
         <ThemeProvider
           attribute="class"
