@@ -381,7 +381,7 @@ const DEFAULT_FALLBACK_IMAGE = {
 };
 
 const IRRELEVANT_IMAGE_BLOCKLIST = [
-  'neon', 'sign', 'tips', 'travel', 'stock-photo', 'best', 'top-10', 'quote',
+  'neon', 'sign', 'tips', 'travel', 'stock-photo', 'best', 'top-10', 'quote', 'true', 'real',
   'banner', 'icon', 'logo', 'badge', 'label', 'tag', 'button', 'arrow',
   'generic', 'placeholder', 'template', 'mockup', 'shutterstock', 'istock',
   'getty', 'depositphotos', 'dreamstime', 'fotolia', 'clipart', 'vector',
