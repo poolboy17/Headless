@@ -153,6 +153,14 @@ interface ExperiencePickerProps {
   className?: string;
 }
 
+// Helper to append affiliate PID to Viator URLs
+function getAffiliateUrl(baseUrl: string): string {
+  const pid = process.env.NEXT_PUBLIC_VIATOR_PID;
+  if (!pid) return baseUrl;
+  const separator = baseUrl.includes('?') ? '&' : '?';
+  return `${baseUrl}${separator}pid=${pid}`;
+}
+
 export function ExperiencePicker({ className }: ExperiencePickerProps) {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
@@ -294,7 +302,7 @@ export function ExperiencePicker({ className }: ExperiencePickerProps) {
       {filteredTours.length > 0 && (
         <div className="text-center mt-8">
           <a
-            href="https://www.viator.com/searchResults/all?text=haunted+ghost+tour"
+            href={getAffiliateUrl("https://www.viator.com/searchResults/all?text=haunted+ghost+tour")}
             target="_blank"
             rel="noopener noreferrer sponsored"
           >
@@ -319,10 +327,11 @@ interface TourCardProps {
 function TourCard({ tour }: TourCardProps) {
   const location = locations.find((l) => l.id === tour.location);
   const tourType = tourTypes.find((t) => t.id === tour.type);
+  const affiliateUrl = getAffiliateUrl(tour.viatorUrl);
 
   return (
     <a
-      href={tour.viatorUrl}
+      href={affiliateUrl}
       target="_blank"
       rel="noopener noreferrer sponsored"
       className="block group"

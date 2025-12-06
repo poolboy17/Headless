@@ -31,6 +31,10 @@ localPort = 36435
 externalPort = 3001
 
 [[ports]]
+localPort = 40095
+externalPort = 8008
+
+[[ports]]
 localPort = 40311
 externalPort = 6000
 
@@ -86,6 +90,7 @@ outputType = "webview"
 [userenv.shared]
 NEXT_PUBLIC_WORDPRESS_URL = "https://wp.cursedtours.com"
 NEXT_PUBLIC_SITE_URL = "https://cursedtours.com"
+NEXT_PUBLIC_VIATOR_PID = "643a5c93-8735-4ced-bc3f-4e7531b33b85"
 
 [agent]
 expertMode = true
