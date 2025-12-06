@@ -99,6 +99,72 @@ function injectViatorCTAs(content: string, tour: ViatorTour | undefined): string
   return result;
 }
 
+/**
+ * Category-specific inline images for visual content enhancement
+ */
+const INLINE_IMAGES: Record<string, Array<{ url: string; alt: string }>> = {
+  'abandoned-asylums-hospitals': [
+    { url: '/assets/fallbacks/abandoned_asylum_dark_corridor.png', alt: 'Abandoned asylum corridor with peeling paint and shadows' },
+    { url: '/assets/fallbacks/asylum_corridor_with_wheelchair.png', alt: 'Haunting asylum hallway with abandoned wheelchair' },
+  ],
+  'haunted-castles-estates': [
+    { url: '/assets/fallbacks/gothic_castle_with_moon.png', alt: 'Gothic castle silhouette against moonlit sky' },
+    { url: '/assets/fallbacks/haunted_victorian_ballroom.png', alt: 'Abandoned Victorian ballroom with dusty chandeliers' },
+  ],
+  'ghost-hunting-techniques-tools': [
+    { url: '/assets/fallbacks/ghost_hunting_equipment_display.png', alt: 'Professional paranormal investigation equipment' },
+    { url: '/assets/fallbacks/investigator_with_emf_meter.png', alt: 'Ghost hunter using EMF detection equipment' },
+  ],
+  'default': [
+    { url: '/assets/fallbacks/misty_dark_forest_supernatural.png', alt: 'Mysterious misty forest with supernatural atmosphere' },
+    { url: '/assets/fallbacks/foggy_cemetery_at_midnight.png', alt: 'Foggy cemetery at midnight with ancient tombstones' },
+  ],
+};
+
+/**
+ * Inserts inline images throughout the content for visual engagement.
+ * Places images after every N sections (h2/h3 headings) to break up long text.
+ */
+function insertInlineImages(content: string, interval: number = 2): string {
+  // Split content by headings to find insertion points
+  const headingPattern = /<\/h[23]>/gi;
+  const matches = [...content.matchAll(headingPattern)];
+  
+  if (matches.length < interval) return content;
+  
+  // Get images (use default for now, could be category-specific)
+  const images = INLINE_IMAGES['default'];
+  let result = content;
+  let offset = 0;
+  let imageIndex = 0;
+  
+  matches.forEach((match, index) => {
+    // Insert image after every N headings (skip first one)
+    if ((index + 1) % interval === 0 && match.index !== undefined) {
+      const image = images[imageIndex % images.length];
+      const insertPos = match.index + match[0].length + offset;
+      
+      const imageHtml = `
+        <figure class="inline-image my-8 rounded-xl overflow-hidden">
+          <img 
+            src="${image.url}" 
+            alt="${image.alt}"
+            class="w-full h-auto rounded-xl"
+            loading="lazy"
+          />
+          <figcaption class="text-sm text-gray-400 mt-2 text-center italic">${image.alt}</figcaption>
+        </figure>
+      `;
+      
+      result = result.slice(0, insertPos) + imageHtml + result.slice(insertPos);
+      offset += imageHtml.length;
+      imageIndex++;
+    }
+  });
+  
+  return result;
+}
+
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
@@ -250,9 +316,12 @@ export default async function PostPage({ params }: PostPageProps) {
           <div
             className="wp-content"
             dangerouslySetInnerHTML={{ 
-              __html: sanitizeContent(
-                injectViatorCTAs(post.content.rendered, post.meta?.viator_tour)
-              ) 
+              __html: insertInlineImages(
+                sanitizeContent(
+                  injectViatorCTAs(post.content.rendered, post.meta?.viator_tour)
+                ),
+                2
+              )
             }}
           />
 
