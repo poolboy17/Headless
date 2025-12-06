@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { EnhancedPostSchema } from '@/components/Schema';
+import { ViatorCTA } from '@/components/viator-cta';
 
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
@@ -165,6 +166,11 @@ export default async function PostPage({ params }: PostPageProps) {
             className="wp-content"
             dangerouslySetInnerHTML={{ __html: sanitizeContent(post.content.rendered) }}
           />
+
+          {/* Viator Tour CTA - displays if tour data exists in post meta */}
+          {post.meta?.viator_tour && (
+            <ViatorCTA tour={post.meta.viator_tour} className="mt-12" />
+          )}
 
           {tags.length > 0 && (
             <div className="mt-12 pt-8 border-t">
