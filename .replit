@@ -90,7 +90,7 @@ outputType = "webview"
 [userenv.shared]
 NEXT_PUBLIC_WORDPRESS_URL = "https://wp.cursedtours.com"
 NEXT_PUBLIC_SITE_URL = "https://cursedtours.com"
-NEXT_PUBLIC_VIATOR_PID = "643a5c93-8735-4ced-bc3f-4e7531b33b85"
+NEXT_PUBLIC_VIATOR_PID = "P00166886"
 
 [agent]
 expertMode = true
