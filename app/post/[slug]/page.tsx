@@ -7,6 +7,7 @@ import { SiX, SiFacebook, SiLinkedin } from 'react-icons/si';
 import { getPost, buildSeo, getAllPostSlugs, ViatorTour } from '@/lib/wordpress';
 import { stripHtml, formatDate, getReadingTime, getFeaturedImage, getAuthor, getCategories_Post, getTags_Post } from '@/lib/wordpress';
 import { sanitizeContent } from '@/lib/sanitize-content';
+import { OptimizedContent } from '@/components/optimized-content';
 import { PostCard } from '@/components/post-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -313,16 +314,14 @@ export default async function PostPage({ params }: PostPageProps) {
         )}
 
         <div className="max-w-3xl mx-auto">
-          <div
+          <OptimizedContent 
+            html={insertInlineImages(
+              sanitizeContent(
+                injectViatorCTAs(post.content.rendered, post.meta?.viator_tour)
+              ),
+              2
+            )}
             className="wp-content"
-            dangerouslySetInnerHTML={{ 
-              __html: insertInlineImages(
-                sanitizeContent(
-                  injectViatorCTAs(post.content.rendered, post.meta?.viator_tour)
-                ),
-                2
-              )
-            }}
           />
 
           {tags.length > 0 && (
