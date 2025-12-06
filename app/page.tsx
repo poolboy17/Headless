@@ -7,6 +7,7 @@ import { NewsletterCTA } from '@/components/newsletter-cta';
 import { AnimatedPostGrid } from '@/components/animated-post-grid';
 import { TrendingPosts } from '@/components/trending-posts';
 import { NoPostsFound } from '@/components/empty-state';
+import { ExperiencePicker } from '@/components/experience-picker';
 
 // Force dynamic rendering to avoid build-time API calls
 export const dynamic = 'force-dynamic';
@@ -46,6 +47,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <div className="min-h-screen">
       {featuredPost && <HeroSection post={featuredPost} />}
+
+      {/* Experience Picker - only show on first page */}
+      {currentPage === 1 && (
+        <div className="container mx-auto px-4">
+          <ExperiencePicker />
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-12">
         {/* Trending section - only show on first page with enough posts */}
