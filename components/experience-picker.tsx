@@ -154,12 +154,13 @@ interface ExperiencePickerProps {
   className?: string;
 }
 
+// Viator affiliate Partner ID
+const VIATOR_PID = 'P00166886';
+
 // Helper to append affiliate PID to Viator URLs
 function getAffiliateUrl(baseUrl: string): string {
-  const pid = process.env.NEXT_PUBLIC_VIATOR_PID;
-  if (!pid) return baseUrl;
   const separator = baseUrl.includes('?') ? '&' : '?';
-  return `${baseUrl}${separator}pid=${pid}`;
+  return `${baseUrl}${separator}pid=${VIATOR_PID}`;
 }
 
 export function ExperiencePicker({ className }: ExperiencePickerProps) {

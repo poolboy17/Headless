@@ -80,8 +80,13 @@ const nextConfig = {
   },
   allowedDevOrigins: [
     'localhost',
+    '127.0.0.1',
     '*.replit.dev',
     '*.repl.co',
+    '*.janeway.replit.dev',
+    '*.kirk.replit.dev',
+    '*.picard.replit.dev',
+    '*.sisko.replit.dev',
   ],
   compress: true,
   poweredByHeader: false,
