@@ -11,10 +11,10 @@ const REMOVE_PATTERNS: RegExp[] = [
   /<div[^>]*class="[^"]*lwptoc[^"]*"[^>]*>[\s\S]*?<\/div>/gi,
   /<span[^>]*class="[^"]*lw-[^"]*"[^>]*>([\s\S]*?)<\/span>/gi, // Keep inner content
 
-  // Empty elements
+  // Empty elements (but not viator wrappers)
   /<p>\s*<\/p>/gi,
   /<p>&nbsp;<\/p>/gi,
-  /<div>\s*<\/div>/gi,
+  /<div(?![^>]*viator)[^>]*>\s*<\/div>/gi,
   /<span>\s*<\/span>/gi,
 
   // Multiple consecutive &nbsp;
@@ -56,7 +56,7 @@ const REPLACE_PATTERNS: { pattern: RegExp; replacement: string }[] = [
   // Replace empty hrefs with # for accessibility
   { pattern: /href=["']['"](?=\s|>)/gi, replacement: 'href="#"' },
 
-  // Clean orphan data attributes from plugins
+  // Clean orphan data attributes from plugins (but keep viator data)
   { pattern: /\s*data-element[^=]*="[^"]*"/gi, replacement: '' },
   { pattern: /\s*data-id="[^"]*"/gi, replacement: '' },
   { pattern: /\s*data-widget[^=]*="[^"]*"/gi, replacement: '' },

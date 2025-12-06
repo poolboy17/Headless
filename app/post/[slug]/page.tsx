@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, Clock, ArrowLeft } from 'lucide-react';
 import { SiX, SiFacebook, SiLinkedin } from 'react-icons/si';
-import { getPost, buildSeo, getAllPostSlugs } from '@/lib/wordpress';
+import { getPost, buildSeo, getAllPostSlugs, ViatorTour } from '@/lib/wordpress';
 import { stripHtml, formatDate, getReadingTime, getFeaturedImage, getAuthor, getCategories_Post, getTags_Post } from '@/lib/wordpress';
 import { sanitizeContent } from '@/lib/sanitize-content';
 import { PostCard } from '@/components/post-card';
@@ -12,7 +12,54 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { EnhancedPostSchema } from '@/components/Schema';
-import { ViatorCTA } from '@/components/viator-cta';
+
+/**
+ * Injects Viator CTA after the first <h2> heading in the content.
+ * This placement catches ~70-80% of readers before attention drops off.
+ */
+function injectViatorCTA(content: string, tour: ViatorTour | undefined): string {
+  if (!tour || !tour.url) return content;
+  
+  // Find the first </h2> closing tag
+  const h2Match = content.match(/<\/h2>/i);
+  if (!h2Match || h2Match.index === undefined) {
+    // No h2 found, return content unchanged (CTA won't show)
+    return content;
+  }
+  
+  const insertPosition = h2Match.index + h2Match[0].length;
+  
+  // Create CTA HTML that will be hydrated client-side
+  const ctaHtml = `
+    <div class="viator-cta-wrapper my-8" data-viator-tour='${JSON.stringify(tour).replace(/'/g, "&#39;")}'>
+      <div class="bg-gradient-to-br from-purple-900/20 to-slate-900/40 border border-purple-500/30 rounded-lg p-6">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-full bg-purple-600/20 flex items-center justify-center">
+            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-1">🔮 Experience It Yourself</p>
+            <h3 class="font-bold text-lg text-white mb-2">${tour.title}</h3>
+            <div class="flex flex-wrap items-center gap-3 text-sm text-gray-300 mb-4">
+              ${tour.destination ? `<span class="flex items-center gap-1"><svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>${tour.destination}</span>` : ''}
+              ${tour.rating ? `<span class="flex items-center gap-1"><svg class="w-4 h-4 text-yellow-400 fill-yellow-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>${tour.rating.toFixed(1)}${tour.reviewCount ? ` <span class="text-gray-400">(${tour.reviewCount.toLocaleString()})</span>` : ''}</span>` : ''}
+              ${tour.price ? `<span class="font-semibold text-green-400">From ${tour.price}</span>` : ''}
+            </div>
+            <a href="${tour.url}" target="_blank" rel="noopener noreferrer sponsored" class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-full transition-all hover:scale-105">
+              Book This Tour
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-4 pt-3 border-t border-gray-700/50">Affiliate link – we may earn a commission at no extra cost to you.</p>
+      </div>
+    </div>
+  `;
+  
+  return content.slice(0, insertPosition) + ctaHtml + content.slice(insertPosition);
+}
 
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
@@ -164,13 +211,12 @@ export default async function PostPage({ params }: PostPageProps) {
         <div className="max-w-3xl mx-auto">
           <div
             className="wp-content"
-            dangerouslySetInnerHTML={{ __html: sanitizeContent(post.content.rendered) }}
+            dangerouslySetInnerHTML={{ 
+              __html: sanitizeContent(
+                injectViatorCTA(post.content.rendered, post.meta?.viator_tour)
+              ) 
+            }}
           />
-
-          {/* Viator Tour CTA - displays if tour data exists in post meta */}
-          {post.meta?.viator_tour && (
-            <ViatorCTA tour={post.meta.viator_tour} className="mt-12" />
-          )}
 
           {tags.length > 0 && (
             <div className="mt-12 pt-8 border-t">
