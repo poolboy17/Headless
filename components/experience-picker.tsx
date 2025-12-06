@@ -15,16 +15,20 @@ const tourTypes = [
   { id: 'night', label: 'Night Tours', icon: Moon, description: 'Experience the darkness' },
 ];
 
-// Locations
+// Locations - ordered by popularity
 const locations = [
-  { id: 'new-orleans', label: 'New Orleans', country: 'USA' },
-  { id: 'savannah', label: 'Savannah', country: 'USA' },
-  { id: 'salem', label: 'Salem', country: 'USA' },
-  { id: 'edinburgh', label: 'Edinburgh', country: 'UK' },
-  { id: 'london', label: 'London', country: 'UK' },
-  { id: 'gettysburg', label: 'Gettysburg', country: 'USA' },
-  { id: 'st-augustine', label: 'St. Augustine', country: 'USA' },
-  { id: 'charleston', label: 'Charleston', country: 'USA' },
+  { id: 'new-orleans', label: 'New Orleans', country: 'USA', viatorDest: 'd675' },
+  { id: 'london', label: 'London', country: 'UK', viatorDest: 'd737' },
+  { id: 'edinburgh', label: 'Edinburgh', country: 'UK', viatorDest: 'd739' },
+  { id: 'savannah', label: 'Savannah', country: 'USA', viatorDest: 'd4283' },
+  { id: 'salem', label: 'Salem', country: 'USA', viatorDest: 'd50249' },
+  { id: 'chicago', label: 'Chicago', country: 'USA', viatorDest: 'd673' },
+  { id: 'new-york', label: 'New York', country: 'USA', viatorDest: 'd687' },
+  { id: 'boston', label: 'Boston', country: 'USA', viatorDest: 'd678' },
+  { id: 'gettysburg', label: 'Gettysburg', country: 'USA', viatorDest: 'd22093' },
+  { id: 'st-augustine', label: 'St. Augustine', country: 'USA', viatorDest: 'd4282' },
+  { id: 'charleston', label: 'Charleston', country: 'USA', viatorDest: 'd4384' },
+  { id: 'dublin', label: 'Dublin', country: 'Ireland', viatorDest: 'd503' },
 ];
 
 // Curated tours with Viator search URLs - these reliably show bookable tours
@@ -195,12 +199,51 @@ export function ExperiencePicker({ className }: ExperiencePickerProps) {
         </p>
       </div>
 
-      {/* Tour Type Selection */}
+      {/* Location Selection - Primary Filter */}
+      <div className="mb-8">
+        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
+          Choose your destination
+        </h3>
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+          {locations.map((location) => {
+            const isSelected = selectedLocation === location.id;
+            return (
+              <button
+                key={location.id}
+                onClick={() => setSelectedLocation(isSelected ? null : location.id)}
+                className={cn(
+                  'group flex flex-col items-center p-3 rounded-xl border-2 transition-all duration-200',
+                  isSelected
+                    ? 'border-primary bg-primary/10 shadow-md'
+                    : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
+                )}
+                data-testid={`button-location-${location.id}`}
+              >
+                <div className={cn(
+                  'w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-colors',
+                  isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
+                )}>
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <span className={cn(
+                  'font-semibold text-xs text-center',
+                  isSelected ? 'text-primary' : 'text-foreground'
+                )}>
+                  {location.label}
+                </span>
+                <span className="text-[10px] text-muted-foreground">{location.country}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Tour Type Selection - Secondary Filter */}
       <div className="mb-8">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
           What kind of experience?
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="flex flex-wrap gap-2">
           {tourTypes.map((type) => {
             const Icon = type.icon;
             const isSelected = selectedType === type.id;
@@ -209,57 +252,15 @@ export function ExperiencePicker({ className }: ExperiencePickerProps) {
                 key={type.id}
                 onClick={() => setSelectedType(isSelected ? null : type.id)}
                 className={cn(
-                  'group relative flex flex-col items-center p-4 rounded-2xl border-2 transition-all duration-200',
-                  isSelected
-                    ? 'border-primary bg-primary/5 shadow-md'
-                    : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
-                )}
-                data-testid={`button-tour-type-${type.id}`}
-              >
-                <div className={cn(
-                  'w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-colors',
-                  isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
-                )}>
-                  <Icon className="w-6 h-6" />
-                </div>
-                <span className={cn(
-                  'font-semibold text-sm',
-                  isSelected ? 'text-primary' : 'text-foreground'
-                )}>
-                  {type.label}
-                </span>
-                <span className="text-xs text-muted-foreground mt-1 text-center hidden sm:block">
-                  {type.description}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Location Selection */}
-      <div className="mb-8">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-          Where do you want to explore?
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {locations.map((location) => {
-            const isSelected = selectedLocation === location.id;
-            return (
-              <button
-                key={location.id}
-                onClick={() => setSelectedLocation(isSelected ? null : location.id)}
-                className={cn(
-                  'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all',
+                  'inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all',
                   isSelected
                     ? 'bg-primary text-primary-foreground shadow-md'
                     : 'bg-muted text-foreground hover:bg-muted/80'
                 )}
-                data-testid={`button-location-${location.id}`}
+                data-testid={`button-tour-type-${type.id}`}
               >
-                <MapPin className="w-3.5 h-3.5" />
-                {location.label}
-                <span className="text-xs opacity-70">({location.country})</span>
+                <Icon className="w-4 h-4" />
+                {type.label}
               </button>
             );
           })}
