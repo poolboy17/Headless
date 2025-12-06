@@ -57,7 +57,7 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
       <Link href={`/post/${post.slug}`}>
         <div className="nc-Card11 group relative flex flex-col overflow-hidden rounded-3xl bg-white dark:bg-neutral-900 h-full cursor-pointer border border-neutral-100 dark:border-neutral-800 hover:shadow-xl transition-shadow duration-300">
           <div className="relative z-10 block w-full flex-shrink-0 overflow-hidden rounded-t-3xl aspect-[4/3] bg-muted">
-            {featuredImage ? (
+            {featuredImage && (
               <Image
                 src={featuredImage.url}
                 alt={featuredImage.alt}
@@ -66,10 +66,6 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 loading="lazy"
               />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                <span className="text-muted-foreground text-sm">No image</span>
-              </div>
             )}
           </div>
 
@@ -129,7 +125,7 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
     <Link href={`/post/${post.slug}`}>
       <div className="nc-Card11 group relative flex flex-col overflow-hidden rounded-3xl bg-white dark:bg-neutral-900 h-full cursor-pointer border border-neutral-100 dark:border-neutral-800 hover:shadow-lg transition-shadow duration-300" data-testid={`card-post-${post.slug}`}>
         <div className="relative z-10 block w-full flex-shrink-0 overflow-hidden rounded-t-3xl aspect-[16/9] bg-muted">
-          {featuredImage ? (
+          {featuredImage && (
             <Image
               src={featuredImage.url}
               alt={featuredImage.alt}
@@ -138,10 +134,6 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               loading="lazy"
             />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-              <span className="text-muted-foreground text-sm">No image</span>
-            </div>
           )}
         </div>
 

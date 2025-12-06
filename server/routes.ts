@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 
-const WP_API_URL = "https://cursedtours.com/wp-json/wp/v2";
+const WP_API_URL = "https://wp.cursedtours.com/wp-json/wp/v2";
 
 // Cache for WordPress data
 const cache = new Map<string, { data: any; timestamp: number }>();

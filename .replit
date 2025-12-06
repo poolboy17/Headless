@@ -1,9 +1,9 @@
-modules = ["nodejs-20", "web", "postgresql-16"]
+modules = ["nodejs-20", "web"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-25_05"
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -43,6 +43,10 @@ localPort = 41867
 externalPort = 5173
 
 [[ports]]
+localPort = 43557
+externalPort = 8000
+
+[[ports]]
 localPort = 44667
 externalPort = 3000
 
@@ -77,5 +81,8 @@ waitForPort = 5000
 [userenv]
 
 [userenv.shared]
-NEXT_PUBLIC_WORDPRESS_URL = "https://cursedtours.com"
+NEXT_PUBLIC_WORDPRESS_URL = "https://wp.cursedtours.com"
 NEXT_PUBLIC_SITE_URL = "https://cursedtours.com"
+
+[agent]
+expertMode = true

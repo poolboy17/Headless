@@ -55,11 +55,11 @@ public/
 
 ### WordPress Integration
 
-**API Endpoint:** https://cursedtours.com/wp-json/wp/v2
+**API Endpoint:** https://wp.cursedtours.com/wp-json/wp/v2
 
 **Environment Variables:**
-- `NEXT_PUBLIC_WORDPRESS_URL` - WordPress base URL (default: https://cursedtours.com)
-- `NEXT_PUBLIC_SITE_URL` - Frontend site URL (default: https://cursedtours.com)
+- `NEXT_PUBLIC_WORDPRESS_URL` - WordPress backend URL (default: https://wp.cursedtours.com)
+- `NEXT_PUBLIC_SITE_URL` - Frontend site URL (default: https://www.cursedtours.com)
 - `PREVIEW_SECRET` - Secret token for draft preview mode (optional)
 
 **Content Stats:**
@@ -134,14 +134,34 @@ The app runs via a custom Express server that integrates Next.js, serving on por
 - All other images use `loading="lazy"`
 - Proper `sizes` attributes for responsive images
 - `bg-muted` placeholder backgrounds prevent CLS
-- 60 second minimum cache TTL for optimized images
+- 1-day minimum cache TTL for optimized images (86400 seconds)
+- Custom device sizes: 640, 750, 828, 1080, 1200, 1920
+- Custom image sizes: 16, 32, 48, 64, 96, 128, 256, 384
 
 **Allowed Image Domains (next.config.mjs):**
+- wp.cursedtours.com (WordPress backend)
 - cursedtours.com, www.cursedtours.com, cms.cursedtours.com
 - Jetpack CDN: i0.wp.com, i1.wp.com, i2.wp.com, i3.wp.com
 - WordPress.com: s0.wp.com, s1.wp.com, s2.wp.com
 - secure.gravatar.com (author avatars)
 - images.unsplash.com (stock photos)
+
+**DNS Prefetch & Preconnect (app/layout.tsx):**
+- `dns-prefetch` and `preconnect` to wp.cursedtours.com
+- `dns-prefetch` and `preconnect` to fonts.googleapis.com
+- `dns-prefetch` and `preconnect` to fonts.gstatic.com
+
+**Security Headers (vercel.json):**
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: SAMEORIGIN
+- X-XSS-Protection: 1; mode=block
+- Referrer-Policy: strict-origin-when-cross-origin
+- Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+**Static Asset Caching (vercel.json):**
+- `/_next/static/*`: 1 year, immutable
+- `/fonts/*`: 1 year, immutable
+- `/images/*`: 1 day with stale-while-revalidate (7 days)
 
 **Loading States:**
 - Skeleton components for all routes (home, category, post, search)
@@ -156,6 +176,26 @@ The app runs via a custom Express server that integrates Next.js, serving on por
 - `.wp-content` class wrapper for WordPress content
 - Lora serif font applied with high CSS specificity
 - Purple link colors in article content
+
+### Cloudflare Configuration (December 2025)
+
+**Zone ID:** 449b52787cd1ea43af61523ea8251249
+
+**Optimized Settings:**
+- Development Mode: OFF (caching enabled)
+- Rocket Loader: OFF (prevents React/Next.js issues)
+- SSL Mode: Strict (validates Vercel certificate)
+- Min TLS Version: 1.2 (security best practice)
+- HSTS: Enabled (1 year max-age, include subdomains)
+- Brotli Compression: ON
+- Early Hints (103): ON
+- HTTP/2: ON
+- HTTP/3 (QUIC): ON
+- Always Use HTTPS: ON
+- Automatic HTTPS Rewrites: ON
+- Browser Cache TTL: 4 hours
+- Edge Cache TTL: 2 hours
+- Cache Level: Aggressive
 
 ### Production Deployment
 

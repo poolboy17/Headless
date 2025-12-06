@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-const WP_API_URL = 'https://cursedtours.com/wp-json/wp/v2';
+const WP_API_URL = 'https://wp.cursedtours.com/wp-json/wp/v2';
 
 export async function GET() {
   try {
