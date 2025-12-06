@@ -165,6 +165,17 @@ export interface WPAuthor {
   link: string;
 }
 
+export interface ViatorTour {
+  productCode: string;
+  title: string;
+  url: string;
+  price: string;
+  rating: number;
+  reviewCount: number;
+  thumbnailUrl?: string;
+  destination?: string;
+}
+
 export interface WPPost {
   id: number;
   date: string;
@@ -182,6 +193,10 @@ export interface WPPost {
   featured_media: number;
   categories: number[];
   tags: number[];
+  meta?: {
+    viator_tour?: ViatorTour;
+    [key: string]: unknown;
+  };
   _embedded?: {
     author?: WPAuthor[];
     'wp:featuredmedia'?: WPMedia[];
