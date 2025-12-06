@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/pagination';
+import { CityIcon } from '@/components/city-icon';
 
 export const dynamic = 'force-static';
 export const dynamicParams = true;
@@ -178,8 +179,13 @@ export default async function CityToursPage({ params, searchParams }: CityPagePr
                 className="group flex flex-col items-center p-4 rounded-xl border border-border/50 bg-card hover:border-primary/50 hover:bg-muted/50 transition-all"
                 data-testid={`link-city-${otherCity.id}`}
               >
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-2 group-hover:bg-primary/10 transition-colors">
-                  <MapPin className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                <div className="w-12 h-12 rounded-full overflow-hidden mb-2 ring-2 ring-border group-hover:ring-primary/50 transition-all">
+                  <CityIcon
+                    cityId={otherCity.id}
+                    alt={`${otherCity.label} ghost tours`}
+                    size={48}
+                    className="w-full h-full"
+                  />
                 </div>
                 <span className="font-medium text-sm text-center">{otherCity.label}</span>
                 <span className="text-xs text-muted-foreground">{otherCity.country}</span>

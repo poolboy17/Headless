@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { MapPin, ExternalLink, Star, Clock, Users } from 'lucide-react';
+import { MapPin, ExternalLink, Star, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { cities, tours, tourTypes, getAffiliateUrl, type Tour } from '@/lib/tours';
+import { CityIcon } from '@/components/city-icon';
 
 interface ExperiencePickerProps {
   className?: string;
@@ -48,8 +49,13 @@ export function ExperiencePicker({ className }: ExperiencePickerProps) {
               className="group flex flex-col items-center p-4 rounded-xl border-2 border-border bg-card hover:border-primary/50 hover:bg-muted/50 transition-all duration-200"
               data-testid={`link-city-${city.id}`}
             >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2 bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                <MapPin className="w-5 h-5" />
+              <div className="w-14 h-14 rounded-full overflow-hidden mb-2 ring-2 ring-border group-hover:ring-primary/50 transition-all">
+                <CityIcon
+                  cityId={city.id}
+                  alt={`${city.label} ghost tours`}
+                  size={56}
+                  className="w-full h-full"
+                />
               </div>
               <span className="font-semibold text-sm text-center group-hover:text-primary transition-colors">
                 {city.label}

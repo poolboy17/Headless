@@ -7,6 +7,7 @@ export interface City {
   viatorDest: string;
   description: string;
   imageUrl: string;
+  iconPath: string;
 }
 
 export interface Tour {
@@ -41,7 +42,8 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd675',
     description: 'The most haunted city in America, known for its voodoo history, above-ground cemeteries, and ghostly French Quarter.',
-    imageUrl: 'https://images.unsplash.com/photo-1568402102990-bc541580b59f?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1568402102990-bc541580b59f?w=800&h=600&fit=crop',
+    iconPath: 'new-orleans'
   },
   { 
     id: 'london', 
@@ -49,7 +51,8 @@ export const cities: City[] = [
     country: 'UK', 
     viatorDest: 'd737',
     description: 'From Jack the Ripper to the Tower of London, experience centuries of dark history and paranormal activity.',
-    imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&h=600&fit=crop',
+    iconPath: 'london'
   },
   { 
     id: 'edinburgh', 
@@ -57,7 +60,8 @@ export const cities: City[] = [
     country: 'UK', 
     viatorDest: 'd739',
     description: 'Explore the underground vaults, haunted closes, and centuries-old graveyards of Scotland\'s capital.',
-    imageUrl: 'https://images.unsplash.com/photo-1594732832278-abd644401426?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1594732832278-abd644401426?w=800&h=600&fit=crop',
+    iconPath: 'edinburgh'
   },
   { 
     id: 'savannah', 
@@ -65,7 +69,8 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd4283',
     description: 'America\'s most haunted city with Spanish moss-draped squares and historic homes with resident spirits.',
-    imageUrl: 'https://images.unsplash.com/photo-1596394723269-b2cbca4e6313?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1596394723269-b2cbca4e6313?w=800&h=600&fit=crop',
+    iconPath: 'savannah'
   },
   { 
     id: 'salem', 
@@ -73,7 +78,8 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd50249',
     description: 'Site of the infamous witch trials, this historic city embraces its dark past year-round.',
-    imageUrl: 'https://images.unsplash.com/photo-1509557965875-b88c97052f0e?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1509557965875-b88c97052f0e?w=800&h=600&fit=crop',
+    iconPath: 'salem'
   },
   { 
     id: 'chicago', 
@@ -81,7 +87,8 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd673',
     description: 'Gangster ghosts, haunted theaters, and paranormal hot spots throughout the Windy City.',
-    imageUrl: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=800&h=600&fit=crop',
+    iconPath: 'chicago'
   },
   { 
     id: 'new-york', 
@@ -89,7 +96,8 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd687',
     description: 'Haunted hotels, ghostly Greenwich Village, and centuries of dark history in the Big Apple.',
-    imageUrl: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&h=600&fit=crop',
+    iconPath: 'new-york'
   },
   { 
     id: 'boston', 
@@ -97,7 +105,8 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd678',
     description: 'Revolutionary ghosts, haunted burial grounds, and centuries of American history come alive after dark.',
-    imageUrl: 'https://images.unsplash.com/photo-1501979376754-1d09c6d5deef?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1501979376754-1d09c6d5deef?w=800&h=600&fit=crop',
+    iconPath: 'boston'
   },
   { 
     id: 'gettysburg', 
@@ -105,7 +114,8 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd22093',
     description: 'One of the most paranormally active battlefields in the world, where Civil War spirits linger.',
-    imageUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&h=600&fit=crop',
+    iconPath: 'gettysburg'
   },
   { 
     id: 'st-augustine', 
@@ -113,7 +123,8 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd4282',
     description: 'America\'s oldest city with 450 years of history, hauntings, and paranormal encounters.',
-    imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
+    iconPath: 'st-augustine'
   },
   { 
     id: 'charleston', 
@@ -121,7 +132,8 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd4384',
     description: 'Southern charm meets supernatural with haunted plantations and ghostly graveyards.',
-    imageUrl: 'https://images.unsplash.com/photo-1569025743873-ea3a9ber956?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1569025743873-ea3a9ber956?w=800&h=600&fit=crop',
+    iconPath: 'charleston'
   },
   { 
     id: 'dublin', 
@@ -129,7 +141,8 @@ export const cities: City[] = [
     country: 'Ireland', 
     viatorDest: 'd503',
     description: 'Celtic legends, haunted pubs, and centuries of ghostly tales in Ireland\'s capital.',
-    imageUrl: 'https://images.unsplash.com/photo-1549918864-48ac978761a4?w=800&h=600&fit=crop'
+    imageUrl: 'https://images.unsplash.com/photo-1549918864-48ac978761a4?w=800&h=600&fit=crop',
+    iconPath: 'dublin'
   },
 ];
 
