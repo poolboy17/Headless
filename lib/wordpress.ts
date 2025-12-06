@@ -440,8 +440,36 @@ function buildEnhancedAltText(post: WPPost, mediaAlt?: string): string {
 }
 
 export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' | 'large' = 'medium_large'): FeaturedImageResult {
-  // Always use category-specific fallback images for consistent, high-quality paranormal imagery
-  // Images rotate based on post ID for variety within each category
+  const title = stripHtml(post.title.rendered);
+  
+  // Priority 1: Use Viator tour thumbnail if available (product-specific image from CDN)
+  const viatorTour = post.meta?.viator_tour;
+  if (viatorTour?.thumbnailUrl) {
+    return {
+      url: viatorTour.thumbnailUrl,
+      width: 1200,
+      height: 800,
+      alt: viatorTour.title || title,
+      isFallback: false,
+    };
+  }
+  
+  // Priority 2: Use WordPress featured media if available
+  const featuredMedia = post._embedded?.['wp:featuredmedia']?.[0];
+  if (featuredMedia?.source_url) {
+    const sizes = featuredMedia.media_details?.sizes;
+    const preferredSize = sizes?.[size] || sizes?.large || sizes?.medium_large || sizes?.medium;
+    
+    return {
+      url: preferredSize?.source_url || featuredMedia.source_url,
+      width: preferredSize?.width || featuredMedia.media_details?.width || 1200,
+      height: preferredSize?.height || featuredMedia.media_details?.height || 800,
+      alt: featuredMedia.alt_text || title,
+      isFallback: false,
+    };
+  }
+  
+  // Priority 3: Fall back to category-specific images for consistent, high-quality paranormal imagery
   const fallback = getCategoryFallbackImage(post);
   return {
     url: fallback.url,

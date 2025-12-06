@@ -67,6 +67,16 @@ const nextConfig = {
         hostname: 'images.unsplash.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'media.tacdn.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.media.tacdn.com',
+        pathname: '/**',
+      },
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 86400,
