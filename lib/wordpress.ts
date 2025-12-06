@@ -340,45 +340,54 @@ export function getReadingTime(content: string): number {
   return Math.ceil(wordCount / wordsPerMinute);
 }
 
-const CATEGORY_FALLBACK_IMAGES: Record<string, { url: string; alt: string }> = {
-  'abandoned-asylums-hospitals': {
-    url: '/assets/fallbacks/abandoned_asylum_dark_corridor.png',
-    alt: 'Eerie abandoned asylum corridor with peeling walls and moonlight',
-  },
-  'cultural-ghost-folklore': {
-    url: '/assets/fallbacks/historical_haunting_victorian_sepia.png',
-    alt: 'Historical Victorian haunted photograph with antique aesthetic',
-  },
-  'ghost-hunting-techniques-tools': {
-    url: '/assets/fallbacks/ghost_hunting_equipment_display.png',
-    alt: 'Professional ghost hunting equipment including EMF detectors and spirit boxes',
-  },
-  'haunted-castles-estates': {
-    url: '/assets/fallbacks/haunted_victorian_mansion_night.png',
-    alt: 'Haunted Victorian mansion at night with fog and moonlight',
-  },
-  'haunted-places-case-studies': {
-    url: '/assets/fallbacks/paranormal_investigation_team_silhouettes.png',
-    alt: 'Paranormal investigation team exploring a dark historic location',
-  },
-  'historical-hauntings-insights': {
-    url: '/assets/fallbacks/historical_haunting_victorian_sepia.png',
-    alt: 'Historical Victorian haunted photograph with antique aesthetic',
-  },
-  'paranormal-evidence-archive': {
-    url: '/assets/fallbacks/evp_spirit_communication_equipment.png',
-    alt: 'EVP spirit communication equipment with vintage audio recorders',
-  },
-  'personal-ghost-encounters': {
-    url: '/assets/fallbacks/misty_dark_forest_supernatural.png',
-    alt: 'Mysterious dark forest path with fog and supernatural atmosphere',
-  },
+const CATEGORY_FALLBACK_IMAGES: Record<string, Array<{ url: string; alt: string }>> = {
+  'abandoned-asylums-hospitals': [
+    { url: '/assets/fallbacks/abandoned_asylum_dark_corridor.png', alt: 'Eerie abandoned asylum corridor with peeling walls and moonlight' },
+    { url: '/assets/fallbacks/asylum_corridor_with_wheelchair.png', alt: 'Dark asylum corridor with abandoned wheelchair in shadows' },
+    { url: '/assets/fallbacks/victorian_psychiatric_ward_beds.png', alt: 'Decrepit Victorian psychiatric ward with rusted iron beds' },
+  ],
+  'cultural-ghost-folklore': [
+    { url: '/assets/fallbacks/mysterious_shrine_in_fog.png', alt: 'Japanese shrine gates in foggy bamboo forest at dusk' },
+    { url: '/assets/fallbacks/victorian_seance_room.png', alt: 'Victorian seance room with candles and ouija board' },
+    { url: '/assets/fallbacks/foggy_cemetery_at_midnight.png', alt: 'Ancient cemetery at midnight with fog and weathered tombstones' },
+  ],
+  'ghost-hunting-techniques-tools': [
+    { url: '/assets/fallbacks/ghost_hunting_equipment_display.png', alt: 'Professional ghost hunting equipment including EMF detectors' },
+    { url: '/assets/fallbacks/ghost_hunting_equipment_table.png', alt: 'Ghost hunting equipment on wooden table with moody lighting' },
+    { url: '/assets/fallbacks/investigator_with_emf_meter.png', alt: 'Paranormal investigator silhouette with glowing EMF meter' },
+  ],
+  'haunted-castles-estates': [
+    { url: '/assets/fallbacks/haunted_victorian_mansion_night.png', alt: 'Haunted Victorian mansion at night with fog and moonlight' },
+    { url: '/assets/fallbacks/gothic_castle_with_moon.png', alt: 'Gothic castle at night with full moon and ravens' },
+    { url: '/assets/fallbacks/haunted_victorian_ballroom.png', alt: 'Abandoned grand ballroom with dusty chandeliers and ghostly mist' },
+  ],
+  'haunted-places-case-studies': [
+    { url: '/assets/fallbacks/paranormal_investigation_team_silhouettes.png', alt: 'Paranormal investigation team exploring dark historic location' },
+    { url: '/assets/fallbacks/stormy_abandoned_lighthouse.png', alt: 'Abandoned lighthouse on rocky cliff during storm' },
+    { url: '/assets/fallbacks/foggy_cemetery_at_midnight.png', alt: 'Foggy cemetery with weathered tombstones at midnight' },
+  ],
+  'historical-hauntings-insights': [
+    { url: '/assets/fallbacks/historical_haunting_victorian_sepia.png', alt: 'Historical Victorian haunted photograph with antique aesthetic' },
+    { url: '/assets/fallbacks/victorian_seance_room.png', alt: 'Victorian seance room with spiritualist atmosphere' },
+    { url: '/assets/fallbacks/haunted_victorian_ballroom.png', alt: 'Haunted Victorian ballroom with torn curtains and moonlight' },
+  ],
+  'paranormal-evidence-archive': [
+    { url: '/assets/fallbacks/evp_spirit_communication_equipment.png', alt: 'EVP spirit communication equipment with vintage recorders' },
+    { url: '/assets/fallbacks/evp_recording_session_setup.png', alt: 'EVP recording session with vinyl player and vintage microphone' },
+    { url: '/assets/fallbacks/ghost_hunting_equipment_table.png', alt: 'Paranormal investigation equipment display' },
+  ],
+  'personal-ghost-encounters': [
+    { url: '/assets/fallbacks/misty_dark_forest_supernatural.png', alt: 'Mysterious dark forest path with supernatural fog' },
+    { url: '/assets/fallbacks/haunted_forest_path.png', alt: 'Haunted forest path at night with ghostly figure' },
+    { url: '/assets/fallbacks/foggy_cemetery_at_midnight.png', alt: 'Eerie cemetery at midnight with rolling fog' },
+  ],
 };
 
-const DEFAULT_FALLBACK_IMAGE = {
-  url: '/assets/fallbacks/misty_dark_forest_supernatural.png',
-  alt: 'Mysterious dark forest path with fog and supernatural atmosphere',
-};
+const DEFAULT_FALLBACK_IMAGES = [
+  { url: '/assets/fallbacks/misty_dark_forest_supernatural.png', alt: 'Mysterious dark forest path with supernatural atmosphere' },
+  { url: '/assets/fallbacks/haunted_forest_path.png', alt: 'Dark misty forest path at night' },
+  { url: '/assets/fallbacks/foggy_cemetery_at_midnight.png', alt: 'Foggy cemetery at midnight' },
+];
 
 export interface FeaturedImageResult {
   url: string;
@@ -388,15 +397,21 @@ export interface FeaturedImageResult {
   isFallback?: boolean;
 }
 
-function getCategoryFallbackImage(post: WPPost): { url: string; alt: string } | null {
+function getCategoryFallbackImage(post: WPPost): { url: string; alt: string } {
   const categories = getCategories_Post(post);
+  const postId = post.id || 0;
+  
   for (const category of categories) {
     const slug = category.slug.toLowerCase();
-    if (CATEGORY_FALLBACK_IMAGES[slug]) {
-      return CATEGORY_FALLBACK_IMAGES[slug];
+    const images = CATEGORY_FALLBACK_IMAGES[slug];
+    if (images && images.length > 0) {
+      const index = postId % images.length;
+      return images[index];
     }
   }
-  return null;
+  
+  const defaultIndex = postId % DEFAULT_FALLBACK_IMAGES.length;
+  return DEFAULT_FALLBACK_IMAGES[defaultIndex];
 }
 
 function buildEnhancedAltText(post: WPPost, mediaAlt?: string): string {
@@ -409,24 +424,15 @@ function buildEnhancedAltText(post: WPPost, mediaAlt?: string): string {
   return `${title} - ${primaryCategory} - Cursed Tours`;
 }
 
-export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' | 'large' = 'medium_large'): FeaturedImageResult | null {
+export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' | 'large' = 'medium_large'): FeaturedImageResult {
   // Always use category-specific fallback images for consistent, high-quality paranormal imagery
-  const categoryFallback = getCategoryFallbackImage(post);
-  if (categoryFallback) {
-    return {
-      url: categoryFallback.url,
-      width: 1920,
-      height: 1080,
-      alt: buildEnhancedAltText(post),
-      isFallback: true,
-    };
-  }
-  
+  // Images rotate based on post ID for variety within each category
+  const fallback = getCategoryFallbackImage(post);
   return {
-    url: DEFAULT_FALLBACK_IMAGE.url,
+    url: fallback.url,
     width: 1920,
     height: 1080,
-    alt: buildEnhancedAltText(post),
+    alt: buildEnhancedAltText(post, fallback.alt),
     isFallback: true,
   };
 }
