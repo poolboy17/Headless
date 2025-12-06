@@ -14,23 +14,33 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { EnhancedPostSchema } from '@/components/Schema';
 
 /**
- * Injects Viator CTA after the first <h2> heading in the content.
- * This placement catches ~70-80% of readers before attention drops off.
+ * Creates a slim inline CTA banner for early placement (after intro)
  */
-function injectViatorCTA(content: string, tour: ViatorTour | undefined): string {
-  if (!tour || !tour.url) return content;
-  
-  // Find the first </h2> closing tag
-  const h2Match = content.match(/<\/h2>/i);
-  if (!h2Match || h2Match.index === undefined) {
-    // No h2 found, return content unchanged (CTA won't show)
-    return content;
-  }
-  
-  const insertPosition = h2Match.index + h2Match[0].length;
-  
-  // Create CTA HTML that will be hydrated client-side
-  const ctaHtml = `
+function createSlimCTA(tour: ViatorTour): string {
+  return `
+    <div class="viator-slim-cta my-6 p-4 bg-gradient-to-r from-purple-900/30 to-purple-800/20 border border-purple-500/30 rounded-xl">
+      <a href="${tour.url}" target="_blank" rel="noopener noreferrer sponsored" class="flex items-center justify-between gap-4 text-white no-underline hover:no-underline">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🔮</span>
+          <div>
+            <span class="font-semibold">${tour.destination ? `Book a ghost tour in ${tour.destination}` : tour.title}</span>
+            ${tour.rating ? `<span class="mx-2 text-yellow-400">★ ${tour.rating.toFixed(1)}</span>` : ''}
+          </div>
+        </div>
+        <div class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition-colors">
+          ${tour.price ? `From ${tour.price}` : 'View Tour'}
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+        </div>
+      </a>
+    </div>
+  `;
+}
+
+/**
+ * Creates the full detailed CTA card for mid-content placement
+ */
+function createFullCTA(tour: ViatorTour): string {
+  return `
     <div class="viator-cta-wrapper my-8" data-viator-tour='${JSON.stringify(tour).replace(/'/g, "&#39;")}'>
       <div class="bg-gradient-to-br from-purple-900/20 to-slate-900/40 border border-purple-500/30 rounded-lg p-6">
         <div class="flex items-start gap-4">
@@ -57,8 +67,36 @@ function injectViatorCTA(content: string, tour: ViatorTour | undefined): string 
       </div>
     </div>
   `;
+}
+
+/**
+ * Injects dual Viator CTAs into content:
+ * 1. Slim banner after first </p> (catches early readers)
+ * 2. Full card after first </h2> (catches engaged readers)
+ */
+function injectViatorCTAs(content: string, tour: ViatorTour | undefined): string {
+  if (!tour || !tour.url) return content;
   
-  return content.slice(0, insertPosition) + ctaHtml + content.slice(insertPosition);
+  let result = content;
+  
+  // Find first </p> for slim CTA (after intro paragraph)
+  const pMatch = result.match(/<\/p>/i);
+  if (pMatch && pMatch.index !== undefined) {
+    const slimCta = createSlimCTA(tour);
+    const insertPos = pMatch.index + pMatch[0].length;
+    result = result.slice(0, insertPos) + slimCta + result.slice(insertPos);
+  }
+  
+  // Find first </h2> for full CTA (after first heading)
+  // Need to search in the modified content
+  const h2Match = result.match(/<\/h2>/i);
+  if (h2Match && h2Match.index !== undefined) {
+    const fullCta = createFullCTA(tour);
+    const insertPos = h2Match.index + h2Match[0].length;
+    result = result.slice(0, insertPos) + fullCta + result.slice(insertPos);
+  }
+  
+  return result;
 }
 
 export const dynamic = 'force-dynamic';
@@ -213,7 +251,7 @@ export default async function PostPage({ params }: PostPageProps) {
             className="wp-content"
             dangerouslySetInnerHTML={{ 
               __html: sanitizeContent(
-                injectViatorCTA(post.content.rendered, post.meta?.viator_tour)
+                injectViatorCTAs(post.content.rendered, post.meta?.viator_tour)
               ) 
             }}
           />
