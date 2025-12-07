@@ -26,7 +26,7 @@ export function ViatorProductsIsland({ citySlug, viatorCityUrl }: ViatorProducts
         setProducts(response.products);
         setError(null);
       } catch (err) {
-        console.error('Failed to fetch products:', err);
+        // Silently handle errors - the island will just not render
         setError('Unable to load live tour data');
       } finally {
         setLoading(false);

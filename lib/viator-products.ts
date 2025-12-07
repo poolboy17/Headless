@@ -116,12 +116,22 @@ export async function getProducts(options: {
     );
     
     if (!response.ok) {
+      // 404 means the plugin isn't installed yet - return empty silently
+      if (response.status === 404) {
+        return {
+          products: [],
+          pagination: { total: 0, per_page: perPage, current_page: page, total_pages: 0 },
+        };
+      }
       throw new Error(`Failed to fetch products: ${response.status}`);
     }
     
     return await response.json();
   } catch (error) {
-    console.error('Error fetching Viator products:', error);
+    // Only log unexpected errors, not network failures for missing endpoints
+    if (error instanceof Error && !error.message.includes('fetch')) {
+      console.error('Error fetching Viator products:', error);
+    }
     return {
       products: [],
       pagination: { total: 0, per_page: perPage, current_page: page, total_pages: 0 },
