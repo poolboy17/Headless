@@ -4,6 +4,7 @@ import { getPosts, getCategories, getCategoryBySlug, getAllCategorySlugs } from 
 import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
+import { CollectionPageSchema } from '@/components/Schema';
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -82,6 +83,13 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
 
   return (
     <div className="min-h-screen">
+      <CollectionPageSchema 
+        name={category.name}
+        slug={slug}
+        type="category"
+        posts={posts}
+        description={category.description}
+      />
       <div className="container mx-auto px-4 py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">{category.name}</h1>

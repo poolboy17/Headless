@@ -8,6 +8,7 @@ import { AnimatedPostGrid } from '@/components/animated-post-grid';
 import { TrendingPosts } from '@/components/trending-posts';
 import { NoPostsFound } from '@/components/empty-state';
 import { ExperiencePicker } from '@/components/experience-picker';
+import { HomePageSchema } from '@/components/Schema';
 
 // Use ISR with 5-minute revalidation for optimal caching
 export const revalidate = 300;
@@ -46,6 +47,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <div className="min-h-screen">
+      {currentPage === 1 && posts.length > 0 && (
+        <HomePageSchema featuredPosts={posts.slice(0, 5)} />
+      )}
       {featuredPost && <HeroSection post={featuredPost} />}
 
       {/* Experience Picker - only show on first page */}
