@@ -127,15 +127,15 @@ const INLINE_IMAGES: Record<string, Array<{ url: string; alt: string }>> = {
  * Inserts inline images throughout the content for visual engagement.
  * Places images after every N sections (h2/h3 headings) to break up long text.
  */
-function insertInlineImages(content: string, interval: number = 2): string {
+function insertInlineImages(content: string, categorySlug?: string, interval: number = 2): string {
   // Split content by headings to find insertion points
   const headingPattern = /<\/h[23]>/gi;
   const matches = [...content.matchAll(headingPattern)];
   
   if (matches.length < interval) return content;
   
-  // Get images (use default for now, could be category-specific)
-  const images = INLINE_IMAGES['default'];
+  // Get category-specific images or fall back to default
+  const images = (categorySlug && INLINE_IMAGES[categorySlug]) || INLINE_IMAGES['default'];
   let result = content;
   let offset = 0;
   let imageIndex = 0;
@@ -241,7 +241,8 @@ export default async function PostPage({ params }: PostPageProps) {
     injectViatorCTAs(post.content.rendered, post.meta?.viator_tour)
   );
   const { correctedText: spellCheckedContent } = await checkAndFixSpelling(processedContent);
-  const finalContent = insertInlineImages(spellCheckedContent, 2);
+  const categorySlug = categories.length > 0 ? categories[0].slug : undefined;
+  const finalContent = insertInlineImages(spellCheckedContent, categorySlug, 2);
 
   const shareUrl = `https://www.cursedtours.com/post/${post.slug}`;
   const shareText = encodeURIComponent(title);
