@@ -32,6 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: SITE_CONFIG.url, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
     { url: `${SITE_CONFIG.url}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
+    { url: `${SITE_CONFIG.url}/search`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.5 },
   ];
 
   const postRoutes: MetadataRoute.Sitemap = posts.map((post: any) => ({
