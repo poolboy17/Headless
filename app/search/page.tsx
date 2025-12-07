@@ -10,10 +10,39 @@ interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;
 }
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cursedtours.com';
+
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
   const { q } = await searchParams;
+  const title = q ? `Search: ${q} | Cursed Tours` : 'Search | Cursed Tours';
+  const description = q 
+    ? `Search results for "${q}" on Cursed Tours - haunted locations, ghost tours, and paranormal investigations.`
+    : 'Search Cursed Tours for haunted locations, ghost stories, paranormal investigations, and supernatural encounters.';
+
+  const canonicalUrl = `${SITE_URL}/search${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+
   return {
-    title: q ? `Search: ${q}` : 'Search',
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    robots: {
+      index: false,
+      follow: true,
+    },
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: canonicalUrl,
+      siteName: 'Cursed Tours',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 
