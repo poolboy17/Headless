@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Clock, Star, Users, ExternalLink, ChevronLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { cities, getCityById, getToursByCity, getAllCityIds, getAffiliateUrl, getCityViatorUrl, tourTypes, type Tour } from '@/lib/tours';
-import { getProductsByCity, formatPrice, formatLastVerified, buildProductSchema, type ViatorProduct } from '@/lib/viator-products';
+import { getProductsByCity, formatPrice, formatLastVerified, buildProductSchema, getBestImageUrl, type ViatorProduct } from '@/lib/viator-products';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -262,6 +262,7 @@ interface ViatorProductCardProps {
 function ViatorProductCard({ product }: ViatorProductCardProps) {
   const VIATOR_PID = process.env.NEXT_PUBLIC_VIATOR_PID || 'P00166886';
   const affiliateUrl = `${product.url}${product.url.includes('?') ? '&' : '?'}pid=${VIATOR_PID}`;
+  const imageUrl = getBestImageUrl(product);
 
   return (
     <a
@@ -274,7 +275,7 @@ function ViatorProductCard({ product }: ViatorProductCardProps) {
       <Card className="overflow-hidden h-full transition-all duration-300 hover:shadow-xl border-border/50 hover:border-primary/30">
         <div className="relative aspect-[4/3] bg-muted overflow-hidden">
           <img
-            src={product.thumbnailUrl}
+            src={imageUrl}
             alt={product.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"

@@ -4,12 +4,26 @@
 const WORDPRESS_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL || 'https://wp.cursedtours.com';
 const VIATOR_PID = process.env.NEXT_PUBLIC_VIATOR_PID || 'P00166886';
 
+export interface ImageVariant {
+  width: number;
+  height: number;
+  url: string;
+}
+
+export interface ProductImage {
+  source?: string;
+  caption?: string;
+  variants?: ImageVariant[];
+}
+
 export interface ViatorProduct {
   productCode: string;
   title: string;
   description: string;
   url: string;
   thumbnailUrl: string;
+  thumbnailHiResUrl?: string;
+  images?: ProductImage[];
   price: string;
   currency: string;
   rating: number;
@@ -178,6 +192,76 @@ export async function getSyncStatus(): Promise<SyncStatus | null> {
     console.error('Error fetching sync status:', error);
     return null;
   }
+}
+
+/**
+ * Get the best available image URL for a product
+ * Prefers hi-res thumbnail, then looks for largest image in images array
+ */
+export function getBestImageUrl(product: ViatorProduct, preferredWidth: number = 800): string {
+  // First try hi-res thumbnail
+  if (product.thumbnailHiResUrl) {
+    return product.thumbnailHiResUrl;
+  }
+  
+  // Then look for best match in images array
+  if (product.images && product.images.length > 0) {
+    let bestUrl = '';
+    let bestWidth = 0;
+    
+    for (const image of product.images) {
+      if (image.variants && image.variants.length > 0) {
+        // Find variant closest to preferred width
+        for (const variant of image.variants) {
+          if (variant.url && variant.width >= preferredWidth && (bestWidth === 0 || variant.width < bestWidth)) {
+            bestUrl = variant.url;
+            bestWidth = variant.width;
+          }
+        }
+        // If no variant >= preferred width, take largest available
+        if (!bestUrl) {
+          for (const variant of image.variants) {
+            if (variant.url && variant.width > bestWidth) {
+              bestUrl = variant.url;
+              bestWidth = variant.width;
+            }
+          }
+        }
+      }
+    }
+    
+    if (bestUrl) return bestUrl;
+  }
+  
+  // Fall back to regular thumbnail
+  return product.thumbnailUrl || '';
+}
+
+/**
+ * Get all image URLs from a product for gallery use
+ */
+export function getAllImageUrls(product: ViatorProduct): string[] {
+  const urls: string[] = [];
+  
+  if (product.images && product.images.length > 0) {
+    for (const image of product.images) {
+      if (image.variants && image.variants.length > 0) {
+        // Get the largest variant for each image
+        const largest = image.variants.reduce((best, curr) => 
+          curr.width > (best?.width || 0) ? curr : best
+        , image.variants[0]);
+        if (largest?.url) urls.push(largest.url);
+      }
+    }
+  }
+  
+  // Add thumbnails as fallback
+  if (urls.length === 0) {
+    if (product.thumbnailHiResUrl) urls.push(product.thumbnailHiResUrl);
+    else if (product.thumbnailUrl) urls.push(product.thumbnailUrl);
+  }
+  
+  return urls;
 }
 
 /**

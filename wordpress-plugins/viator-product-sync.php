@@ -26,6 +26,8 @@ function viator_sync_activate() {
         description text,
         url varchar(500) NOT NULL,
         thumbnail_url varchar(500),
+        thumbnail_hires_url varchar(500),
+        images longtext,
         price varchar(50),
         currency varchar(10) DEFAULT 'USD',
         rating decimal(2,1),
@@ -237,12 +239,58 @@ function viator_sync_products() {
             // Build affiliate URL
             $product_url = "https://www.viator.com/tours/{$product_code}?pid={$partner_id}";
             
+            // Extract all available image URLs
+            $thumbnail_url = $product['thumbnailURL'] ?? '';
+            $thumbnail_hires_url = $product['thumbnailHiResURL'] ?? '';
+            $images = [];
+            
+            // Collect images from the images array if available
+            if (!empty($product['images']) && is_array($product['images'])) {
+                foreach ($product['images'] as $img) {
+                    $image_entry = [];
+                    if (!empty($img['imageSource'])) $image_entry['source'] = $img['imageSource'];
+                    if (!empty($img['caption'])) $image_entry['caption'] = $img['caption'];
+                    
+                    // Collect all variant URLs
+                    if (!empty($img['variants']) && is_array($img['variants'])) {
+                        foreach ($img['variants'] as $variant) {
+                            $width = $variant['width'] ?? 0;
+                            $height = $variant['height'] ?? 0;
+                            $url = $variant['url'] ?? '';
+                            if ($url) {
+                                $image_entry['variants'][] = [
+                                    'width' => $width,
+                                    'height' => $height,
+                                    'url' => $url,
+                                ];
+                            }
+                        }
+                    }
+                    
+                    if (!empty($image_entry)) {
+                        $images[] = $image_entry;
+                    }
+                }
+            }
+            
+            // Fallback: if no images array, use thumbnails
+            if (empty($images) && ($thumbnail_url || $thumbnail_hires_url)) {
+                $images[] = [
+                    'variants' => array_filter([
+                        $thumbnail_url ? ['width' => 480, 'height' => 320, 'url' => $thumbnail_url] : null,
+                        $thumbnail_hires_url ? ['width' => 960, 'height' => 640, 'url' => $thumbnail_hires_url] : null,
+                    ]),
+                ];
+            }
+            
             $data = [
                 'product_code' => $product_code,
                 'title' => sanitize_text_field($product['title'] ?? ''),
                 'description' => sanitize_textarea_field($product['description'] ?? ''),
                 'url' => esc_url_raw($product_url),
-                'thumbnail_url' => esc_url_raw($product['thumbnailURL'] ?? $product['thumbnailHiResURL'] ?? ''),
+                'thumbnail_url' => esc_url_raw($thumbnail_url ?: ($thumbnail_hires_url ?: '')),
+                'thumbnail_hires_url' => esc_url_raw($thumbnail_hires_url),
+                'images' => !empty($images) ? json_encode($images) : null,
                 'price' => sanitize_text_field($product['price']['fromPrice'] ?? ''),
                 'currency' => sanitize_text_field($product['price']['currencyCode'] ?? 'USD'),
                 'rating' => floatval($product['reviews']['combinedAverageRating'] ?? 0),
@@ -442,6 +490,8 @@ function viator_sync_get_products($request) {
             'description' => $p['description'],
             'url' => $p['url'],
             'thumbnailUrl' => $p['thumbnail_url'],
+            'thumbnailHiResUrl' => $p['thumbnail_hires_url'] ?? '',
+            'images' => !empty($p['images']) ? json_decode($p['images'], true) : [],
             'price' => $p['price'],
             'currency' => $p['currency'],
             'rating' => floatval($p['rating']),
@@ -490,6 +540,8 @@ function viator_sync_get_product($request) {
         'description' => $product['description'],
         'url' => $product['url'],
         'thumbnailUrl' => $product['thumbnail_url'],
+        'thumbnailHiResUrl' => $product['thumbnail_hires_url'] ?? '',
+        'images' => !empty($product['images']) ? json_decode($product['images'], true) : [],
         'price' => $product['price'],
         'currency' => $product['currency'],
         'rating' => floatval($product['rating']),
