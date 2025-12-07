@@ -185,7 +185,7 @@ export function OptimizedContent({ html, className = '' }: OptimizedContentProps
   const segments = useMemo(() => parseContent(html), [html]);
 
   return (
-    <div className={className}>
+    <div className={className} suppressHydrationWarning>
       {segments.map((segment, index) => {
         if (segment.type === 'image' && segment.imageData) {
           return <OptimizedImage key={`img-${index}`} data={segment.imageData} />;
@@ -194,6 +194,7 @@ export function OptimizedContent({ html, className = '' }: OptimizedContentProps
         return (
           <div
             key={`html-${index}`}
+            suppressHydrationWarning
             dangerouslySetInnerHTML={{ __html: segment.content || '' }}
           />
         );
