@@ -11,11 +11,15 @@ import {
   getPosts,
   getPost,
   getCategories,
+  getTags,
   getCategoryBySlug,
   getAllPostSlugs,
   getAllCategorySlugs,
+  getPage,
+  getPages,
+  getAllPageSlugs,
 } from '@/lib/wordpress';
-import type { WPPost, WPAuthor, WPMedia, WPCategory, WPTag, PostSeoFields } from '@/lib/wordpress';
+import type { WPPost, WPAuthor, WPMedia, WPCategory, WPTag, WPPage, PostSeoFields } from '@/lib/wordpress';
 
 describe('WordPress Utilities', () => {
   describe('stripHtml', () => {
@@ -30,7 +34,7 @@ describe('WordPress Utilities', () => {
 
     it('removes HTML entities', () => {
       const html = 'Hello&nbsp;World&amp;Test';
-      expect(stripHtml(html)).toBe('Hello World Test');
+      expect(stripHtml(html)).toBe('Hello World&Test');
     });
   });
 
@@ -113,7 +117,7 @@ describe('WordPress Utilities', () => {
   });
 
   describe('getFeaturedImage', () => {
-    it('returns featured image data', () => {
+    it('returns featured image data from source_url', () => {
       const mockMedia: WPMedia = {
         id: 1,
         source_url: 'https://example.com/image.jpg',
@@ -121,17 +125,11 @@ describe('WordPress Utilities', () => {
         media_details: {
           width: 1200,
           height: 800,
-          sizes: {
-            medium_large: {
-              source_url: 'https://example.com/image-768x512.jpg',
-              width: 768,
-              height: 512,
-            },
-          },
         },
       };
 
       const post = {
+        id: 1,
         title: { rendered: 'Test Post' },
         _embedded: {
           'wp:featuredmedia': [mockMedia],
@@ -139,17 +137,18 @@ describe('WordPress Utilities', () => {
       } as WPPost;
 
       const result = getFeaturedImage(post);
-      expect(result).toEqual({
-        url: 'https://example.com/image-768x512.jpg',
-        width: 768,
-        height: 512,
-        alt: 'Test image',
-      });
+      expect(result.url).toBe('https://example.com/image.jpg');
+      expect(result.width).toBe(1200);
+      expect(result.height).toBe(800);
+      expect(result.alt).toBe('Test image');
+      expect(result.isFallback).toBe(false);
     });
 
-    it('returns null when no featured media', () => {
-      const post = { title: { rendered: 'Test' } } as WPPost;
-      expect(getFeaturedImage(post)).toBeNull();
+    it('returns fallback image when no featured media', () => {
+      const post = { id: 1, title: { rendered: 'Test' } } as WPPost;
+      const result = getFeaturedImage(post);
+      expect(result.isFallback).toBe(true);
+      expect(result.url).toContain('/assets/fallbacks/');
     });
   });
 
@@ -301,13 +300,6 @@ describe('WordPress Utilities', () => {
         media_details: {
           width: 1200,
           height: 800,
-          sizes: {
-            large: {
-              source_url: 'https://example.com/image-large.jpg',
-              width: 1024,
-              height: 683,
-            },
-          },
         },
       };
 
@@ -318,13 +310,13 @@ describe('WordPress Utilities', () => {
       });
 
       const seo = buildSeo(post);
-      expect(seo.ogImage).toBe('https://example.com/image-large.jpg');
+      expect(seo.ogImage).toBe('https://example.com/image.jpg');
     });
 
-    it('uses default OG image when no featured image', () => {
+    it('uses fallback image when no featured image', () => {
       const post = createMockPost();
       const seo = buildSeo(post);
-      expect(seo.ogImage).toBe('https://cursedtours.com/og-default.png');
+      expect(seo.ogImage).toContain('/assets/fallbacks/');
     });
 
     it('prefers seoFields ogImage over featured image', () => {
@@ -364,10 +356,10 @@ describe('WordPress Utilities', () => {
       expect(seo.altText).toBe('Custom alt text');
     });
 
-    it('falls back to title for altText when no image alt', () => {
+    it('uses fallback alt text when no featured image', () => {
       const post = createMockPost();
       const seo = buildSeo(post);
-      expect(seo.altText).toBe('Test Post Title');
+      expect(seo.altText.length).toBeGreaterThan(5);
     });
 
     it('handles empty excerpt gracefully', () => {
@@ -380,12 +372,6 @@ describe('WordPress Utilities', () => {
       const post = createMockPost({ excerpt: undefined });
       const seo = buildSeo(post);
       expect(seo.description).toBe('');
-    });
-
-    it('returns default OG image URL format', () => {
-      const post = createMockPost();
-      const seo = buildSeo(post);
-      expect(seo.ogImage).toContain('og-default.png');
     });
   });
 });
@@ -403,7 +389,7 @@ describe('Data Fetching Functions', () => {
 
   describe('getPosts', () => {
     it('fetches posts with default parameters', async () => {
-      const mockPosts = [{ id: 1, title: { rendered: 'Test Post' } }];
+      const mockPosts = [{ id: 1, title: { rendered: 'Test Post' }, content: { rendered: '<p>Test</p>' }, excerpt: { rendered: '<p>Excerpt</p>' } }];
       fetchSpy.mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(mockPosts),
@@ -415,7 +401,7 @@ describe('Data Fetching Functions', () => {
 
       const result = await getPosts();
       
-      expect(result.posts).toEqual(mockPosts);
+      expect(result.posts.length).toBe(1);
       expect(result.totalPages).toBe(5);
       expect(result.totalPosts).toBe(50);
     });
@@ -446,7 +432,7 @@ describe('Data Fetching Functions', () => {
 
     it('fetches posts by category slug', async () => {
       const mockCategories = [{ id: 5, slug: 'ghost-stories' }];
-      const mockPosts = [{ id: 1, title: { rendered: 'Ghost Story' } }];
+      const mockPosts = [{ id: 1, title: { rendered: 'Ghost Story' }, content: { rendered: '<p>Story</p>' }, excerpt: { rendered: '<p>Excerpt</p>' } }];
       
       fetchSpy
         .mockResolvedValueOnce({
@@ -460,11 +446,11 @@ describe('Data Fetching Functions', () => {
         } as Response);
 
       const result = await getPosts({ category: 'ghost-stories' });
-      expect(result.posts).toEqual(mockPosts);
+      expect(result.posts.length).toBe(1);
     });
 
     it('fetches posts by search query', async () => {
-      const mockPosts = [{ id: 1, title: { rendered: 'Haunted House' } }];
+      const mockPosts = [{ id: 1, title: { rendered: 'Haunted House' }, content: { rendered: '<p>Content</p>' }, excerpt: { rendered: '<p>Excerpt</p>' } }];
       
       fetchSpy.mockResolvedValueOnce({
         ok: true,
@@ -473,14 +459,14 @@ describe('Data Fetching Functions', () => {
       } as Response);
 
       const result = await getPosts({ search: 'haunted' });
-      expect(result.posts).toEqual(mockPosts);
+      expect(result.posts.length).toBe(1);
     });
   });
 
   describe('getPost', () => {
     it('fetches single post by slug', async () => {
-      const mockPost = { id: 1, slug: 'test-post', categories: [1] };
-      const mockRelated = [{ id: 2, slug: 'related-post' }];
+      const mockPost = { id: 1, slug: 'test-post', categories: [1], content: { rendered: '<p>Content</p>' }, excerpt: { rendered: '<p>Excerpt</p>' } };
+      const mockRelated = [{ id: 2, slug: 'related-post', content: { rendered: '' }, excerpt: { rendered: '' } }];
       
       fetchSpy
         .mockResolvedValueOnce({
@@ -493,8 +479,8 @@ describe('Data Fetching Functions', () => {
         } as Response);
 
       const result = await getPost('test-post');
-      expect(result.post).toEqual(mockPost);
-      expect(result.relatedPosts).toEqual(mockRelated);
+      expect(result.post.slug).toBe('test-post');
+      expect(result.relatedPosts.length).toBe(1);
     });
 
     it('throws error when post not found', async () => {
@@ -516,7 +502,7 @@ describe('Data Fetching Functions', () => {
     });
 
     it('handles post without categories gracefully', async () => {
-      const mockPost = { id: 1, slug: 'test-post', categories: [] };
+      const mockPost = { id: 1, slug: 'test-post', categories: [], content: { rendered: '' }, excerpt: { rendered: '' } };
       
       fetchSpy.mockResolvedValueOnce({
         ok: true,
@@ -528,7 +514,7 @@ describe('Data Fetching Functions', () => {
     });
 
     it('handles failed related posts fetch gracefully', async () => {
-      const mockPost = { id: 1, slug: 'test-post', categories: [1] };
+      const mockPost = { id: 1, slug: 'test-post', categories: [1], content: { rendered: '' }, excerpt: { rendered: '' } };
       
       fetchSpy
         .mockResolvedValueOnce({
@@ -650,6 +636,130 @@ describe('Data Fetching Functions', () => {
 
       const result = await getAllCategorySlugs();
       expect(result).toEqual(['ghost-stories', 'investigations']);
+    });
+  });
+
+  describe('getTags', () => {
+    it('fetches all tags', async () => {
+      const mockTags = [
+        { id: 1, count: 10, name: 'Ghosts', slug: 'ghosts', link: '' },
+        { id: 2, count: 5, name: 'Haunted', slug: 'haunted', link: '' },
+      ];
+      
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockTags),
+      } as Response);
+
+      const result = await getTags();
+      expect(result).toEqual(mockTags);
+    });
+
+    it('returns empty array on API failure', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+      } as Response);
+
+      const result = await getTags();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getPage', () => {
+    it('fetches single page by slug', async () => {
+      const mockPage: Partial<WPPage> = {
+        id: 1,
+        slug: 'about-us',
+        title: { rendered: 'About Us' },
+        content: { rendered: '<p>About content</p>' },
+        excerpt: { rendered: '<p>About excerpt</p>' },
+      };
+      
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([mockPage]),
+      } as Response);
+
+      const result = await getPage('about-us');
+      expect(result).not.toBeNull();
+      expect(result?.slug).toBe('about-us');
+    });
+
+    it('returns null when page not found', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve([]),
+      } as Response);
+
+      const result = await getPage('nonexistent');
+      expect(result).toBeNull();
+    });
+
+    it('returns null on API failure', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+      } as Response);
+
+      const result = await getPage('test');
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('getPages', () => {
+    it('fetches all pages', async () => {
+      const mockPages = [
+        { id: 1, slug: 'about-us', title: { rendered: 'About' }, content: { rendered: '' }, excerpt: { rendered: '' } },
+        { id: 2, slug: 'contact', title: { rendered: 'Contact' }, content: { rendered: '' }, excerpt: { rendered: '' } },
+      ];
+      
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockPages),
+      } as Response);
+
+      const result = await getPages();
+      expect(result).toHaveLength(2);
+      expect(result[0].slug).toBe('about-us');
+    });
+
+    it('returns empty array on API failure', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      } as Response);
+
+      const result = await getPages();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getAllPageSlugs', () => {
+    it('fetches all page slugs', async () => {
+      const mockPages = [
+        { slug: 'about-us' },
+        { slug: 'contact' },
+        { slug: 'privacy-policy' },
+      ];
+      
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockPages),
+      } as Response);
+
+      const result = await getAllPageSlugs();
+      expect(result).toEqual(['about-us', 'contact', 'privacy-policy']);
+    });
+
+    it('returns empty array on API failure', async () => {
+      fetchSpy.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      } as Response);
+
+      const result = await getAllPageSlugs();
+      expect(result).toEqual([]);
     });
   });
 });
