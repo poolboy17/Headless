@@ -487,15 +487,13 @@ export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' |
   }
   
   // Priority 2: Use WordPress featured media if available
+  // Always use original source_url as WordPress resized images may be missing (404)
   const featuredMedia = post._embedded?.['wp:featuredmedia']?.[0];
   if (featuredMedia?.source_url) {
-    const sizes = featuredMedia.media_details?.sizes;
-    const preferredSize = sizes?.[size] || sizes?.large || sizes?.medium_large || sizes?.medium;
-    
     return {
-      url: preferredSize?.source_url || featuredMedia.source_url,
-      width: preferredSize?.width || featuredMedia.media_details?.width || 1200,
-      height: preferredSize?.height || featuredMedia.media_details?.height || 800,
+      url: featuredMedia.source_url,
+      width: featuredMedia.media_details?.width || 1200,
+      height: featuredMedia.media_details?.height || 800,
       alt: featuredMedia.alt_text || title,
       isFallback: false,
     };
