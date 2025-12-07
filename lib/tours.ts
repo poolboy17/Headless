@@ -164,7 +164,12 @@ export const tourTypes = [
   { id: 'night', label: 'Night Tours' },
 ];
 
-// Curated tours data
+// Helper to build Viator search URL for a destination
+function buildViatorSearchUrl(destId: string, searchTerms: string): string {
+  return `https://www.viator.com/searchResults/all?text=${encodeURIComponent(searchTerms)}&destId=${destId}`;
+}
+
+// Curated tours data - using search URLs which are more reliable than category URLs
 export const tours: Tour[] = [
   {
     id: '1',
@@ -177,7 +182,7 @@ export const tours: Tour[] = [
     duration: '2 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1568402102990-bc541580b59f?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/New-Orleans/d675-ttd/g21-Walking-Tours?tag1=21&tag2=11292',
+    viatorUrl: buildViatorSearchUrl('675', 'french quarter haunted walking tour'),
     description: 'Explore the haunted streets of the French Quarter with expert guides sharing tales of voodoo and ghosts.',
   },
   {
@@ -191,7 +196,7 @@ export const tours: Tour[] = [
     duration: '2.5 hours',
     groupSize: 'Group tour',
     imageUrl: 'https://images.unsplash.com/photo-1509128841709-6c13b25058a3?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/New-Orleans/d675-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('675', 'ghost bus tour new orleans'),
     description: 'Cover more haunted ground in comfort on this comprehensive bus tour of New Orleans\' most paranormal locations.',
   },
   {
@@ -205,7 +210,7 @@ export const tours: Tour[] = [
     duration: '2 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1509475826633-fed577a2c71b?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/New-Orleans/d675-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('675', 'cemetery voodoo walking tour'),
     description: 'Visit the famous above-ground cemeteries and learn about New Orleans\' voodoo traditions.',
   },
   {
@@ -219,7 +224,7 @@ export const tours: Tour[] = [
     duration: '1.5 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1596394723269-b2cbca4e6313?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Savannah/d4283-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('4283', 'ghost walking tour savannah'),
     description: 'Discover why Savannah is considered America\'s most haunted city on this spine-chilling walking tour.',
   },
   {
@@ -233,7 +238,7 @@ export const tours: Tour[] = [
     duration: '2 hours',
     groupSize: 'Group tour',
     imageUrl: 'https://images.unsplash.com/photo-1596394516628-96fe4c559c23?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Savannah/d4283-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('4283', 'trolley ghost tour savannah'),
     description: 'Ride through Savannah\'s haunted squares and historic districts on an old-fashioned trolley.',
   },
   {
@@ -247,7 +252,7 @@ export const tours: Tour[] = [
     duration: '1.5 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1509557965875-b88c97052f0e?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Salem/d50249-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('50249', 'salem witch walking tour'),
     description: 'Walk the streets where the infamous witch trials took place and hear the real stories.',
   },
   {
@@ -261,7 +266,7 @@ export const tours: Tour[] = [
     duration: '2 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1509557965875-b88c97052f0e?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Salem/d50249-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('50249', 'ghost hunt night tour salem'),
     description: 'Use paranormal investigation equipment to hunt for spirits in Salem\'s most haunted locations.',
   },
   {
@@ -275,7 +280,7 @@ export const tours: Tour[] = [
     duration: '1.5 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1594732832278-abd644401426?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Edinburgh/d739-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('739', 'underground vaults ghost tour edinburgh'),
     description: 'Descend into the haunted underground vaults beneath Edinburgh\'s Royal Mile.',
   },
   {
@@ -289,7 +294,7 @@ export const tours: Tour[] = [
     duration: '1.5 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1594732832278-abd644401426?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Edinburgh/d739-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('739', 'graveyard night ghost tour edinburgh'),
     description: 'Visit the famous Greyfriars Kirkyard and other haunted burial grounds after dark.',
   },
   {
@@ -303,7 +308,7 @@ export const tours: Tour[] = [
     duration: '2 hours',
     groupSize: 'Group tour',
     imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/searchResults/all?text=jack+the+ripper+london&destId=737',
+    viatorUrl: buildViatorSearchUrl('737', 'jack the ripper walking tour london'),
     description: 'Follow in the footsteps of history\'s most infamous serial killer through Whitechapel.',
   },
   {
@@ -317,7 +322,7 @@ export const tours: Tour[] = [
     duration: '2 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/London/d737-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('737', 'tower of london ghost tour'),
     description: 'Explore the Tower of London and hear tales of its many ghostly residents.',
   },
   {
@@ -331,7 +336,7 @@ export const tours: Tour[] = [
     duration: '2 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Gettysburg/d22093-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('22093', 'battlefield ghost tour gettysburg'),
     description: 'Visit the most paranormally active Civil War battlefield in America after dark.',
   },
   {
@@ -345,7 +350,7 @@ export const tours: Tour[] = [
     duration: '3 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Gettysburg/d22093-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('22093', 'ghost hunt paranormal gettysburg'),
     description: 'Use professional paranormal equipment to investigate Gettysburg\'s most haunted locations.',
   },
   {
@@ -359,7 +364,7 @@ export const tours: Tour[] = [
     duration: '1.5 hours',
     groupSize: 'Group tour',
     imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/St-Augustine/d4282-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('4282', 'ghost trolley tour st augustine'),
     description: 'Tour America\'s oldest city and its most haunted locations by trolley.',
   },
   {
@@ -373,7 +378,7 @@ export const tours: Tour[] = [
     duration: '1.5 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/St-Augustine/d4282-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('4282', 'ghost walking tour st augustine'),
     description: 'Walk through 450 years of history and hauntings in America\'s oldest city.',
   },
   {
@@ -387,7 +392,7 @@ export const tours: Tour[] = [
     duration: '2.5 hours',
     groupSize: 'Group tour',
     imageUrl: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Chicago/d673-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('673', 'gangster ghost bus tour chicago'),
     description: 'Explore Chicago\'s dark history of gangsters, ghosts, and unsolved mysteries.',
   },
   {
@@ -401,7 +406,7 @@ export const tours: Tour[] = [
     duration: '2 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Chicago/d673-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('673', 'haunted pub crawl ghost tour chicago'),
     description: 'Visit Chicago\'s most haunted bars and pubs while enjoying local spirits.',
   },
   {
@@ -415,7 +420,7 @@ export const tours: Tour[] = [
     duration: '2 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/New-York/d687-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('687', 'greenwich village ghost walking tour'),
     description: 'Explore the haunted history of Greenwich Village on this atmospheric walking tour.',
   },
   {
@@ -429,7 +434,7 @@ export const tours: Tour[] = [
     duration: '1.5 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1501979376754-1d09c6d5deef?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Boston/d678-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('678', 'freedom trail ghost tour boston'),
     description: 'Walk the Freedom Trail after dark and encounter revolutionary ghosts.',
   },
   {
@@ -443,7 +448,7 @@ export const tours: Tour[] = [
     duration: '1.5 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1569025743873-ea3a9ber956?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Charleston/d4384-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('4384', 'ghost graveyard walking tour charleston'),
     description: 'Explore Charleston\'s haunted streets and historic graveyards after dark.',
   },
   {
@@ -457,7 +462,7 @@ export const tours: Tour[] = [
     duration: '2 hours',
     groupSize: 'Small group',
     imageUrl: 'https://images.unsplash.com/photo-1549918864-48ac978761a4?w=400&h=300&fit=crop',
-    viatorUrl: 'https://www.viator.com/Dublin/d503-ttd/g6-Ghost-and-Vampire-Tours',
+    viatorUrl: buildViatorSearchUrl('503', 'haunted pub ghost tour dublin'),
     description: 'Visit Dublin\'s most haunted pubs and hear tales of ghostly encounters.',
   },
 ];
