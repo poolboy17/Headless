@@ -83,6 +83,7 @@ export const CITY_TO_DESTINATION: Record<string, string> = Object.fromEntries(
 
 /**
  * Get all products from WordPress
+ * Works in both server and client contexts
  */
 export async function getProducts(options: {
   destination?: string;
@@ -103,11 +104,15 @@ export async function getProducts(options: {
   }
   
   try {
+    // Use cache option that works in both server and client
+    const isServer = typeof window === 'undefined';
+    const fetchOptions: RequestInit = isServer
+      ? { next: { revalidate: 300 } } as RequestInit
+      : { cache: 'no-store' };
+    
     const response = await fetch(
       `${WORDPRESS_URL}/wp-json/viator-sync/v1/products?${params}`,
-      {
-        next: { revalidate: 300 }, // Cache for 5 minutes
-      }
+      fetchOptions
     );
     
     if (!response.ok) {
