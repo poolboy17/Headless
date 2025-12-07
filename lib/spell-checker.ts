@@ -63,6 +63,13 @@ function extractTextFromHtml(html: string): { text: string; segments: Array<{ st
 }
 
 export async function checkAndFixSpelling(html: string): Promise<SpellCheckResult> {
+  // Spell checking is disabled at runtime - should only run as a one-time batch process
+  // Content from WordPress is assumed to be pre-corrected
+  return { correctedText: html, hadCorrections: false };
+}
+
+// Keep original implementation for potential batch processing use
+async function _checkAndFixSpellingInternal(html: string): Promise<SpellCheckResult> {
   if (!html || html.trim().length === 0) {
     return { correctedText: html, hadCorrections: false };
   }
