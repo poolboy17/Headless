@@ -1,5 +1,7 @@
+'use client';
+
 import Link from 'next/link';
-import Image from 'next/image';
+import { SafeImage } from '@/components/safe-image';
 import { ArrowRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,7 +24,7 @@ export function HeroSection({ post }: HeroSectionProps) {
       <Link href={`/post/${post.slug}`} className="block relative group">
         <div className="aspect-[16/9] md:aspect-[21/9] overflow-hidden rounded-3xl relative bg-muted">
           {featuredImage ? (
-            <Image
+            <SafeImage
               src={featuredImage.url}
               alt={featuredImage.alt}
               fill
@@ -31,7 +33,7 @@ export function HeroSection({ post }: HeroSectionProps) {
               sizes="(max-width: 768px) 100vw, 100vw"
             />
           ) : (
-            <Image
+            <SafeImage
               src="/assets/hero.png"
               alt="CURSED TOURS - Some boundaries aren't meant to be crossed"
               fill

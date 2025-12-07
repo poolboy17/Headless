@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import { SafeImage } from '@/components/safe-image';
 import { TrendingUp, Flame } from 'lucide-react';
 import type { WPPost } from '@/lib/wordpress';
 import { stripHtml, getFeaturedImage } from '@/lib/wordpress';
@@ -69,7 +69,7 @@ function TrendingCard({ post, rank }: TrendingCardProps) {
         {/* Thumbnail */}
         {featuredImage && (
           <div className="shrink-0 w-16 h-16 rounded-xl overflow-hidden relative bg-muted">
-            <Image
+            <SafeImage
               src={featuredImage.url}
               alt={featuredImage.alt}
               fill
@@ -118,7 +118,7 @@ function TrendingCardHorizontal({ post, rank }: TrendingCardProps) {
         {/* Image */}
         <div className="aspect-[16/10] relative bg-muted">
           {featuredImage ? (
-            <Image
+            <SafeImage
               src={featuredImage.url}
               alt={featuredImage.alt}
               fill

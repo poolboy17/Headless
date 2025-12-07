@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+  },
   images: {
+    unoptimized: false,
+    dangerouslyAllowSVG: false,
+    disableStaticImages: false,
     remotePatterns: [
       {
         protocol: 'https',

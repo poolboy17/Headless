@@ -1,5 +1,7 @@
+'use client';
+
 import Link from 'next/link';
-import Image from 'next/image';
+import { SafeImage } from '@/components/safe-image';
 import { Clock, Tag } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,7 +28,7 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
         <div className="group flex gap-4 p-3 rounded-2xl hover:bg-muted/50 transition-colors cursor-pointer">
           {featuredImage && (
             <div className="w-20 h-20 shrink-0 overflow-hidden rounded-xl relative bg-muted">
-              <Image
+              <SafeImage
                 src={featuredImage.url}
                 alt={featuredImage.alt}
                 fill
@@ -58,7 +60,7 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
         <div className="nc-Card11 group relative flex flex-col overflow-hidden rounded-3xl bg-white dark:bg-neutral-900 h-full cursor-pointer border border-neutral-100 dark:border-neutral-800 hover:shadow-xl transition-shadow duration-300">
           <div className="relative z-10 block w-full flex-shrink-0 overflow-hidden rounded-t-3xl aspect-[4/3] bg-muted">
             {featuredImage && (
-              <Image
+              <SafeImage
                 src={featuredImage.url}
                 alt={featuredImage.alt}
                 fill
@@ -126,7 +128,7 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
       <div className="nc-Card11 group relative flex flex-col overflow-hidden rounded-3xl bg-white dark:bg-neutral-900 h-full cursor-pointer border border-neutral-100 dark:border-neutral-800 hover:shadow-lg transition-shadow duration-300" data-testid={`card-post-${post.slug}`}>
         <div className="relative z-10 block w-full flex-shrink-0 overflow-hidden rounded-t-3xl aspect-[16/9] bg-muted">
           {featuredImage && (
-            <Image
+            <SafeImage
               src={featuredImage.url}
               alt={featuredImage.alt}
               fill
