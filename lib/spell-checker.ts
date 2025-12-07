@@ -1,10 +1,20 @@
 import OpenAI from 'openai';
 import { createHash } from 'crypto';
 
-const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
+let openaiClient: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI | null {
+  if (!process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
+    return null;
+  }
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+      baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    });
+  }
+  return openaiClient;
+}
 
 interface SpellCheckResult {
   correctedText: string;
@@ -54,6 +64,11 @@ function extractTextFromHtml(html: string): { text: string; segments: Array<{ st
 
 export async function checkAndFixSpelling(html: string): Promise<SpellCheckResult> {
   if (!html || html.trim().length === 0) {
+    return { correctedText: html, hadCorrections: false };
+  }
+
+  const openai = getOpenAIClient();
+  if (!openai) {
     return { correctedText: html, hadCorrections: false };
   }
 
