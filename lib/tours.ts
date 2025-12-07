@@ -165,8 +165,9 @@ export const tourTypes = [
 ];
 
 // Helper to build Viator search URL for a destination
+// Includes flags=FREE_CANCELLATION to filter for active, bookable tours
 function buildViatorSearchUrl(destId: string, searchTerms: string): string {
-  return `https://www.viator.com/searchResults/all?text=${encodeURIComponent(searchTerms)}&destId=${destId}`;
+  return `https://www.viator.com/searchResults/all?text=${encodeURIComponent(searchTerms)}&destId=${destId}&flags=FREE_CANCELLATION`;
 }
 
 // Curated tours data - using search URLs which are more reliable than category URLs
@@ -490,6 +491,7 @@ export function getToursByCity(cityId: string, page: number = 1, perPage: number
 }
 
 // Get Viator search URL for a city
+// Includes flags=FREE_CANCELLATION to filter for active, bookable tours
 export function getCityViatorUrl(city: City): string {
-  return getAffiliateUrl(`https://www.viator.com/searchResults/all?text=ghost+haunted+tour&destId=${city.viatorDest.replace('d', '')}`);
+  return getAffiliateUrl(`https://www.viator.com/searchResults/all?text=ghost+haunted+tour&destId=${city.viatorDest.replace('d', '')}&flags=FREE_CANCELLATION`);
 }
