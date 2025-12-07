@@ -268,7 +268,7 @@ export async function getPosts(params: { page?: number; perPage?: number; catego
 
     if (search) queryParams.append('search', search);
 
-    const response = await fetch(`${WP_API_URL}/posts?${queryParams}`, { next: { revalidate: 300 } });
+    const response = await fetch(`${WP_API_URL}/posts?${queryParams}`, { next: { revalidate: 300, tags: ['posts'] } });
     if (!response.ok) { console.warn(`WordPress API error: ${response.status}`); return { posts: [], totalPages: 0, totalPosts: 0 }; }
 
     const posts: WPPost[] = await response.json();

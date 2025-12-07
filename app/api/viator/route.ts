@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 const WORDPRESS_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL || 'https://wp.cursedtours.com';
+
+const apiKeySchema = z.string().min(1, 'API key is required');
 
 export async function GET() {
   try {
@@ -34,7 +37,6 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    // Require admin API key for manual sync trigger
     const adminApiKey = process.env.ADMIN_API_KEY;
     
     if (!adminApiKey) {
@@ -45,7 +47,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for API key in Authorization header or query param
     const authHeader = request.headers.get('Authorization');
     const url = new URL(request.url);
     const queryApiKey = url.searchParams.get('api_key');
@@ -58,14 +59,22 @@ export async function POST(request: NextRequest) {
       providedKey = queryApiKey;
     }
 
-    if (!providedKey || providedKey !== adminApiKey) {
+    const keyParseResult = apiKeySchema.safeParse(providedKey);
+    
+    if (!keyParseResult.success) {
+      return NextResponse.json(
+        { error: 'Invalid request', details: { api_key: ['API key is required'] } },
+        { status: 400 }
+      );
+    }
+
+    if (keyParseResult.data !== adminApiKey) {
       return NextResponse.json(
         { error: 'Unauthorized - valid admin API key required' },
         { status: 401 }
       );
     }
 
-    // WordPress credentials for sync trigger
     const wpUsername = process.env.WP_USERNAME;
     const wpAppPassword = process.env.WP_APP_PASSWORD;
 

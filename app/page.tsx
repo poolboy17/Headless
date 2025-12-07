@@ -9,8 +9,8 @@ import { TrendingPosts } from '@/components/trending-posts';
 import { NoPostsFound } from '@/components/empty-state';
 import { ExperiencePicker } from '@/components/experience-picker';
 
-// Force dynamic rendering to avoid build-time API calls
-export const dynamic = 'force-dynamic';
+// Use ISR with 5-minute revalidation for optimal caching
+export const revalidate = 300;
 
 interface HomePageProps {
   searchParams: Promise<{ page?: string }>;
