@@ -341,7 +341,39 @@ export async function getAllCategorySlugs(): Promise<string[]> {
 }
 
 export function stripHtml(html: string): string {
-  return html.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').trim();
+  const htmlEntities: Record<string, string> = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#039;': "'",
+    '&#8217;': "'",
+    '&#8216;': "'",
+    '&#8220;': '"',
+    '&#8221;': '"',
+    '&#8211;': '–',
+    '&#8212;': '—',
+    '&nbsp;': ' ',
+    '&hellip;': '...',
+    '&#8230;': '...',
+    '&ndash;': '–',
+    '&mdash;': '—',
+    '&lsquo;': "'",
+    '&rsquo;': "'",
+    '&ldquo;': '"',
+    '&rdquo;': '"',
+  };
+  
+  let text = html.replace(/<[^>]*>/g, '');
+  
+  for (const [entity, char] of Object.entries(htmlEntities)) {
+    text = text.split(entity).join(char);
+  }
+  
+  text = text.replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)));
+  text = text.replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
+  
+  return text.trim();
 }
 
 export function formatDate(dateString: string): string {
