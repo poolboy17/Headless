@@ -4,12 +4,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Clock, Star, Users, ExternalLink, ChevronLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { cities, getCityById, getToursByCity, getAllCityIds, getAffiliateUrl, getCityViatorUrl, tourTypes, type Tour } from '@/lib/tours';
-import { getProductsByCity, formatPrice, formatLastVerified, buildProductSchema, getBestImageUrl, type ViatorProduct } from '@/lib/viator-products';
+import { getProductsByCity, formatPrice, formatLastVerified, buildProductSchema, type ViatorProduct } from '@/lib/viator-products';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/pagination';
 import { CityIcon } from '@/components/city-icon';
+import { ProductImageGallery } from '@/components/product-image-gallery';
 
 export const dynamic = 'force-static';
 export const dynamicParams = true;
@@ -262,7 +263,6 @@ interface ViatorProductCardProps {
 function ViatorProductCard({ product }: ViatorProductCardProps) {
   const VIATOR_PID = process.env.NEXT_PUBLIC_VIATOR_PID || 'P00166886';
   const affiliateUrl = `${product.url}${product.url.includes('?') ? '&' : '?'}pid=${VIATOR_PID}`;
-  const imageUrl = getBestImageUrl(product);
 
   return (
     <a
@@ -274,21 +274,16 @@ function ViatorProductCard({ product }: ViatorProductCardProps) {
     >
       <Card className="overflow-hidden h-full transition-all duration-300 hover:shadow-xl border-border/50 hover:border-primary/30">
         <div className="relative aspect-[4/3] bg-muted overflow-hidden">
-          <img
-            src={imageUrl}
-            alt={product.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <ProductImageGallery product={product} className="w-full h-full" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
           
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-3 right-3 pointer-events-none">
             <Badge className="bg-white/90 dark:bg-neutral-900/90 text-foreground backdrop-blur-sm font-bold border-0">
               {formatPrice(product.price, product.currency)}
             </Badge>
           </div>
 
-          <div className="absolute bottom-3 left-3 flex items-center gap-2">
+          <div className="absolute bottom-3 left-3 flex items-center gap-2 pointer-events-none">
             {product.hasFreeCancellation && (
               <Badge className="bg-green-600/90 text-white border-0 text-[10px] uppercase tracking-wider">
                 Free Cancellation
