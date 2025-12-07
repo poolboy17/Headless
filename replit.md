@@ -267,3 +267,47 @@ tests/
 - Mocks for next/navigation (usePathname, useRouter, useSearchParams)
 - Mocks for next/image (renders standard img)
 - Mocks for window.matchMedia (responsive testing)
+
+### Background Worker (Sidecar)
+
+The `/worker` directory contains a background service for automated content sync.
+
+**Purpose:**
+- Fetch tour data from Viator API
+- Generate/enhance content with AI (optional)
+- Push to WordPress as posts/pages
+- Trigger Vercel ISR revalidation
+
+**Architecture:**
+```
+Replit (Background Worker)     →  WordPress (CMS)  →  Vercel (Next.js)
+├── Scheduled/Reserved VM         ├── Stores content    ├── Serves pages
+├── Viator API sync               └── REST API          └── Global CDN
+└── AI content generation
+```
+
+**Worker Files:**
+```
+worker/
+├── index.ts            # Entry point, schedules sync
+├── viator-sync.ts      # Viator API fetching
+├── wordpress-push.ts   # WordPress REST API publishing
+├── content-generator.ts # AI content enhancement
+├── tsconfig.json       # TypeScript config
+└── README.md           # Worker documentation
+```
+
+**Deployment:**
+- Worker deploys to Replit (Reserved VM or Scheduled)
+- Next.js frontend deploys to Vercel
+- Both share the same codebase for types/schemas
+
+**Run Worker Locally:**
+```bash
+cd worker
+npx tsx index.ts
+```
+
+**Environment Variables (Worker-specific):**
+- `DEPLOYMENT_TYPE` - "reserved-vm" for continuous, omit for scheduled
+- `VERCEL_REVALIDATE_WEBHOOK` - Optional webhook to trigger ISR
