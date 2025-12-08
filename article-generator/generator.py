@@ -24,24 +24,7 @@ WP_USERNAME = os.getenv("WP_USERNAME", "genaromvasquez@gmail.com")
 WP_APP_PASSWORD = os.getenv("WP_APP_PASSWORD", "32ka wCd3 jX3H 237K k7qK 4IyI")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
-
-
-@dataclass
-class Product:
-    """Tour product data"""
-    id: str
-    product_code: str
-    title: str
-    description: str
-    price: float
-    currency: str
-    destination: str
-    rating: float
-    review_count: int
-    duration_minutes: int
-    image_url: str
-    booking_url: str
-    free_cancellation: bool
+SITE_URL = os.getenv("SITE_URL", "https://cursedtours.com")
 
 
 class ProductsAPI:
@@ -119,7 +102,7 @@ class OllamaClient:
         except:
             return []
 
-    def generate(self, prompt: str, system: str = None) -> str:
+    def generate(self, prompt: str, system: str = None, max_tokens: int = 3000) -> str:
         """Generate text using Ollama"""
         url = f"{self.base_url}/api/generate"
 
@@ -129,14 +112,14 @@ class OllamaClient:
             "stream": False,
             "options": {
                 "temperature": 0.7,
-                "num_predict": 2000,
+                "num_predict": max_tokens,
             }
         }
 
         if system:
             payload["system"] = system
 
-        response = requests.post(url, json=payload, timeout=120)
+        response = requests.post(url, json=payload, timeout=180)
         response.raise_for_status()
 
         data = response.json()
@@ -159,7 +142,7 @@ class WordPressClient:
 
     def create_post(self, title: str, content: str, status: str = "draft",
                     featured_media: int = None, categories: List[int] = None,
-                    tags: List[int] = None, meta: Dict = None) -> Dict:
+                    tags: List[int] = None, meta: Dict = None, excerpt: str = None) -> Dict:
         """Create a new WordPress post"""
         url = f"{self.api_url}/posts"
 
@@ -177,6 +160,8 @@ class WordPressClient:
             payload["tags"] = tags
         if meta:
             payload["meta"] = meta
+        if excerpt:
+            payload["excerpt"] = excerpt
 
         response = requests.post(url, json=payload, headers=self._headers())
         response.raise_for_status()
@@ -185,7 +170,6 @@ class WordPressClient:
     def upload_image(self, image_url: str, title: str) -> Optional[int]:
         """Upload an image from URL to WordPress media library"""
         try:
-            # Download the image
             img_response = requests.get(image_url, timeout=30)
             img_response.raise_for_status()
 
@@ -193,7 +177,6 @@ class WordPressClient:
             ext = "png" if "png" in content_type else "jpg"
             filename = f"{title.lower().replace(' ', '-')[:50]}.{ext}"
 
-            # Upload to WordPress
             url = f"{self.api_url}/media"
             headers = {
                 "Authorization": f"Basic {self.auth}",
@@ -209,88 +192,179 @@ class WordPressClient:
             print(f"Failed to upload image: {e}")
             return None
 
-    def get_categories(self) -> List[Dict]:
-        """Get all categories"""
-        url = f"{self.api_url}/categories"
-        response = requests.get(url, params={"per_page": 100})
-        return response.json()
-
-    def get_tags(self) -> List[Dict]:
-        """Get all tags"""
-        url = f"{self.api_url}/tags"
-        response = requests.get(url, params={"per_page": 100})
-        return response.json()
-
 
 class ArticleGenerator:
-    """Main article generator that combines all components"""
+    """Main article generator with rich, unique content"""
 
-    SYSTEM_PROMPT = """You are a writer for Cursed Tours, a paranormal investigation and ghost tour blog.
-Your tone is intriguing, atmospheric, and respectful of the supernatural.
-Write engaging, SEO-friendly content that captures the mystery and history of haunted locations.
-Do not use emojis. Format output as WordPress Gutenberg blocks."""
+    SYSTEM_PROMPT = """You are a senior content writer for Cursed Tours, a paranormal tourism website.
+Your writing is atmospheric, historically accurate, and deeply engaging.
+You create UNIQUE content for each tour - never use generic templates or filler text.
+Research and incorporate specific historical facts, local legends, and paranormal reports.
+Do not use emojis. Write in a tone that is intriguing but credible.
+Format all output as WordPress Gutenberg blocks."""
 
-    SHOWCASE_TEMPLATE = """Create a comprehensive showcase article for this haunted tour:
+    # Comprehensive tour article with FAQs and editorial content
+    PRODUCT_SPLASH_TEMPLATE = """Create a comprehensive, UNIQUE product page for this haunted tour.
+DO NOT use generic filler - every sentence should be specific to THIS tour.
 
-TOUR: {title}
+=== TOUR DATA ===
+TITLE: {title}
 LOCATION: {destination}
 PRICE: ${price:.2f} {currency}
 DURATION: {duration}
 RATING: {rating}/5 ({review_count} reviews)
-DESCRIPTION: {description}
+FREE CANCELLATION: {free_cancellation}
+INSTANT CONFIRMATION: {instant_confirmation}
+BOOKING URL: {booking_url}
+ORIGINAL DESCRIPTION: {description}
 
-Write an engaging article (600-800 words) that includes:
-1. An atmospheric introduction that sets the scene
-2. What makes this tour unique and compelling
-3. Historical and paranormal significance of the locations
-4. What visitors can expect during the experience
-5. Practical details (duration, what's included)
-6. A compelling call to action
+=== CONTENT REQUIREMENTS ===
 
-Format everything as WordPress Gutenberg blocks:
-- Use <!-- wp:heading {"level":2} --> for h2 headings
-- Use <!-- wp:paragraph --> for paragraphs
-- Use <!-- wp:list --> for bullet points
-- Use <!-- wp:quote --> for atmospheric quotes
+Create the following sections (1200-1500 words total):
 
-End with a suggested meta description (150-160 chars) in a HTML comment."""
+1. **ATMOSPHERIC INTRODUCTION** (150-200 words)
+   - Set the scene with vivid, location-specific imagery
+   - Hook the reader with an intriguing aspect of this specific tour
+   - Mention the destination's paranormal reputation
 
-    DESTINATION_TEMPLATE = """Create a destination guide for haunted tours in this city:
+2. **THE HAUNTED HISTORY** (200-250 words)
+   - Research and include SPECIFIC historical events related to this tour's locations
+   - Name actual historical figures, dates, or events if known
+   - Connect history to reported hauntings
 
-DESTINATION: {destination}
-NUMBER OF TOURS: {tour_count}
+3. **WHAT YOU'LL EXPERIENCE** (200-250 words)
+   - Describe the tour journey in detail
+   - Mention specific stops or highlights unique to this tour
+   - What paranormal activity has been reported?
+
+4. **WHY WE RECOMMEND THIS TOUR** (150-200 words)
+   - Editorial perspective on what makes this tour stand out
+   - Who is this tour best suited for?
+   - How does it compare to other options in {destination}?
+
+5. **TOUR DETAILS** (format as a clean list)
+   - Duration: {duration}
+   - Price: From ${price:.2f}
+   - Cancellation: {cancellation_policy}
+   - Confirmation: {confirmation_type}
+
+6. **FREQUENTLY ASKED QUESTIONS** (5-6 unique FAQs)
+   Generate questions SPECIFIC to this tour, such as:
+   - Is [Tour Name] suitable for children?
+   - What paranormal activity has been reported at [specific location on tour]?
+   - How much walking is involved?
+   - What should I bring on the tour?
+   - Can I take photographs during the tour?
+   - Is the tour accessible for those with mobility issues?
+
+   Answer each FAQ thoroughly (2-3 sentences each).
+
+7. **BOOK YOUR EXPERIENCE** (call to action)
+   - Compelling reason to book now
+   - Mention the rating and reviews as social proof
+
+=== FORMATTING ===
+Use WordPress Gutenberg blocks:
+- <!-- wp:heading {{"level":2}} --><h2>Section Title</h2><!-- /wp:heading -->
+- <!-- wp:paragraph --><p>Content</p><!-- /wp:paragraph -->
+- <!-- wp:list --><ul><li>Item</li></ul><!-- /wp:list -->
+- <!-- wp:quote --><blockquote class="wp-block-quote"><p>Quote</p></blockquote><!-- /wp:quote -->
+
+For FAQs, use this exact structure for schema markup:
+<!-- wp:heading {{"level":2}} --><h2>Frequently Asked Questions</h2><!-- /wp:heading -->
+<!-- wp:heading {{"level":3}} --><h3>Question here?</h3><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Answer here.</p><!-- /wp:paragraph -->
+
+=== META DESCRIPTION ===
+End with a meta description (150-160 characters) in this format:
+<!-- META: Your meta description here -->
+
+=== IMPORTANT ===
+- Every piece of content must be UNIQUE to this specific tour
+- Do not use generic phrases like "this amazing tour" or "unforgettable experience"
+- Include specific details from the tour description
+- Write as if you've researched this tour and location thoroughly"""
+
+    DESTINATION_GUIDE_TEMPLATE = """Create a comprehensive destination guide for paranormal tourism.
+
+=== DESTINATION DATA ===
+CITY: {destination}
+NUMBER OF TOURS AVAILABLE: {tour_count}
 
 FEATURED TOURS:
 {tour_list}
 
-Write an engaging destination guide (800-1000 words) that includes:
-1. Introduction to the city's haunted history and paranormal reputation
-2. Why this destination is perfect for ghost tour enthusiasts
-3. Overview of the different tour experiences available
-4. Best times to visit and what to expect
-5. Tips for paranormal enthusiasts
-6. Compelling conclusion encouraging booking
+=== CONTENT REQUIREMENTS ===
 
-Format as WordPress Gutenberg blocks. Include suggested meta description at the end."""
+Create these sections (1000-1200 words):
 
-    ROUNDUP_TEMPLATE = """Create a roundup article featuring these top-rated haunted tours:
+1. **INTRODUCTION TO HAUNTED {destination_upper}** (200-250 words)
+   - The city's paranormal reputation and history
+   - Why ghost hunters and paranormal enthusiasts visit here
+   - Famous hauntings or supernatural events
 
+2. **THE DARK HISTORY** (200-250 words)
+   - Historical events that contribute to hauntings (wars, epidemics, tragedies)
+   - Famous historical figures connected to local hauntings
+   - Specific locations known for paranormal activity
+
+3. **GHOST TOUR OPTIONS** (300-400 words)
+   - Overview of available tour types
+   - Brief highlight of each featured tour
+   - What makes each one different
+
+4. **BEST TIME TO VISIT** (100-150 words)
+   - Seasonal considerations
+   - Special events (Halloween, anniversaries of historical events)
+   - Weather and crowd considerations
+
+5. **TIPS FOR PARANORMAL ENTHUSIASTS** (150-200 words)
+   - What to bring
+   - How to prepare
+   - Etiquette on ghost tours
+   - Photography tips
+
+6. **FAQs ABOUT GHOST TOURS IN {destination_upper}** (4-5 questions)
+   - Specific to this destination
+   - Practical questions visitors might have
+
+Format as WordPress Gutenberg blocks.
+End with: <!-- META: Your meta description here -->"""
+
+    ROUNDUP_TEMPLATE = """Create a unique roundup article featuring top haunted tours.
+
+=== ARTICLE DATA ===
 THEME: {theme}
-
 TOURS TO FEATURE:
 {tour_list}
 
-Write an engaging roundup article (700-900 words) that includes:
-1. Introduction explaining why these tours stand out
-2. Individual sections for each tour with:
-   - Tour name and location as h2 heading
-   - What makes it special
-   - Key highlights
-   - Rating and price info
-3. Conclusion with recommendations for different types of visitors
+=== CONTENT REQUIREMENTS ===
 
-Format as WordPress Gutenberg blocks with h2 for each tour section.
-Include suggested meta description at the end."""
+1. **INTRODUCTION** (150-200 words)
+   - Why this roundup matters
+   - What criteria were used for selection
+   - What readers will discover
+
+2. **INDIVIDUAL TOUR SECTIONS** (150-200 words each)
+   For each tour, create a unique section with:
+   - H2 heading with tour name
+   - What makes this tour exceptional
+   - Specific highlights and unique features
+   - Rating, price, and duration info
+   - Who this tour is best for
+
+3. **HOW TO CHOOSE** (100-150 words)
+   - Recommendations for different types of visitors
+   - Budget vs premium options
+   - Family-friendly vs adults-only
+
+4. **CONCLUSION** (100 words)
+   - Summary of the best options
+   - Encouragement to book
+
+Format as WordPress Gutenberg blocks.
+Each tour section should feel completely unique - no repetitive structures.
+End with: <!-- META: Your meta description here -->"""
 
     def __init__(self):
         self.products = ProductsAPI()
@@ -309,6 +383,53 @@ Include suggested meta description at the end."""
             return f"{hours} hour{'s' if hours > 1 else ''}"
         return f"{hours} hour{'s' if hours > 1 else ''} {mins} minutes"
 
+    def generate_schema_markup(self, product: Dict) -> str:
+        """Generate JSON-LD schema markup for the product"""
+        schema = {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": product.get("title"),
+            "description": product.get("description", "")[:200],
+            "image": product.get("primaryImageUrl"),
+            "offers": {
+                "@type": "Offer",
+                "price": product.get("priceFrom"),
+                "priceCurrency": product.get("currencyCode", "USD"),
+                "availability": "https://schema.org/InStock",
+                "url": product.get("viatorUrl")
+            }
+        }
+
+        if product.get("rating"):
+            schema["aggregateRating"] = {
+                "@type": "AggregateRating",
+                "ratingValue": product.get("rating"),
+                "reviewCount": product.get("reviewCount", 0),
+                "bestRating": 5,
+                "worstRating": 1
+            }
+
+        return json.dumps(schema, indent=2)
+
+    def generate_faq_schema(self, faqs: List[Dict]) -> str:
+        """Generate FAQ schema markup"""
+        schema = {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": faq["question"],
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": faq["answer"]
+                    }
+                }
+                for faq in faqs
+            ]
+        }
+        return json.dumps(schema, indent=2)
+
     def check_status(self) -> Dict:
         """Check status of all services"""
         ollama_ok = self.ollama.is_available()
@@ -321,18 +442,13 @@ Include suggested meta description at the end."""
                 "model": OLLAMA_MODEL,
                 "models_available": models
             },
-            "products_api": {
-                "url": PRODUCTS_API_URL
-            },
-            "wordpress": {
-                "url": WORDPRESS_URL,
-                "username": WP_USERNAME
-            }
+            "products_api": {"url": PRODUCTS_API_URL},
+            "wordpress": {"url": WORDPRESS_URL, "username": WP_USERNAME}
         }
 
     def generate_tour_article(self, product_code: str = None, product_id: str = None,
                                publish: bool = False) -> Dict:
-        """Generate an article for a single tour product"""
+        """Generate a comprehensive article for a single tour product"""
         # Fetch product
         if product_code:
             product = self.products.get_product_by_code(product_code)
@@ -341,24 +457,58 @@ Include suggested meta description at the end."""
         else:
             raise ValueError("Either product_code or product_id is required")
 
-        # Build prompt
-        prompt = self.SHOWCASE_TEMPLATE.format(
+        # Determine cancellation and confirmation text
+        free_cancel = "Yes - Free cancellation available" if product.get("freeCancellation") else "Check tour details"
+        instant_confirm = "Instant" if product.get("confirmationType") == "INSTANT" else "Manual review required"
+
+        # Build comprehensive prompt
+        prompt = self.PRODUCT_SPLASH_TEMPLATE.format(
             title=product.get("title", "Unknown Tour"),
             destination=product.get("destinationName", "Unknown"),
-            price=product.get("priceFrom", 0),
+            price=product.get("priceFrom", 0) or 0,
             currency=product.get("currencyCode", "USD"),
             duration=self.format_duration(product.get("durationMinutes")),
-            rating=product.get("rating", "N/A"),
+            rating=product.get("rating") or "N/A",
             review_count=product.get("reviewCount", 0),
-            description=product.get("description", "")[:1500]
+            free_cancellation=free_cancel,
+            instant_confirmation=instant_confirm,
+            booking_url=product.get("viatorUrl", ""),
+            description=product.get("description", "")[:2000],
+            cancellation_policy=free_cancel,
+            confirmation_type=instant_confirm
         )
 
         # Generate content with Ollama
-        print(f"Generating article for: {product.get('title')}")
-        content = self.ollama.generate(prompt, system=self.SYSTEM_PROMPT)
+        print(f"Generating comprehensive article for: {product.get('title')}")
+        print("This may take a minute...")
+        content = self.ollama.generate(prompt, system=self.SYSTEM_PROMPT, max_tokens=4000)
 
         if not content:
             raise Exception("Failed to generate content")
+
+        # Extract meta description if present
+        meta_desc = ""
+        if "<!-- META:" in content:
+            try:
+                meta_start = content.index("<!-- META:") + 10
+                meta_end = content.index("-->", meta_start)
+                meta_desc = content[meta_start:meta_end].strip()
+                # Remove meta comment from content
+                content = content[:content.index("<!-- META:")].strip()
+            except:
+                pass
+
+        # Generate schema markup
+        product_schema = self.generate_schema_markup(product)
+
+        # Add schema to content
+        schema_block = f'''<!-- wp:html -->
+<script type="application/ld+json">
+{product_schema}
+</script>
+<!-- /wp:html -->'''
+
+        full_content = schema_block + "\n\n" + content
 
         # Upload featured image
         featured_media = None
@@ -373,13 +523,16 @@ Include suggested meta description at the end."""
         print(f"Creating WordPress post ({'publish' if publish else 'draft'})...")
         post = self.wordpress.create_post(
             title=product.get("title"),
-            content=content,
+            content=full_content,
             status="publish" if publish else "draft",
             featured_media=featured_media,
+            excerpt=meta_desc,
             meta={
                 "product_code": product.get("productCode"),
                 "viator_url": product.get("viatorUrl"),
                 "tour_price": str(product.get("priceFrom", "")),
+                "tour_rating": str(product.get("rating", "")),
+                "tour_destination": product.get("destinationName", ""),
             }
         )
 
@@ -389,48 +542,60 @@ Include suggested meta description at the end."""
                 "id": post.get("id"),
                 "title": post.get("title", {}).get("rendered"),
                 "link": post.get("link"),
-                "status": post.get("status")
+                "status": post.get("status"),
+                "excerpt": meta_desc
             },
             "product": {
                 "code": product.get("productCode"),
                 "title": product.get("title"),
-                "destination": product.get("destinationName")
-            }
+                "destination": product.get("destinationName"),
+                "rating": product.get("rating"),
+                "price": product.get("priceFrom")
+            },
+            "content_length": len(content)
         }
 
     def generate_destination_guide(self, destination: str, niche: str = "haunted",
                                     max_tours: int = 5, publish: bool = False) -> Dict:
         """Generate a destination guide article"""
-        # Fetch tours for destination
         tours = self.products.search_by_destination(destination, niche=niche, limit=max_tours)
 
         if not tours:
             raise ValueError(f"No tours found for destination: {destination}")
 
-        # Build tour list for prompt
         tour_list = "\n\n".join([
             f"{i+1}. {t.get('title')}\n"
             f"   Rating: {t.get('rating', 'N/A')}/5 ({t.get('reviewCount', 0)} reviews)\n"
             f"   Price: ${t.get('priceFrom', 0):.2f}\n"
             f"   Duration: {self.format_duration(t.get('durationMinutes'))}\n"
-            f"   {(t.get('description') or '')[:200]}..."
+            f"   Highlights: {(t.get('description') or '')[:300]}..."
             for i, t in enumerate(tours)
         ])
 
-        prompt = self.DESTINATION_TEMPLATE.format(
+        prompt = self.DESTINATION_GUIDE_TEMPLATE.format(
             destination=destination,
+            destination_upper=destination.upper(),
             tour_count=len(tours),
             tour_list=tour_list
         )
 
-        # Generate content
         print(f"Generating destination guide for: {destination}")
-        content = self.ollama.generate(prompt, system=self.SYSTEM_PROMPT)
+        content = self.ollama.generate(prompt, system=self.SYSTEM_PROMPT, max_tokens=3500)
 
         if not content:
             raise Exception("Failed to generate content")
 
-        # Upload featured image from first tour
+        # Extract meta
+        meta_desc = ""
+        if "<!-- META:" in content:
+            try:
+                meta_start = content.index("<!-- META:") + 10
+                meta_end = content.index("-->", meta_start)
+                meta_desc = content[meta_start:meta_end].strip()
+                content = content[:content.index("<!-- META:")].strip()
+            except:
+                pass
+
         featured_media = None
         if tours[0].get("primaryImageUrl"):
             print("Uploading featured image...")
@@ -439,14 +604,14 @@ Include suggested meta description at the end."""
                 f"haunted-{destination}"
             )
 
-        # Create post
-        title = f"Haunted {destination}: Your Guide to Ghost Tours & Paranormal Experiences"
+        title = f"Haunted {destination}: Complete Guide to Ghost Tours & Paranormal Experiences"
         print(f"Creating WordPress post ({'publish' if publish else 'draft'})...")
         post = self.wordpress.create_post(
             title=title,
             content=content,
             status="publish" if publish else "draft",
-            featured_media=featured_media
+            featured_media=featured_media,
+            excerpt=meta_desc
         )
 
         return {
@@ -465,10 +630,8 @@ Include suggested meta description at the end."""
                          count: int = 5, min_rating: float = 4.5,
                          destination: str = None, publish: bool = False) -> Dict:
         """Generate a roundup/listicle article"""
-        # Fetch top-rated tours
         tours = self.products.get_top_rated(niche=niche, min_rating=min_rating, limit=count * 2)
 
-        # Filter by destination if specified
         if destination:
             tours = [t for t in tours if destination.lower() in (t.get("destinationName") or "").lower()]
 
@@ -477,13 +640,12 @@ Include suggested meta description at the end."""
         if not tours:
             raise ValueError("No tours match the criteria")
 
-        # Build tour list
         tour_list = "\n\n".join([
             f"{i+1}. {t.get('title')} ({t.get('destinationName')})\n"
             f"   Rating: {t.get('rating', 'N/A')}/5 ({t.get('reviewCount', 0)} reviews)\n"
             f"   Price: ${t.get('priceFrom', 0):.2f}\n"
             f"   Duration: {self.format_duration(t.get('durationMinutes'))}\n"
-            f"   {(t.get('description') or '')[:300]}..."
+            f"   Description: {(t.get('description') or '')[:400]}..."
             for i, t in enumerate(tours)
         ])
 
@@ -492,14 +654,23 @@ Include suggested meta description at the end."""
             tour_list=tour_list
         )
 
-        # Generate content
         print(f"Generating roundup: {theme}")
-        content = self.ollama.generate(prompt, system=self.SYSTEM_PROMPT)
+        content = self.ollama.generate(prompt, system=self.SYSTEM_PROMPT, max_tokens=3500)
 
         if not content:
             raise Exception("Failed to generate content")
 
-        # Upload featured image
+        # Extract meta
+        meta_desc = ""
+        if "<!-- META:" in content:
+            try:
+                meta_start = content.index("<!-- META:") + 10
+                meta_end = content.index("-->", meta_start)
+                meta_desc = content[meta_start:meta_end].strip()
+                content = content[:content.index("<!-- META:")].strip()
+            except:
+                pass
+
         featured_media = None
         if tours[0].get("primaryImageUrl"):
             print("Uploading featured image...")
@@ -508,13 +679,13 @@ Include suggested meta description at the end."""
                 theme
             )
 
-        # Create post
         print(f"Creating WordPress post ({'publish' if publish else 'draft'})...")
         post = self.wordpress.create_post(
             title=theme,
             content=content,
             status="publish" if publish else "draft",
-            featured_media=featured_media
+            featured_media=featured_media,
+            excerpt=meta_desc
         )
 
         return {
@@ -536,19 +707,27 @@ Include suggested meta description at the end."""
         """Preview generated content without publishing"""
         product = self.products.get_product_by_code(product_code)
 
-        prompt = self.SHOWCASE_TEMPLATE.format(
+        free_cancel = "Yes - Free cancellation" if product.get("freeCancellation") else "Check details"
+        instant_confirm = "Instant" if product.get("confirmationType") == "INSTANT" else "Manual"
+
+        prompt = self.PRODUCT_SPLASH_TEMPLATE.format(
             title=product.get("title", "Unknown Tour"),
             destination=product.get("destinationName", "Unknown"),
-            price=product.get("priceFrom", 0),
+            price=product.get("priceFrom", 0) or 0,
             currency=product.get("currencyCode", "USD"),
             duration=self.format_duration(product.get("durationMinutes")),
-            rating=product.get("rating", "N/A"),
+            rating=product.get("rating") or "N/A",
             review_count=product.get("reviewCount", 0),
-            description=product.get("description", "")[:1500]
+            free_cancellation=free_cancel,
+            instant_confirmation=instant_confirm,
+            booking_url=product.get("viatorUrl", ""),
+            description=product.get("description", "")[:2000],
+            cancellation_policy=free_cancel,
+            confirmation_type=instant_confirm
         )
 
         print(f"Generating preview for: {product.get('title')}")
-        content = self.ollama.generate(prompt, system=self.SYSTEM_PROMPT)
+        content = self.ollama.generate(prompt, system=self.SYSTEM_PROMPT, max_tokens=4000)
 
         return {
             "preview": True,
@@ -556,9 +735,12 @@ Include suggested meta description at the end."""
                 "code": product.get("productCode"),
                 "title": product.get("title"),
                 "destination": product.get("destinationName"),
-                "image": product.get("primaryImageUrl")
+                "image": product.get("primaryImageUrl"),
+                "rating": product.get("rating"),
+                "price": product.get("priceFrom")
             },
-            "generated_content": content
+            "generated_content": content,
+            "word_count": len(content.split())
         }
 
 
@@ -566,31 +748,33 @@ def main():
     """CLI interface for the article generator"""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Cursed Tours AI Article Generator")
+    parser = argparse.ArgumentParser(
+        description="Cursed Tours AI Article Generator - Creates unique, SEO-optimized content"
+    )
     subparsers = parser.add_subparsers(dest="command", help="Commands")
 
     # Status command
-    subparsers.add_parser("status", help="Check service status")
+    subparsers.add_parser("status", help="Check service status (Ollama, WordPress, API)")
 
     # Tour article command
-    tour_parser = subparsers.add_parser("tour", help="Generate tour showcase article")
+    tour_parser = subparsers.add_parser("tour", help="Generate comprehensive tour article with FAQs")
     tour_parser.add_argument("--code", help="Viator product code")
     tour_parser.add_argument("--id", help="Database product ID")
-    tour_parser.add_argument("--publish", action="store_true", help="Publish immediately")
+    tour_parser.add_argument("--publish", action="store_true", help="Publish immediately (default: draft)")
 
     # Destination guide command
     dest_parser = subparsers.add_parser("destination", help="Generate destination guide")
     dest_parser.add_argument("name", help="Destination name (e.g., 'New Orleans')")
-    dest_parser.add_argument("--niche", default="haunted", help="Tour niche")
+    dest_parser.add_argument("--niche", default="haunted", help="Tour niche (default: haunted)")
     dest_parser.add_argument("--max-tours", type=int, default=5, help="Max tours to include")
     dest_parser.add_argument("--publish", action="store_true", help="Publish immediately")
 
     # Roundup command
-    roundup_parser = subparsers.add_parser("roundup", help="Generate roundup article")
-    roundup_parser.add_argument("theme", help="Article theme (e.g., 'Top 10 Ghost Tours')")
+    roundup_parser = subparsers.add_parser("roundup", help="Generate roundup/listicle article")
+    roundup_parser.add_argument("theme", help="Article theme (e.g., 'Top 10 Ghost Tours in America')")
     roundup_parser.add_argument("--niche", default="haunted", help="Tour niche")
-    roundup_parser.add_argument("--count", type=int, default=5, help="Number of tours")
-    roundup_parser.add_argument("--min-rating", type=float, default=4.5, help="Minimum rating")
+    roundup_parser.add_argument("--count", type=int, default=5, help="Number of tours to feature")
+    roundup_parser.add_argument("--min-rating", type=float, default=4.5, help="Minimum rating filter")
     roundup_parser.add_argument("--destination", help="Filter by destination")
     roundup_parser.add_argument("--publish", action="store_true", help="Publish immediately")
 
@@ -601,8 +785,9 @@ def main():
     # List products command
     list_parser = subparsers.add_parser("list", help="List available products")
     list_parser.add_argument("--niche", default="haunted", help="Tour niche")
-    list_parser.add_argument("--limit", type=int, default=10, help="Number of products")
+    list_parser.add_argument("--limit", type=int, default=10, help="Number of products to show")
     list_parser.add_argument("--destination", help="Filter by destination")
+    list_parser.add_argument("--min-rating", type=float, default=0, help="Minimum rating filter")
 
     args = parser.parse_args()
 
@@ -622,6 +807,9 @@ def main():
                 product_id=args.id,
                 publish=args.publish
             )
+            print("\n" + "="*50)
+            print("ARTICLE GENERATED SUCCESSFULLY")
+            print("="*50)
             print(json.dumps(result, indent=2))
 
         elif args.command == "destination":
@@ -631,6 +819,9 @@ def main():
                 max_tours=args.max_tours,
                 publish=args.publish
             )
+            print("\n" + "="*50)
+            print("DESTINATION GUIDE GENERATED")
+            print("="*50)
             print(json.dumps(result, indent=2))
 
         elif args.command == "roundup":
@@ -642,11 +833,18 @@ def main():
                 destination=args.destination,
                 publish=args.publish
             )
+            print("\n" + "="*50)
+            print("ROUNDUP ARTICLE GENERATED")
+            print("="*50)
             print(json.dumps(result, indent=2))
 
         elif args.command == "preview":
             result = generator.preview_article(args.code)
-            print(json.dumps(result, indent=2))
+            print("\n" + "="*50)
+            print(f"PREVIEW: {result['product']['title']}")
+            print(f"Word count: {result['word_count']}")
+            print("="*50 + "\n")
+            print(result['generated_content'])
 
         elif args.command == "list":
             if args.destination:
@@ -657,16 +855,23 @@ def main():
                 data = generator.products.get_products(niche=args.niche, limit=args.limit)
                 products = data.get("products", [])
 
+            # Filter by rating
+            if args.min_rating > 0:
+                products = [p for p in products if (p.get("rating") or 0) >= args.min_rating]
+
+            print(f"\nFound {len(products)} tours:\n")
             for p in products:
+                rating = p.get('rating', 'N/A')
+                rating_str = f"{rating}/5" if rating != 'N/A' else 'N/A'
                 print(f"[{p.get('productCode')}] {p.get('title')}")
-                print(f"    {p.get('destinationName')} | ${p.get('priceFrom', 0):.2f} | {p.get('rating', 'N/A')}/5")
+                print(f"    {p.get('destinationName')} | ${p.get('priceFrom', 0):.2f} | {rating_str} ({p.get('reviewCount', 0)} reviews)")
                 print()
 
         else:
             parser.print_help()
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"\nError: {e}")
         raise
 
 
