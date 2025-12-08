@@ -7,12 +7,12 @@ import { Metadata } from 'next';
 // Site-wide configuration
 export const SITE_CONFIG = {
   name: 'Cursed Tours',
-  url: 'https://www.cursedtours.com',
+  url: 'https://cursedtours.com',
   description: 'Explore haunted locations, paranormal investigations, and supernatural travel experiences.',
   locale: 'en_US',
   twitter: '@cursedtours',
-  logo: 'https://www.cursedtours.com/logo.png',
-  defaultImage: 'https://www.cursedtours.com/og-image.jpg',
+  logo: 'https://cursedtours.com/logo.png',
+  defaultImage: 'https://cursedtours.com/og-image.jpg',
 };
 
 // WordPress post with SEO data interface
