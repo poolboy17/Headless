@@ -15,6 +15,19 @@
         "PRODUCTS_API_URL": "https://viator-haunts--genaromvasquez.replit.app"
       }
     },
+    "article-generator": {
+      "command": "node",
+      "args": ["./mcp-article-generator/index.js"],
+      "env": {
+        "PRODUCTS_API_URL": "https://viator-haunts--genaromvasquez.replit.app",
+        "WORDPRESS_URL": "https://wp.cursedtours.com",
+        "WP_USERNAME": "YOUR_WP_USERNAME",
+        "WP_APP_PASSWORD": "YOUR_WP_APP_PASSWORD",
+        "OLLAMA_URL": "http://localhost:11434",
+        "OLLAMA_MODEL": "llama3.2",
+        "OPENAI_API_KEY": "YOUR_OPENAI_KEY_OPTIONAL"
+      }
+    },
     "vercel": {
       "command": "node",
       "args": ["./mcp-vercel/index.js"],
