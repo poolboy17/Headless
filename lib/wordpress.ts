@@ -18,7 +18,8 @@ function getWordPressBaseUrl(): string {
 
 const WP_BASE_URL = getWordPressBaseUrl();
 const WP_API_URL = `${WP_BASE_URL}/wp-json/wp/v2`;
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cursedtours.com';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://cursedtours.com';
 
 function transformImageUrl(url: string): string {
   if (!url) return url;
