@@ -14,13 +14,6 @@
       "env": {
         "PRODUCTS_API_URL": "https://viator-haunts--genaromvasquez.replit.app"
       }
-    },
-    "vercel": {
-      "command": "node",
-      "args": ["./mcp-vercel/index.js"],
-      "env": {
-        "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE"
-      }
     }
   }
 }
