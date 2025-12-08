@@ -14,4 +14,4 @@ vite.config.ts.*
 .env.*.local
 
 # TypeScript build info
-tsconfig.tsbuildinfo
+tsconfig.tsbuildinfo.claude/settings.json
