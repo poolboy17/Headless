@@ -307,7 +307,7 @@ export default async function PostPage({ params }: PostPageProps) {
   const categorySlug = categories.length > 0 ? categories[0].slug : undefined;
   const finalContent = insertInlineImages(spellCheckedContent, categorySlug, 2);
 
-  const shareUrl = `https://www.cursedtours.com/post/${post.slug}`;
+  const shareUrl = `https://cursedtours.com/post/${post.slug}`;
   const shareText = encodeURIComponent(title);
 
   return (
