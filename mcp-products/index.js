@@ -7,8 +7,11 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
-// Base URL for the Replit products API - set via environment variable
-const PRODUCTS_API_URL = process.env.PRODUCTS_API_URL || 'https://your-replit-url.repl.co';
+// Base URL for the Replit products API
+const PRODUCTS_API_URL = process.env.PRODUCTS_API_URL || 'https://viator-haunts--genaromvasquez.replit.app';
+
+// Available niches
+const NICHES = ['haunted', 'culinary'];
 
 // Helper function to fetch from Products API
 async function fetchAPI(endpoint, params = {}) {
@@ -47,6 +50,48 @@ function formatDuration(minutes) {
   return `${hours} hour${hours > 1 ? 's' : ''} ${mins} minutes`;
 }
 
+// Format product for response
+function formatProduct(p, verbose = false) {
+  const base = {
+    id: p.id,
+    productCode: p.productCode,
+    title: p.title,
+    price: formatPrice(p.priceFrom, p.currencyCode),
+    priceValue: p.priceFrom,
+    destination: p.destinationName,
+    rating: p.rating,
+    reviewCount: p.reviewCount,
+    duration: formatDuration(p.durationMinutes),
+    bookingUrl: p.viatorUrl,
+    freeCancellation: p.freeCancellation,
+    isActive: p.isActive,
+  };
+
+  if (verbose) {
+    return {
+      ...base,
+      description: p.description,
+      shortDescription: p.shortDescription,
+      originalPrice: p.priceBeforeDiscount ? formatPrice(p.priceBeforeDiscount, p.currencyCode) : null,
+      currency: p.currencyCode,
+      destinationId: p.destinationId,
+      durationMinutes: p.durationMinutes,
+      durationText: p.durationText,
+      imageUrl: p.primaryImageUrl,
+      confirmationType: p.confirmationType,
+      instantConfirmation: p.confirmationType === 'INSTANT',
+      tags: p.tags,
+    };
+  }
+
+  return {
+    ...base,
+    description: p.description?.slice(0, 300) + (p.description?.length > 300 ? '...' : ''),
+    imageUrl: p.primaryImageUrl,
+    instantConfirmation: p.confirmationType === 'INSTANT',
+  };
+}
+
 // Create the MCP server
 const server = new Server(
   {
@@ -67,10 +112,15 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       // Get Products with Pagination
       {
         name: 'get_products',
-        description: 'Fetch haunted/paranormal tour products from the Cursed Tours database. Returns a paginated list of tours with details like title, price, rating, location, and booking URL.',
+        description: 'Fetch tour products from the database. Supports haunted/paranormal tours and culinary tours. Returns a paginated list with title, price, rating, location, and booking URL.',
         inputSchema: {
           type: 'object',
           properties: {
+            niche: {
+              type: 'string',
+              enum: NICHES,
+              description: 'Tour category: "haunted" for ghost/paranormal tours, "culinary" for food tours (default: haunted)',
+            },
             limit: {
               type: 'number',
               description: 'Number of products per page (default: 50, max: 100)',
@@ -85,7 +135,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       // Get Single Product by ID
       {
         name: 'get_product_by_id',
-        description: 'Fetch a single haunted tour product by its unique database ID',
+        description: 'Fetch a single tour product by its unique database ID with full details',
         inputSchema: {
           type: 'object',
           properties: {
@@ -100,7 +150,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       // Get Product by Viator Code
       {
         name: 'get_product_by_code',
-        description: 'Fetch a single haunted tour product by its Viator product code',
+        description: 'Fetch a single tour product by its Viator product code with full details',
         inputSchema: {
           type: 'object',
           properties: {
@@ -115,7 +165,22 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       // Get Niche Statistics
       {
         name: 'get_niche_stats',
-        description: 'Get statistics about the haunted tours niche including total product count and last sync information',
+        description: 'Get statistics about a tour niche including total product count and last sync information',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            niche: {
+              type: 'string',
+              enum: NICHES,
+              description: 'Tour category: "haunted" or "culinary" (default: haunted)',
+            },
+          },
+        },
+      },
+      // List All Niches
+      {
+        name: 'list_niches',
+        description: 'Get statistics for all available tour niches (haunted and culinary)',
         inputSchema: {
           type: 'object',
           properties: {},
@@ -124,7 +189,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       // Health Check
       {
         name: 'health_check',
-        description: 'Check if the Cursed Tours products API is healthy and responding',
+        description: 'Check if the products API is healthy and responding',
         inputSchema: {
           type: 'object',
           properties: {},
@@ -133,13 +198,18 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       // Search Products by Destination
       {
         name: 'search_by_destination',
-        description: 'Search for haunted tours in a specific destination/city. Fetches all products and filters by destination name.',
+        description: 'Search for tours in a specific destination/city across one or all niches',
         inputSchema: {
           type: 'object',
           properties: {
             destination: {
               type: 'string',
-              description: 'City or destination name to search for (e.g., "New Orleans", "Salem", "London")',
+              description: 'City or destination name to search for (e.g., "New Orleans", "Salem", "Paris")',
+            },
+            niche: {
+              type: 'string',
+              enum: [...NICHES, 'all'],
+              description: 'Tour category: "haunted", "culinary", or "all" (default: all)',
             },
             limit: {
               type: 'number',
@@ -152,10 +222,15 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       // Get Top Rated Tours
       {
         name: 'get_top_rated',
-        description: 'Get the highest-rated haunted tours. Fetches products and sorts by rating.',
+        description: 'Get the highest-rated tours, sorted by rating and review count',
         inputSchema: {
           type: 'object',
           properties: {
+            niche: {
+              type: 'string',
+              enum: [...NICHES, 'all'],
+              description: 'Tour category: "haunted", "culinary", or "all" (default: haunted)',
+            },
             minRating: {
               type: 'number',
               description: 'Minimum rating to include (default: 4.5)',
@@ -174,10 +249,15 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       // Get Budget-Friendly Tours
       {
         name: 'get_budget_tours',
-        description: 'Find affordable haunted tours under a specified price',
+        description: 'Find affordable tours under a specified price',
         inputSchema: {
           type: 'object',
           properties: {
+            niche: {
+              type: 'string',
+              enum: [...NICHES, 'all'],
+              description: 'Tour category: "haunted", "culinary", or "all" (default: haunted)',
+            },
             maxPrice: {
               type: 'number',
               description: 'Maximum price in USD (default: 30)',
@@ -189,9 +269,47 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           },
         },
       },
+      // Search by Keyword
+      {
+        name: 'search_tours',
+        description: 'Search tours by keyword in title or description',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'Search keyword (e.g., "vampire", "cemetery", "wine tasting")',
+            },
+            niche: {
+              type: 'string',
+              enum: [...NICHES, 'all'],
+              description: 'Tour category: "haunted", "culinary", or "all" (default: all)',
+            },
+            limit: {
+              type: 'number',
+              description: 'Maximum number of results (default: 20)',
+            },
+          },
+          required: ['query'],
+        },
+      },
     ],
   };
 });
+
+// Helper to fetch products from multiple niches
+async function fetchProductsFromNiches(niches, limit = 100) {
+  const results = [];
+  for (const niche of niches) {
+    try {
+      const data = await fetchAPI(`/api/niches/${niche}/products`, { limit, offset: 0 });
+      results.push(...data.products.map((p) => ({ ...p, niche })));
+    } catch (e) {
+      console.error(`Error fetching ${niche}:`, e.message);
+    }
+  }
+  return results;
+}
 
 // Handle tool calls
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
@@ -200,7 +318,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     switch (name) {
       case 'get_products': {
-        const data = await fetchAPI('/api/niches/haunted/products', {
+        const niche = args?.niche || 'haunted';
+        const data = await fetchAPI(`/api/niches/${niche}/products`, {
           limit: args?.limit || 50,
           offset: args?.offset || 0,
         });
@@ -210,24 +329,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           total: data.total,
           limit: data.limit,
           offset: data.offset,
-          products: data.products.map((p) => ({
-            id: p.id,
-            productCode: p.productCode,
-            title: p.title,
-            description: p.description?.slice(0, 300) + (p.description?.length > 300 ? '...' : ''),
-            price: formatPrice(p.priceFrom, p.currencyCode),
-            priceValue: p.priceFrom,
-            destination: p.destinationName,
-            rating: p.rating,
-            reviewCount: p.reviewCount,
-            duration: formatDuration(p.durationMinutes),
-            durationMinutes: p.durationMinutes,
-            imageUrl: p.primaryImageUrl,
-            bookingUrl: p.viatorUrl,
-            instantConfirmation: p.confirmationType === 'INSTANT',
-            freeCancellation: p.freeCancellation,
-            isActive: p.isActive,
-          })),
+          products: data.products.map((p) => formatProduct(p)),
         };
 
         return {
@@ -241,35 +343,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
 
         const product = await fetchAPI(`/api/products/${args.id}`);
-
-        const result = {
-          id: product.id,
-          productCode: product.productCode,
-          title: product.title,
-          description: product.description,
-          shortDescription: product.shortDescription,
-          price: formatPrice(product.priceFrom, product.currencyCode),
-          priceValue: product.priceFrom,
-          originalPrice: product.priceBeforeDiscount ? formatPrice(product.priceBeforeDiscount, product.currencyCode) : null,
-          currency: product.currencyCode,
-          destination: product.destinationName,
-          destinationId: product.destinationId,
-          rating: product.rating,
-          reviewCount: product.reviewCount,
-          duration: formatDuration(product.durationMinutes),
-          durationMinutes: product.durationMinutes,
-          durationText: product.durationText,
-          imageUrl: product.primaryImageUrl,
-          bookingUrl: product.viatorUrl,
-          confirmationType: product.confirmationType,
-          instantConfirmation: product.confirmationType === 'INSTANT',
-          freeCancellation: product.freeCancellation,
-          tags: product.tags,
-          isActive: product.isActive,
-        };
-
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(formatProduct(product, true), null, 2) }],
         };
       }
 
@@ -279,55 +354,46 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
 
         const product = await fetchAPI(`/api/products/code/${args.productCode}`);
-
-        const result = {
-          id: product.id,
-          productCode: product.productCode,
-          title: product.title,
-          description: product.description,
-          shortDescription: product.shortDescription,
-          price: formatPrice(product.priceFrom, product.currencyCode),
-          priceValue: product.priceFrom,
-          originalPrice: product.priceBeforeDiscount ? formatPrice(product.priceBeforeDiscount, product.currencyCode) : null,
-          currency: product.currencyCode,
-          destination: product.destinationName,
-          destinationId: product.destinationId,
-          rating: product.rating,
-          reviewCount: product.reviewCount,
-          duration: formatDuration(product.durationMinutes),
-          durationMinutes: product.durationMinutes,
-          durationText: product.durationText,
-          imageUrl: product.primaryImageUrl,
-          bookingUrl: product.viatorUrl,
-          confirmationType: product.confirmationType,
-          instantConfirmation: product.confirmationType === 'INSTANT',
-          freeCancellation: product.freeCancellation,
-          tags: product.tags,
-          isActive: product.isActive,
-        };
-
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(formatProduct(product, true), null, 2) }],
         };
       }
 
       case 'get_niche_stats': {
-        const data = await fetchAPI('/api/niches/haunted');
-
-        const result = {
-          niche: data.niche,
-          productCount: data.productCount,
-          lastSync: data.lastSync,
-        };
+        const niche = args?.niche || 'haunted';
+        const data = await fetchAPI(`/api/niches/${niche}`);
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify({
+            niche: data.niche,
+            productCount: data.productCount,
+            lastSync: data.lastSync,
+          }, null, 2) }],
+        };
+      }
+
+      case 'list_niches': {
+        const nicheStats = [];
+        for (const niche of NICHES) {
+          try {
+            const data = await fetchAPI(`/api/niches/${niche}`);
+            nicheStats.push({
+              niche: data.niche,
+              productCount: data.productCount,
+              lastSync: data.lastSync,
+            });
+          } catch (e) {
+            nicheStats.push({ niche: { key: niche }, error: e.message });
+          }
+        }
+
+        return {
+          content: [{ type: 'text', text: JSON.stringify({ niches: nicheStats }, null, 2) }],
         };
       }
 
       case 'health_check': {
         const data = await fetchAPI('/api/health');
-
         return {
           content: [{ type: 'text', text: JSON.stringify(data, null, 2) }],
         };
@@ -340,29 +406,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
         const limit = args?.limit || 20;
         const searchTerm = args.destination.toLowerCase();
+        const nicheFilter = args?.niche || 'all';
+        const nichesToSearch = nicheFilter === 'all' ? NICHES : [nicheFilter];
 
-        // Fetch products and filter by destination
-        const data = await fetchAPI('/api/niches/haunted/products', {
-          limit: 100, // Fetch more to filter
-          offset: 0,
-        });
+        const allProducts = await fetchProductsFromNiches(nichesToSearch, 100);
 
-        const matchingProducts = data.products
+        const matchingProducts = allProducts
           .filter((p) => p.destinationName?.toLowerCase().includes(searchTerm))
           .slice(0, limit)
           .map((p) => ({
-            id: p.id,
-            productCode: p.productCode,
-            title: p.title,
-            description: p.description?.slice(0, 200) + (p.description?.length > 200 ? '...' : ''),
-            price: formatPrice(p.priceFrom, p.currencyCode),
-            priceValue: p.priceFrom,
-            destination: p.destinationName,
-            rating: p.rating,
-            reviewCount: p.reviewCount,
-            duration: formatDuration(p.durationMinutes),
-            bookingUrl: p.viatorUrl,
-            freeCancellation: p.freeCancellation,
+            ...formatProduct(p),
+            niche: p.niche,
           }));
 
         return {
@@ -370,6 +424,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             type: 'text',
             text: JSON.stringify({
               searchedDestination: args.destination,
+              nichesSearched: nichesToSearch,
               matchCount: matchingProducts.length,
               products: matchingProducts,
             }, null, 2),
@@ -381,33 +436,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const minRating = args?.minRating || 4.5;
         const minReviews = args?.minReviews || 50;
         const limit = args?.limit || 20;
+        const nicheFilter = args?.niche || 'haunted';
+        const nichesToSearch = nicheFilter === 'all' ? NICHES : [nicheFilter];
 
-        // Fetch products and filter/sort by rating
-        const data = await fetchAPI('/api/niches/haunted/products', {
-          limit: 100,
-          offset: 0,
-        });
+        const allProducts = await fetchProductsFromNiches(nichesToSearch, 100);
 
-        const topRated = data.products
+        const topRated = allProducts
           .filter((p) => p.rating >= minRating && p.reviewCount >= minReviews && p.isActive)
           .sort((a, b) => {
-            // Sort by rating first, then by review count
             if (b.rating !== a.rating) return b.rating - a.rating;
             return b.reviewCount - a.reviewCount;
           })
           .slice(0, limit)
           .map((p) => ({
-            id: p.id,
-            productCode: p.productCode,
-            title: p.title,
-            destination: p.destinationName,
-            rating: p.rating,
-            reviewCount: p.reviewCount,
-            price: formatPrice(p.priceFrom, p.currencyCode),
-            priceValue: p.priceFrom,
-            duration: formatDuration(p.durationMinutes),
-            bookingUrl: p.viatorUrl,
-            freeCancellation: p.freeCancellation,
+            ...formatProduct(p),
+            niche: p.niche,
           }));
 
         return {
@@ -415,6 +458,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             type: 'text',
             text: JSON.stringify({
               criteria: { minRating, minReviews },
+              nichesSearched: nichesToSearch,
               matchCount: topRated.length,
               products: topRated,
             }, null, 2),
@@ -425,29 +469,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'get_budget_tours': {
         const maxPrice = args?.maxPrice || 30;
         const limit = args?.limit || 20;
+        const nicheFilter = args?.niche || 'haunted';
+        const nichesToSearch = nicheFilter === 'all' ? NICHES : [nicheFilter];
 
-        // Fetch products and filter by price
-        const data = await fetchAPI('/api/niches/haunted/products', {
-          limit: 100,
-          offset: 0,
-        });
+        const allProducts = await fetchProductsFromNiches(nichesToSearch, 100);
 
-        const budgetTours = data.products
+        const budgetTours = allProducts
           .filter((p) => p.priceFrom && p.priceFrom <= maxPrice && p.isActive)
           .sort((a, b) => a.priceFrom - b.priceFrom)
           .slice(0, limit)
           .map((p) => ({
-            id: p.id,
-            productCode: p.productCode,
-            title: p.title,
-            destination: p.destinationName,
-            price: formatPrice(p.priceFrom, p.currencyCode),
-            priceValue: p.priceFrom,
-            rating: p.rating,
-            reviewCount: p.reviewCount,
-            duration: formatDuration(p.durationMinutes),
-            bookingUrl: p.viatorUrl,
-            freeCancellation: p.freeCancellation,
+            ...formatProduct(p),
+            niche: p.niche,
           }));
 
         return {
@@ -455,8 +488,45 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             type: 'text',
             text: JSON.stringify({
               criteria: { maxPrice: `$${maxPrice}` },
+              nichesSearched: nichesToSearch,
               matchCount: budgetTours.length,
               products: budgetTours,
+            }, null, 2),
+          }],
+        };
+      }
+
+      case 'search_tours': {
+        if (!args?.query) {
+          throw new Error('Search query is required');
+        }
+
+        const limit = args?.limit || 20;
+        const searchTerm = args.query.toLowerCase();
+        const nicheFilter = args?.niche || 'all';
+        const nichesToSearch = nicheFilter === 'all' ? NICHES : [nicheFilter];
+
+        const allProducts = await fetchProductsFromNiches(nichesToSearch, 100);
+
+        const matchingProducts = allProducts
+          .filter((p) =>
+            p.title?.toLowerCase().includes(searchTerm) ||
+            p.description?.toLowerCase().includes(searchTerm)
+          )
+          .slice(0, limit)
+          .map((p) => ({
+            ...formatProduct(p),
+            niche: p.niche,
+          }));
+
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              query: args.query,
+              nichesSearched: nichesToSearch,
+              matchCount: matchingProducts.length,
+              products: matchingProducts,
             }, null, 2),
           }],
         };
@@ -479,6 +549,7 @@ async function main() {
   await server.connect(transport);
   console.error('Cursed Tours Products MCP server running');
   console.error(`API URL: ${PRODUCTS_API_URL}`);
+  console.error(`Available niches: ${NICHES.join(', ')}`);
 }
 
 main().catch(console.error);
