@@ -52,6 +52,15 @@ function formatDuration(minutes) {
 
 // Format product for response
 function formatProduct(p, verbose = false) {
+  // Collect all image data
+  const images = {
+    primaryImageUrl: p.primaryImageUrl,
+    images: p.images || [],           // Array of additional images if available
+    imageCount: p.imageCount,         // Total image count if available
+    thumbnailUrl: p.thumbnailUrl,     // Thumbnail if available
+    thumbnailHiResUrl: p.thumbnailHiResUrl,
+  };
+
   const base = {
     id: p.id,
     productCode: p.productCode,
@@ -77,10 +86,11 @@ function formatProduct(p, verbose = false) {
       destinationId: p.destinationId,
       durationMinutes: p.durationMinutes,
       durationText: p.durationText,
-      imageUrl: p.primaryImageUrl,
       confirmationType: p.confirmationType,
       instantConfirmation: p.confirmationType === 'INSTANT',
       tags: p.tags,
+      // All image data
+      ...images,
     };
   }
 
