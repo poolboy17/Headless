@@ -556,7 +556,7 @@ End with: <!-- META: Your meta description here -->"""
                         "price": product.get("priceFrom"),
                         "priceCurrency": product.get("currencyCode", "USD"),
                         "availability": "https://schema.org/InStock",
-                        "url": product.get("viatorUrl"),
+                        "url": product.get("webUrl"),
                         "validFrom": datetime.now().strftime("%Y-%m-%d"),
                         "priceValidUntil": f"{datetime.now().year + 1}-12-31"
                     },
@@ -585,7 +585,7 @@ End with: <!-- META: Your meta description here -->"""
                         "@type": "Offer",
                         "price": product.get("priceFrom"),
                         "priceCurrency": product.get("currencyCode", "USD"),
-                        "url": product.get("viatorUrl")
+                        "url": product.get("webUrl")
                     }
                 },
                 # TouristAttraction for local SEO
@@ -624,7 +624,7 @@ End with: <!-- META: Your meta description here -->"""
                         "@type": "Offer",
                         "price": product.get("priceFrom"),
                         "priceCurrency": product.get("currencyCode", "USD"),
-                        "url": product.get("viatorUrl"),
+                        "url": product.get("webUrl"),
                         "availability": "https://schema.org/InStock"
                     },
                     "performer": {
@@ -735,7 +735,7 @@ End with: <!-- META: Your meta description here -->"""
             review_count=product.get("reviewCount", 0),
             free_cancellation=free_cancel,
             instant_confirmation=instant_confirm,
-            booking_url=product.get("viatorUrl", ""),
+            booking_url=product.get("webUrl", ""),
             description=product.get("description", "")[:2000],
             cancellation_policy=free_cancel,
             confirmation_type=instant_confirm
@@ -792,7 +792,7 @@ End with: <!-- META: Your meta description here -->"""
             excerpt=meta_desc,
             meta={
                 "product_code": product.get("productCode"),
-                "viator_url": product.get("viatorUrl"),
+                "booking_url": product.get("webUrl"),
                 "tour_price": str(product.get("priceFrom", "")),
                 "tour_rating": str(product.get("rating", "")),
                 "tour_destination": product.get("destinationName", ""),
@@ -983,7 +983,7 @@ End with: <!-- META: Your meta description here -->"""
             review_count=product.get("reviewCount", 0),
             free_cancellation=free_cancel,
             instant_confirmation=instant_confirm,
-            booking_url=product.get("viatorUrl", ""),
+            booking_url=product.get("webUrl", ""),
             description=product.get("description", "")[:2000],
             cancellation_policy=free_cancel,
             confirmation_type=instant_confirm
