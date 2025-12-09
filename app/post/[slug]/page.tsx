@@ -4,7 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, Clock, ArrowLeft } from 'lucide-react';
 import { SiX, SiFacebook, SiLinkedin } from 'react-icons/si';
-import { getPost, buildSeo, getAllPostSlugs, ViatorTour } from '@/lib/wordpress';
+import { getPostForPage, getAllPostSlugs } from '@/lib/posts';
+import { buildSeo, ViatorTour } from '@/lib/wordpress';
 import { stripHtml, formatDate, getReadingTime, getFeaturedImage, getAuthor, getCategories_Post, getTags_Post } from '@/lib/wordpress';
 import { sanitizeContent } from '@/lib/sanitize-content';
 import { checkAndFixSpelling } from '@/lib/spell-checker';
@@ -249,46 +250,45 @@ interface PostPageProps {
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  
-  try {
-    const { post } = await getPost(slug);
-    const seo = buildSeo(post);
 
-    return {
-      title: seo.title,
-      description: seo.description,
-      alternates: {
-        canonical: seo.canonical,
-      },
-      openGraph: {
-        title: seo.ogTitle,
-        description: seo.ogDescription,
-        type: 'article',
-        url: seo.canonical,
-        images: [{
-          url: seo.ogImage,
-          alt: seo.altText,
-        }],
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: seo.ogTitle,
-        description: seo.ogDescription,
-        images: [seo.ogImage],
-      },
-    };
-  } catch {
+  const data = await getPostForPage(slug);
+  if (!data) {
     return { title: 'Post Not Found' };
   }
+
+  const { post } = data;
+  const seo = buildSeo(post);
+
+  return {
+    title: seo.title,
+    description: seo.description,
+    alternates: {
+      canonical: seo.canonical,
+    },
+    openGraph: {
+      title: seo.ogTitle,
+      description: seo.ogDescription,
+      type: 'article',
+      url: seo.canonical,
+      images: [{
+        url: seo.ogImage,
+        alt: seo.altText,
+      }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: seo.ogTitle,
+      description: seo.ogDescription,
+      images: [seo.ogImage],
+    },
+  };
 }
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
-  
-  let data;
-  try {
-    data = await getPost(slug);
-  } catch {
+
+  const data = await getPostForPage(slug);
+  if (!data) {
     notFound();
   }
 

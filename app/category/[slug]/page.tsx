@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getPosts, getCategories, getCategoryBySlug, getAllCategorySlugs } from '@/lib/wordpress';
+import { getPostsForPage, getCategoriesForPage, getCategoryBySlugForPage, getAllCategorySlugs } from '@/lib/posts';
 import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
@@ -28,7 +28,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cursedtours.co
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const category = await getCategoryBySlug(slug);
+  const category = await getCategoryBySlugForPage(slug);
   
   if (!category) {
     return { title: 'Category Not Found' };
@@ -65,9 +65,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const postsPerPage = 12;
 
   const [category, categories, postsData] = await Promise.all([
-    getCategoryBySlug(slug),
-    getCategories(),
-    getPosts({ category: slug, perPage: postsPerPage, page: requestedPage }),
+    getCategoryBySlugForPage(slug),
+    getCategoriesForPage(),
+    getPostsForPage({ categorySlug: slug, perPage: postsPerPage, page: requestedPage }),
   ]);
 
   if (!category) {

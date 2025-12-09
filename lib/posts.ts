@@ -1,6 +1,7 @@
 import { db, posts, categories, authors, postCategories } from "./db";
 import type { Post, Category, Author } from "./db";
 import { eq, desc, and, sql, inArray } from "drizzle-orm";
+import type { WPPost, WPCategory, WPAuthor } from "@/lib/wordpress";
 
 // ============================================================
 // POST QUERIES
@@ -254,4 +255,160 @@ export function formatDate(date: Date | string | null): string {
     month: "long",
     day: "numeric",
   });
+}
+
+// ============================================================
+// WORDPRESS COMPATIBILITY ADAPTERS
+// ============================================================
+
+/**
+ * Converts a database PostWithRelations to WPPost format
+ * for backward compatibility with existing components
+ */
+export function toWPPost(post: PostWithRelations): WPPost {
+  const wpCategories: WPCategory[] = post.categories.map((cat, index) => ({
+    id: index + 1, // Use index as numeric ID
+    count: cat.count || 0,
+    name: cat.name,
+    slug: cat.slug,
+    description: cat.description || undefined,
+    link: `https://cursedtours.com/category/${cat.slug}`,
+  }));
+
+  const wpAuthor: WPAuthor | undefined = post.author
+    ? {
+        id: 1,
+        name: post.author.name,
+        slug: post.author.slug,
+        description: post.author.description || undefined,
+        avatar_urls: post.author.avatarUrl
+          ? { "24": post.author.avatarUrl, "48": post.author.avatarUrl, "96": post.author.avatarUrl }
+          : undefined,
+        link: `https://cursedtours.com/author/${post.author.slug}`,
+      }
+    : undefined;
+
+  return {
+    id: parseInt(post.id.replace(/-/g, "").slice(0, 8), 16) || 1,
+    date: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
+    date_gmt: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
+    modified: post.updatedAt.toISOString(),
+    modified_gmt: post.updatedAt.toISOString(),
+    slug: post.slug,
+    status: post.status === "published" ? "publish" : post.status,
+    type: "post",
+    link: `https://cursedtours.com/post/${post.slug}`,
+    title: { rendered: post.title },
+    content: { rendered: post.content, protected: false },
+    excerpt: { rendered: post.excerpt || "" },
+    author: 1,
+    featured_media: post.featuredImageUrl ? 1 : 0,
+    categories: wpCategories.map((_, i) => i + 1),
+    tags: [],
+    _embedded: {
+      author: wpAuthor ? [wpAuthor] : undefined,
+      "wp:featuredmedia": post.featuredImageUrl
+        ? [
+            {
+              id: 1,
+              source_url: post.featuredImageUrl,
+              alt_text: post.featuredImageAlt || post.title,
+              media_details: { width: 1200, height: 800 },
+            },
+          ]
+        : undefined,
+      "wp:term": wpCategories.length > 0 ? [wpCategories] : undefined,
+    },
+  };
+}
+
+/**
+ * Get a post with related posts in WPPost format
+ */
+export async function getPostForPage(
+  slug: string
+): Promise<{ post: WPPost; relatedPosts: WPPost[] } | null> {
+  const dbPost = await getPostBySlug(slug);
+  if (!dbPost) return null;
+
+  const categoryIds = dbPost.categories.map((c) => c.id);
+  const dbRelated = await getRelatedPosts(dbPost.id, categoryIds, 4);
+
+  return {
+    post: toWPPost(dbPost),
+    relatedPosts: dbRelated.map(toWPPost),
+  };
+}
+
+/**
+ * Get reading time for a post
+ */
+export function getReadingTime(content: string): number {
+  const text = stripHtml(content);
+  const words = text.split(/\s+/).length;
+  return Math.ceil(words / 200);
+}
+
+/**
+ * Get posts for homepage/listing pages in WPPost format
+ */
+export async function getPostsForPage(options: {
+  page?: number;
+  perPage?: number;
+  categorySlug?: string;
+} = {}): Promise<{ posts: WPPost[]; totalPages: number; totalPosts: number }> {
+  const { page = 1, perPage = 10, categorySlug } = options;
+  const offset = (page - 1) * perPage;
+
+  const result = await getPosts({
+    limit: perPage,
+    offset,
+    categorySlug,
+  });
+
+  return {
+    posts: result.posts.map(toWPPost),
+    totalPages: Math.ceil(result.total / perPage),
+    totalPosts: result.total,
+  };
+}
+
+/**
+ * Get all categories in WPCategory format
+ */
+export async function getCategoriesForPage(): Promise<WPCategory[]> {
+  const cats = await getCategories();
+  return cats.map((cat, index) => ({
+    id: index + 1,
+    count: cat.count || 0,
+    name: cat.name,
+    slug: cat.slug,
+    description: cat.description || undefined,
+    link: `https://cursedtours.com/category/${cat.slug}`,
+  }));
+}
+
+/**
+ * Get all category slugs for static generation
+ */
+export async function getAllCategorySlugs(): Promise<string[]> {
+  const cats = await getCategories();
+  return cats.map((c) => c.slug);
+}
+
+/**
+ * Get category by slug in WPCategory format
+ */
+export async function getCategoryBySlugForPage(slug: string): Promise<WPCategory | null> {
+  const cat = await getCategoryBySlug(slug);
+  if (!cat) return null;
+
+  return {
+    id: 1,
+    count: cat.count || 0,
+    name: cat.name,
+    slug: cat.slug,
+    description: cat.description || undefined,
+    link: `https://cursedtours.com/category/${cat.slug}`,
+  };
 }
