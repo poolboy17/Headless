@@ -302,7 +302,7 @@ Create these sections (1500-1800 words total):
    - Summary verdict with E-E-A-T authority
    - Clear recommendation statement
    - Social proof (rating + review count)
-   - Strong CTA with urgency element
+   - End with the BOOK NOW CTA button (use exact block syntax from formatting section)
 
 9. **RELATED EXPERIENCES** (suggest 2-3)
    Internal linking section:
@@ -336,6 +336,15 @@ For the details table, use:
 <tr><td><strong>Price</strong></td><td>From ${price:.2f}</td></tr>
 </tbody></table></figure>
 <!-- /wp:table -->
+
+For the BOOK NOW CTA button (place at end of "The Bottom Line" section):
+<!-- wp:buttons {{"layout":{{"type":"flex","justifyContent":"center"}}}} -->
+<div class="wp-block-buttons">
+<!-- wp:button {{"backgroundColor":"vivid-red","textColor":"white","style":{{"typography":{{"fontSize":"20px"}}}}}} -->
+<div class="wp-block-button has-custom-font-size" style="font-size:20px"><a class="wp-block-button__link has-white-color has-vivid-red-background-color has-text-color has-background wp-element-button" href="{booking_url}">Book This Haunted Tour Now</a></div>
+<!-- /wp:button -->
+</div>
+<!-- /wp:buttons -->
 
 === OUTPUT REQUIREMENTS ===
 
