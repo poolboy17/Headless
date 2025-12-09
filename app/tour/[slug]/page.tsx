@@ -77,7 +77,7 @@ export default async function TourArticlePage({ params }: PageProps) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(article.schemaJson),
+            __html: JSON.stringify(article.schemaJson as Record<string, unknown>),
           }}
         />
       )}
