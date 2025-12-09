@@ -70,15 +70,17 @@ export default async function TourArticlePage({ params }: PageProps) {
     return `${hours} hour${hours > 1 ? "s" : ""} ${mins} min`;
   };
 
+  // Prepare schema JSON string
+  const schemaJsonString = article.schemaJson
+    ? JSON.stringify(article.schemaJson)
+    : null;
+
   return (
     <article className="max-w-4xl mx-auto px-4 py-8">
-      {/* Schema JSON-LD */}
-      {article.schemaJson && (
+      {schemaJsonString && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(article.schemaJson as Record<string, unknown>),
-          }}
+          dangerouslySetInnerHTML={{ __html: schemaJsonString }}
         />
       )}
 
