@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getPosts, getCategories } from '@/lib/wordpress';
+import { getPostsForPage, getCategoriesForPage } from '@/lib/posts';
 import { HeroSection } from '@/components/hero-section';
 import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
@@ -22,16 +22,16 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const requestedPage = Math.max(1, parseInt(page || '1', 10));
   const postsPerPage = 10;
 
-  let postsData: Awaited<ReturnType<typeof getPosts>> = { posts: [], totalPosts: 0, totalPages: 0 };
-  let categories: Awaited<ReturnType<typeof getCategories>> = [];
+  let postsData: Awaited<ReturnType<typeof getPostsForPage>> = { posts: [], totalPosts: 0, totalPages: 0 };
+  let categories: Awaited<ReturnType<typeof getCategoriesForPage>> = [];
 
   try {
     [postsData, categories] = await Promise.all([
-      getPosts({ perPage: postsPerPage, page: requestedPage }),
-      getCategories(),
+      getPostsForPage({ perPage: postsPerPage, page: requestedPage }),
+      getCategoriesForPage(),
     ]);
   } catch {
-    // Return empty data if WordPress API is unavailable
+    // Return empty data if database is unavailable
   }
 
   const { posts, totalPosts, totalPages } = postsData;

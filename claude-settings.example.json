@@ -3,14 +3,34 @@
   "mcpServers": {
     "wordpress-cursedtours": {
       "command": "node",
-      "args": ["D:/New folder/Headless-main/Headless-main/mcp-wordpress/index.js"],
+      "args": ["./mcp-wordpress/index.js"],
       "env": {
         "WORDPRESS_URL": "https://wp.cursedtours.com"
       }
     },
+    "cursedtours-products": {
+      "command": "node",
+      "args": ["./mcp-products/index.js"],
+      "env": {
+        "PRODUCTS_API_URL": "https://viator-haunts--genaromvasquez.replit.app"
+      }
+    },
+    "article-generator": {
+      "command": "node",
+      "args": ["./mcp-article-generator/index.js"],
+      "env": {
+        "PRODUCTS_API_URL": "https://viator-haunts--genaromvasquez.replit.app",
+        "WORDPRESS_URL": "https://wp.cursedtours.com",
+        "WP_USERNAME": "YOUR_WP_USERNAME",
+        "WP_APP_PASSWORD": "YOUR_WP_APP_PASSWORD",
+        "OLLAMA_URL": "http://localhost:11434",
+        "OLLAMA_MODEL": "llama3.2",
+        "OPENAI_API_KEY": "YOUR_OPENAI_KEY_OPTIONAL"
+      }
+    },
     "vercel": {
       "command": "node",
-      "args": ["D:/New folder/Headless-main/Headless-main/mcp-vercel/index.js"],
+      "args": ["./mcp-vercel/index.js"],
       "env": {
         "VERCEL_TOKEN": "YOUR_VERCEL_TOKEN_HERE"
       }
