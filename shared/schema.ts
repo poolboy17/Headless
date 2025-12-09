@@ -105,6 +105,82 @@ export const relatedArticles = pgTable("related_articles", {
   articleIdx: index("related_articles_article_idx").on(table.articleId),
 }));
 
+// ============================================================
+// BLOG POSTS (migrated from WordPress)
+// ============================================================
+
+// Categories table
+export const categories = pgTable("categories", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  wpId: integer("wp_id").unique(), // Original WordPress ID
+  slug: varchar("slug", { length: 100 }).unique().notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  count: integer("count").default(0),
+}, (table) => ({
+  slugIdx: index("categories_slug_idx").on(table.slug),
+}));
+
+// Authors table
+export const authors = pgTable("authors", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  wpId: integer("wp_id").unique(), // Original WordPress ID
+  slug: varchar("slug", { length: 100 }).unique().notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  avatarUrl: text("avatar_url"),
+}, (table) => ({
+  slugIdx: index("authors_slug_idx").on(table.slug),
+}));
+
+// Posts table (migrated from WordPress)
+export const posts = pgTable("posts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  wpId: integer("wp_id").unique(), // Original WordPress ID for reference
+  slug: varchar("slug", { length: 255 }).unique().notNull(),
+
+  // Content
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt"),
+
+  // Author
+  authorId: uuid("author_id").references(() => authors.id),
+
+  // Media
+  featuredImageUrl: text("featured_image_url"),
+  featuredImageAlt: text("featured_image_alt"),
+
+  // Status
+  status: varchar("status", { length: 20 }).default("published").notNull(),
+
+  // SEO
+  metaDescription: varchar("meta_description", { length: 160 }),
+
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  publishedAt: timestamp("published_at"),
+
+  // Reading stats
+  wordCount: integer("word_count"),
+  readingTimeMinutes: integer("reading_time_minutes"),
+}, (table) => ({
+  slugIdx: index("posts_slug_idx").on(table.slug),
+  statusIdx: index("posts_status_idx").on(table.status),
+  authorIdx: index("posts_author_idx").on(table.authorId),
+}));
+
+// Post categories junction table
+export const postCategories = pgTable("post_categories", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  postId: uuid("post_id").references(() => posts.id, { onDelete: "cascade" }).notNull(),
+  categoryId: uuid("category_id").references(() => categories.id, { onDelete: "cascade" }).notNull(),
+}, (table) => ({
+  postIdx: index("post_categories_post_idx").on(table.postId),
+  categoryIdx: index("post_categories_category_idx").on(table.categoryId),
+}));
+
 // Zod schemas for validation
 export const insertArticleSchema = createInsertSchema(articles);
 export const selectArticleSchema = createSelectSchema(articles);
@@ -112,6 +188,12 @@ export const insertDestinationSchema = createInsertSchema(destinations);
 export const selectDestinationSchema = createSelectSchema(destinations);
 export const insertFaqSchema = createInsertSchema(articleFaqs);
 export const selectFaqSchema = createSelectSchema(articleFaqs);
+export const insertPostSchema = createInsertSchema(posts);
+export const selectPostSchema = createSelectSchema(posts);
+export const insertCategorySchema = createInsertSchema(categories);
+export const selectCategorySchema = createSelectSchema(categories);
+export const insertAuthorSchema = createInsertSchema(authors);
+export const selectAuthorSchema = createSelectSchema(authors);
 
 // TypeScript types
 export type Article = typeof articles.$inferSelect;
@@ -120,6 +202,12 @@ export type Destination = typeof destinations.$inferSelect;
 export type NewDestination = typeof destinations.$inferInsert;
 export type ArticleFaq = typeof articleFaqs.$inferSelect;
 export type NewArticleFaq = typeof articleFaqs.$inferInsert;
+export type Post = typeof posts.$inferSelect;
+export type NewPost = typeof posts.$inferInsert;
+export type Category = typeof categories.$inferSelect;
+export type NewCategory = typeof categories.$inferInsert;
+export type Author = typeof authors.$inferSelect;
+export type NewAuthor = typeof authors.$inferInsert;
 
 // ============================================================
 // WORDPRESS REST API TYPES (existing)
