@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { db, articles, articleFaqs } from "@/lib/db";
 import { eq } from "drizzle-orm";
-import type { TourPageData } from "@/types/tour-content";
 
 // Simple API key auth - set TOUR_API_KEY in Vercel env vars
 const API_KEY = process.env.TOUR_API_KEY;
@@ -13,6 +12,44 @@ function validateAuth(request: NextRequest): boolean {
   return authHeader === `Bearer ${API_KEY}`;
 }
 
+// Flexible input type that accepts both formats
+interface ReplitPayload {
+  // Replit format
+  slug: string;
+  productCode: string;
+  headline?: string;
+  subheadline?: string;
+  authorReview?: string;
+  priceFrom?: number;
+  imageUrls?: string[];
+  affiliateUrl?: string;
+  contentSections?: unknown[];
+  faqs?: Array<{ question: string; answer: string }>;
+  status?: string;
+  source?: string;
+  syncedAt?: string;
+  // Original format (also accepted)
+  title?: string;
+  excerpt?: string;
+  price?: number;
+  featuredImage?: { url: string; alt?: string };
+  bookingUrl?: string;
+  sections?: unknown[];
+  destination?: string;
+  currency?: string;
+  rating?: number;
+  reviewCount?: number;
+  durationMinutes?: number;
+  metaDescription?: string;
+  focusKeyphrase?: string;
+  details?: {
+    inclusions?: string[];
+    exclusions?: string[];
+    meetingPoint?: string;
+    accessibility?: string;
+  };
+}
+
 // POST /api/tour-pages - Create or update a tour page
 export async function POST(request: NextRequest) {
   if (!validateAuth(request)) {
@@ -20,12 +57,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const data: TourPageData = await request.json();
+    const data: ReplitPayload = await request.json();
 
-    // Validate required fields
-    if (!data.productCode || !data.slug || !data.title) {
+    // Validate required fields (accept either format)
+    const title = data.title || data.headline;
+    if (!data.productCode || !data.slug || !title) {
       return NextResponse.json(
-        { error: "Missing required fields: productCode, slug, title" },
+        { error: "Missing required fields: productCode, slug, title/headline" },
         { status: 400 }
       );
     }
@@ -37,24 +75,25 @@ export async function POST(request: NextRequest) {
       .where(eq(articles.productCode, data.productCode))
       .limit(1);
 
+    // Map fields from either format
     const articleData = {
       productCode: data.productCode,
       slug: data.slug,
-      title: data.title,
-      content: "", // Empty - we use contentSections instead
-      contentSections: data.sections as unknown as Record<string, unknown>,
-      excerpt: data.excerpt || null,
-      metaDescription: data.metaDescription || null,
+      title: title,
+      content: data.authorReview || "", // Use authorReview as fallback content
+      contentSections: (data.contentSections || data.sections) as unknown as Record<string, unknown>,
+      excerpt: data.excerpt || data.subheadline || null,
+      metaDescription: data.metaDescription || data.subheadline?.slice(0, 160) || null,
       focusKeyphrase: data.focusKeyphrase || null,
       destination: data.destination || null,
-      bookingUrl: data.bookingUrl || null,
-      price: data.price?.toString() || null,
+      bookingUrl: data.bookingUrl || data.affiliateUrl || null,
+      price: (data.price || data.priceFrom)?.toString() || null,
       currency: data.currency || "USD",
       rating: data.rating?.toString() || null,
       reviewCount: data.reviewCount || null,
       durationMinutes: data.durationMinutes || null,
-      featuredImageUrl: data.featuredImage?.url || null,
-      featuredImageAlt: data.featuredImage?.alt || null,
+      featuredImageUrl: data.featuredImage?.url || data.imageUrls?.[0] || null,
+      featuredImageAlt: data.featuredImage?.alt || title,
       inclusions: data.details?.inclusions || null,
       exclusions: data.details?.exclusions || null,
       meetingPoint: data.details?.meetingPoint || null,
