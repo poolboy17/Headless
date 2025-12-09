@@ -19,12 +19,16 @@ load_dotenv()
 
 # Configuration
 PRODUCTS_API_URL = os.getenv("PRODUCTS_API_URL", "https://viator-haunts--genaromvasquez.replit.app")
-WORDPRESS_URL = os.getenv("WORDPRESS_URL", "https://wp.cursedtours.com")
-WP_USERNAME = os.getenv("WP_USERNAME", "genaromvasquez@gmail.com")
-WP_APP_PASSWORD = os.getenv("WP_APP_PASSWORD", "32ka wCd3 jX3H 237K k7qK 4IyI")
+ARTICLES_API_URL = os.getenv("ARTICLES_API_URL", "https://cursedtours.com/api/articles")
+ARTICLES_API_KEY = os.getenv("ARTICLES_API_KEY", "")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
 SITE_URL = os.getenv("SITE_URL", "https://cursedtours.com")
+
+# Legacy WordPress config (optional fallback)
+WORDPRESS_URL = os.getenv("WORDPRESS_URL", "")
+WP_USERNAME = os.getenv("WP_USERNAME", "")
+WP_APP_PASSWORD = os.getenv("WP_APP_PASSWORD", "")
 
 
 class ProductsAPI:
@@ -191,6 +195,77 @@ class WordPressClient:
         except Exception as e:
             print(f"Failed to upload image: {e}")
             return None
+
+
+class ArticlesAPIClient:
+    """Client for Cursed Tours Articles API (Neon database)"""
+
+    def __init__(self, base_url: str = ARTICLES_API_URL, api_key: str = ARTICLES_API_KEY):
+        self.base_url = base_url.rstrip("/")
+        self.api_key = api_key
+
+    def _headers(self) -> Dict:
+        headers = {"Content-Type": "application/json"}
+        if self.api_key:
+            headers["X-API-Key"] = self.api_key
+        return headers
+
+    def create_article(self, article_data: Dict) -> Dict:
+        """Create or update an article in the database"""
+        response = requests.post(
+            self.base_url,
+            json=article_data,
+            headers=self._headers(),
+            timeout=30
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def get_article(self, slug: str) -> Optional[Dict]:
+        """Get an article by slug"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/{slug}",
+                headers=self._headers(),
+                timeout=10
+            )
+            if response.status_code == 404:
+                return None
+            response.raise_for_status()
+            return response.json()
+        except:
+            return None
+
+    def publish_article(self, slug: str) -> Dict:
+        """Publish a draft article"""
+        response = requests.patch(
+            f"{self.base_url}/{slug}",
+            json={"action": "publish"},
+            headers=self._headers(),
+            timeout=10
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def get_stats(self) -> Dict:
+        """Get article statistics"""
+        response = requests.get(
+            f"{self.base_url}/stats",
+            headers=self._headers(),
+            timeout=10
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+def generate_slug(title: str) -> str:
+    """Generate a URL-friendly slug from title"""
+    import re
+    slug = title.lower()
+    slug = re.sub(r'[^a-z0-9\s-]', '', slug)
+    slug = re.sub(r'\s+', '-', slug)
+    slug = re.sub(r'-+', '-', slug)
+    return slug[:200]
 
 
 class ArticleGenerator:
@@ -511,10 +586,12 @@ Each tour section must feel COMPLETELY UNIQUE - vary structure and language.
 Each tour section should feel completely unique - no repetitive structures.
 End with: <!-- META: Your meta description here -->"""
 
-    def __init__(self):
+    def __init__(self, use_database: bool = True):
         self.products = ProductsAPI()
         self.ollama = OllamaClient()
-        self.wordpress = WordPressClient()
+        self.articles_api = ArticlesAPIClient()
+        self.wordpress = WordPressClient() if WORDPRESS_URL else None
+        self.use_database = use_database  # True = save to Neon, False = save to WordPress
 
     def format_duration(self, minutes: int) -> str:
         """Format duration in minutes to human readable"""
@@ -698,7 +775,16 @@ End with: <!-- META: Your meta description here -->"""
         ollama_ok = self.ollama.is_available()
         models = self.ollama.list_models() if ollama_ok else []
 
-        return {
+        # Check articles API
+        articles_api_ok = False
+        articles_stats = {}
+        try:
+            articles_stats = self.articles_api.get_stats()
+            articles_api_ok = True
+        except:
+            pass
+
+        status = {
             "ollama": {
                 "available": ollama_ok,
                 "url": OLLAMA_URL,
@@ -706,8 +792,18 @@ End with: <!-- META: Your meta description here -->"""
                 "models_available": models
             },
             "products_api": {"url": PRODUCTS_API_URL},
-            "wordpress": {"url": WORDPRESS_URL, "username": WP_USERNAME}
+            "articles_api": {
+                "url": ARTICLES_API_URL,
+                "available": articles_api_ok,
+                "stats": articles_stats
+            },
+            "storage_mode": "database" if self.use_database else "wordpress"
         }
+
+        if WORDPRESS_URL:
+            status["wordpress"] = {"url": WORDPRESS_URL, "username": WP_USERNAME}
+
+        return status
 
     def generate_tour_article(self, product_code: str = None, product_id: str = None,
                                publish: bool = False) -> Dict:
@@ -763,8 +859,9 @@ End with: <!-- META: Your meta description here -->"""
 
         # Generate schema markup
         product_schema = self.generate_schema_markup(product)
+        schema_json = json.loads(product_schema)
 
-        # Add schema to content
+        # Add schema to content as HTML block
         schema_block = f'''<!-- wp:html -->
 <script type="application/ld+json">
 {product_schema}
@@ -773,50 +870,118 @@ End with: <!-- META: Your meta description here -->"""
 
         full_content = schema_block + "\n\n" + content
 
-        # Upload featured image
-        featured_media = None
-        if product.get("primaryImageUrl"):
-            print("Uploading featured image...")
-            featured_media = self.wordpress.upload_image(
-                product.get("primaryImageUrl"),
-                product.get("title", "tour")
+        # Extract focus keyphrase and secondary keywords
+        focus_keyphrase = ""
+        secondary_keywords = ""
+        if "<!-- FOCUS_KEYPHRASE:" in content:
+            try:
+                kp_start = content.index("<!-- FOCUS_KEYPHRASE:") + 21
+                kp_end = content.index("-->", kp_start)
+                focus_keyphrase = content[kp_start:kp_end].strip()
+            except:
+                pass
+        if "<!-- SECONDARY_KEYWORDS:" in content:
+            try:
+                sk_start = content.index("<!-- SECONDARY_KEYWORDS:") + 24
+                sk_end = content.index("-->", sk_start)
+                secondary_keywords = content[sk_start:sk_end].strip()
+            except:
+                pass
+
+        # Save to database (primary) or WordPress (legacy)
+        if self.use_database:
+            print(f"Saving article to database ({'publish' if publish else 'draft'})...")
+            article_data = {
+                "productCode": product.get("productCode"),
+                "slug": generate_slug(product.get("title", "")),
+                "title": product.get("title"),
+                "content": full_content,
+                "excerpt": meta_desc,
+                "metaDescription": meta_desc[:160] if meta_desc else None,
+                "focusKeyphrase": focus_keyphrase or None,
+                "secondaryKeywords": secondary_keywords or None,
+                "schemaJson": schema_json,
+                "destination": product.get("destinationName"),
+                "bookingUrl": product.get("webUrl"),
+                "price": str(product.get("priceFrom", 0) or 0),
+                "currency": product.get("currencyCode", "USD"),
+                "rating": str(product.get("rating") or 0),
+                "reviewCount": product.get("reviewCount", 0),
+                "durationMinutes": product.get("durationMinutes"),
+                "featuredImageUrl": product.get("primaryImageUrl"),
+                "featuredImageAlt": product.get("title"),
+                "status": "published" if publish else "draft",
+                "articleType": "tour",
+                "niche": "haunted",
+                "generatedBy": "ollama",
+                "generationModel": OLLAMA_MODEL,
+                "wordCount": len(content.split()),
+            }
+
+            result = self.articles_api.create_article(article_data)
+
+            return {
+                "success": True,
+                "article": result.get("article", {}),
+                "product": {
+                    "code": product.get("productCode"),
+                    "title": product.get("title"),
+                    "destination": product.get("destinationName"),
+                    "rating": product.get("rating"),
+                    "price": product.get("priceFrom")
+                },
+                "content_length": len(content),
+                "storage": "database"
+            }
+
+        else:
+            # Legacy WordPress storage
+            if not self.wordpress:
+                raise Exception("WordPress not configured. Set WORDPRESS_URL env var or use database mode.")
+
+            featured_media = None
+            if product.get("primaryImageUrl"):
+                print("Uploading featured image...")
+                featured_media = self.wordpress.upload_image(
+                    product.get("primaryImageUrl"),
+                    product.get("title", "tour")
+                )
+
+            print(f"Creating WordPress post ({'publish' if publish else 'draft'})...")
+            post = self.wordpress.create_post(
+                title=product.get("title"),
+                content=full_content,
+                status="publish" if publish else "draft",
+                featured_media=featured_media,
+                excerpt=meta_desc,
+                meta={
+                    "product_code": product.get("productCode"),
+                    "booking_url": product.get("webUrl"),
+                    "tour_price": str(product.get("priceFrom", "")),
+                    "tour_rating": str(product.get("rating", "")),
+                    "tour_destination": product.get("destinationName", ""),
+                }
             )
 
-        # Create WordPress post
-        print(f"Creating WordPress post ({'publish' if publish else 'draft'})...")
-        post = self.wordpress.create_post(
-            title=product.get("title"),
-            content=full_content,
-            status="publish" if publish else "draft",
-            featured_media=featured_media,
-            excerpt=meta_desc,
-            meta={
-                "product_code": product.get("productCode"),
-                "booking_url": product.get("webUrl"),
-                "tour_price": str(product.get("priceFrom", "")),
-                "tour_rating": str(product.get("rating", "")),
-                "tour_destination": product.get("destinationName", ""),
+            return {
+                "success": True,
+                "post": {
+                    "id": post.get("id"),
+                    "title": post.get("title", {}).get("rendered"),
+                    "link": post.get("link"),
+                    "status": post.get("status"),
+                    "excerpt": meta_desc
+                },
+                "product": {
+                    "code": product.get("productCode"),
+                    "title": product.get("title"),
+                    "destination": product.get("destinationName"),
+                    "rating": product.get("rating"),
+                    "price": product.get("priceFrom")
+                },
+                "content_length": len(content),
+                "storage": "wordpress"
             }
-        )
-
-        return {
-            "success": True,
-            "post": {
-                "id": post.get("id"),
-                "title": post.get("title", {}).get("rendered"),
-                "link": post.get("link"),
-                "status": post.get("status"),
-                "excerpt": meta_desc
-            },
-            "product": {
-                "code": product.get("productCode"),
-                "title": product.get("title"),
-                "destination": product.get("destinationName"),
-                "rating": product.get("rating"),
-                "price": product.get("priceFrom")
-            },
-            "content_length": len(content)
-        }
 
     def generate_destination_guide(self, destination: str, niche: str = "haunted",
                                     max_tours: int = 5, publish: bool = False) -> Dict:
@@ -1024,6 +1189,7 @@ def main():
     tour_parser.add_argument("--code", help="Viator product code")
     tour_parser.add_argument("--id", help="Database product ID")
     tour_parser.add_argument("--publish", action="store_true", help="Publish immediately (default: draft)")
+    tour_parser.add_argument("--wordpress", action="store_true", help="Save to WordPress instead of database")
 
     # Destination guide command
     dest_parser = subparsers.add_parser("destination", help="Generate destination guide")
@@ -1054,7 +1220,9 @@ def main():
 
     args = parser.parse_args()
 
-    generator = ArticleGenerator()
+    # Determine storage mode (database by default, wordpress if flag set)
+    use_database = not getattr(args, 'wordpress', False)
+    generator = ArticleGenerator(use_database=use_database)
 
     try:
         if args.command == "status":
