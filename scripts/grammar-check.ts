@@ -286,17 +286,27 @@ async function main(): Promise<void> {
 
   console.log(`Found ${posts.length} post(s) to process\n`);
 
-  // Process each post
+  // Process posts in parallel batches
   const config: Partial<CheckerConfig> = args.provider ? { provider: args.provider } : {};
   const results: { post: Post; contentResult: CheckResult; excerptResult: CheckResult | null }[] = [];
+  const BATCH_SIZE = 5; // Process 5 posts at a time
 
-  for (const post of posts) {
-    try {
-      const result = await processPost(post, args, config);
-      results.push(result);
-    } catch (error) {
-      console.error(`${colorize("Error processing:", "red")} ${post.slug}`, error);
-    }
+  for (let i = 0; i < posts.length; i += BATCH_SIZE) {
+    const batch = posts.slice(i, i + BATCH_SIZE);
+    console.log(`\n${colorize(`--- Batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(posts.length / BATCH_SIZE)} ---`, "magenta")}`);
+
+    const batchResults = await Promise.all(
+      batch.map(async (post) => {
+        try {
+          return await processPost(post, args, config);
+        } catch (error) {
+          console.error(`${colorize("Error processing:", "red")} ${post.slug}`, error);
+          return null;
+        }
+      })
+    );
+
+    results.push(...batchResults.filter((r): r is NonNullable<typeof r> => r !== null));
   }
 
   // Summary
