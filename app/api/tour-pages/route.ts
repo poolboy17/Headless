@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { db, articles, articleFaqs } from "@/lib/db";
 import { eq } from "drizzle-orm";
-import type { TourPageData, ContentSection } from "@/types/tour-content";
+import type { TourPageData } from "@/types/tour-content";
 
 // Simple API key auth - set TOUR_API_KEY in Vercel env vars
 const API_KEY = process.env.TOUR_API_KEY;
@@ -99,11 +100,19 @@ export async function POST(request: NextRequest) {
       await db.insert(articleFaqs).values(faqData);
     }
 
+    // Revalidate the page cache so changes appear immediately
+    revalidatePath(`/tour/${data.slug}`);
+    revalidatePath("/tours"); // Tour listing page
+    if (data.destination) {
+      revalidatePath(`/tours/${data.destination.toLowerCase().replace(/\s+/g, "-")}`);
+    }
+
     return NextResponse.json({
       success: true,
       id: articleId,
       slug: data.slug,
       url: `/tour/${data.slug}`,
+      revalidated: true,
       message: existing.length > 0 ? "Tour page updated" : "Tour page created",
     });
   } catch (error) {
