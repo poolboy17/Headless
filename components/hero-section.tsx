@@ -19,7 +19,7 @@ export function HeroSection({ post }: HeroSectionProps) {
   return (
     <section className="relative py-8 md:py-12 container mx-auto px-4">
       <Link href={`/post/${post.slug}`} className="block relative group">
-        <div className="aspect-[16/9] md:aspect-[21/9] overflow-hidden rounded-3xl relative bg-muted">
+        <div className="aspect-[16/9] md:aspect-[21/9] overflow-hidden rounded-3xl relative">
           <ServerImage
             src={featuredImage?.url || '/assets/hero.png'}
             alt={featuredImage?.alt || 'CURSED TOURS - Some boundaries aren\'t meant to be crossed'}
@@ -45,8 +45,8 @@ export function HeroSection({ post }: HeroSectionProps) {
               </div>
             )}
 
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-3" data-testid="hero-title">
-              <span className="line-clamp-2 group-hover:underline decoration-2 underline-offset-4">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-3 drop-shadow-lg" data-testid="hero-title">
+              <span className="line-clamp-2 group-hover:underline decoration-2 underline-offset-4 [text-shadow:_0_2px_8px_rgb(0_0_0_/_60%)]">
                 {title}
               </span>
             </h2>
