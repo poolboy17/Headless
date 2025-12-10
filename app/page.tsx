@@ -4,8 +4,8 @@ import { HeroSection } from '@/components/hero-section';
 import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
 import { NewsletterCTA } from '@/components/newsletter-cta';
-import { AnimatedPostGrid } from '@/components/animated-post-grid';
-import { TrendingPosts } from '@/components/trending-posts';
+import { ServerPostGrid } from '@/components/server-post-grid';
+import { ServerTrendingPosts } from '@/components/server-trending-posts';
 import { NoPostsFound } from '@/components/empty-state';
 import { ExperiencePicker } from '@/components/experience-picker';
 import { HomePageSchema } from '@/components/Schema';
@@ -42,7 +42,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   }
   const featuredPost = currentPage === 1 ? posts[0] : null;
   const gridPosts = currentPage === 1 ? posts.slice(1) : posts;
-  // Use posts 2-5 as "trending" on first page (in production, this would be based on analytics)
+  // Use posts 2-5 as "trending" on first page
   const trendingPosts = currentPage === 1 ? posts.slice(1, 5) : [];
 
   return (
@@ -60,9 +60,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       )}
 
       <div className="container mx-auto px-4 py-12">
-        {/* Trending section - only show on first page with enough posts */}
+        {/* Trending section - server rendered */}
         {currentPage === 1 && trendingPosts.length >= 4 && (
-          <TrendingPosts posts={trendingPosts} className="mb-8" />
+          <ServerTrendingPosts posts={trendingPosts} className="mb-8" />
         )}
 
         <CategoryNav categories={categories} className="mb-8" />
@@ -74,18 +74,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           <span className="text-sm text-muted-foreground">{totalPosts} articles</span>
         </div>
 
-        {/* Posts grid or empty state */}
+        {/* Posts grid - server rendered for instant display */}
         {gridPosts.length > 0 ? (
           <>
-            {/* First row of posts - animated */}
-            <AnimatedPostGrid posts={gridPosts.slice(0, 6)} staggerDelay={80} />
+            <ServerPostGrid posts={gridPosts.slice(0, 6)} />
 
-            {/* Newsletter CTA - only show on first page when there are enough posts */}
+            {/* Newsletter CTA */}
             {currentPage === 1 && gridPosts.length >= 6 && <NewsletterCTA />}
 
-            {/* Remaining posts - animated */}
+            {/* Remaining posts */}
             {gridPosts.length > 6 && (
-              <AnimatedPostGrid posts={gridPosts.slice(6)} staggerDelay={80} />
+              <ServerPostGrid posts={gridPosts.slice(6)} className="mt-6" />
             )}
 
             <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/" />

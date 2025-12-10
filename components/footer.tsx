@@ -108,17 +108,17 @@ export function Footer({ categories, recentPosts }: FooterProps) {
 
         <div className="mt-16 border-t border-gray-900/10 dark:border-neutral-700 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-24">
           <div className="flex flex-wrap gap-x-6 gap-y-3 md:order-2">
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="social-twitter">
-              <SiX className="h-5 w-5" />
+            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="social-twitter" aria-label="Follow us on X (Twitter)">
+              <SiX className="h-5 w-5" aria-hidden="true" />
             </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="social-facebook">
-              <SiFacebook className="h-5 w-5" />
+            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="social-facebook" aria-label="Follow us on Facebook">
+              <SiFacebook className="h-5 w-5" aria-hidden="true" />
             </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="social-instagram">
-              <SiInstagram className="h-5 w-5" />
+            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="social-instagram" aria-label="Follow us on Instagram">
+              <SiInstagram className="h-5 w-5" aria-hidden="true" />
             </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="social-youtube">
-              <SiYoutube className="h-5 w-5" />
+            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors" data-testid="social-youtube" aria-label="Subscribe on YouTube">
+              <SiYoutube className="h-5 w-5" aria-hidden="true" />
             </a>
           </div>
           <div className="mt-8 md:order-1 md:mt-0">

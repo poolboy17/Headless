@@ -5,6 +5,7 @@ import { useState, useCallback, useRef } from 'react';
 
 interface SafeImageProps extends Omit<ImageProps, 'onError'> {
   fallbackSrc?: string;
+  fetchPriority?: 'high' | 'low' | 'auto';
 }
 
 const ALLOWED_DOMAINS = [
@@ -35,7 +36,7 @@ function isAllowedDomain(url: string): boolean {
   }
 }
 
-export function SafeImage({ src, fallbackSrc = '/assets/fallbacks/misty_dark_forest_supernatural.png', alt, ...props }: SafeImageProps) {
+export function SafeImage({ src, fallbackSrc = '/assets/fallbacks/misty_dark_forest_supernatural.png', alt, fetchPriority, priority, ...props }: SafeImageProps) {
   const [currentSrc, setCurrentSrc] = useState(src);
   const hasErrored = useRef(false);
   
@@ -56,6 +57,8 @@ export function SafeImage({ src, fallbackSrc = '/assets/fallbacks/misty_dark_for
       alt={alt}
       onError={handleError}
       unoptimized={!shouldOptimize}
+      priority={priority}
+      fetchPriority={priority ? 'high' : fetchPriority}
     />
   );
 }

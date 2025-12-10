@@ -412,3 +412,114 @@ export async function getCategoryBySlugForPage(slug: string): Promise<WPCategory
     link: `https://cursedtours.com/category/${cat.slug}`,
   };
 }
+
+// ============================================================
+// SEARCH FUNCTIONALITY
+// ============================================================
+
+/**
+ * Search posts by query string (searches title and content)
+ */
+export async function searchPosts(options: {
+  query: string;
+  limit?: number;
+  offset?: number;
+}): Promise<{ posts: PostWithRelations[]; total: number }> {
+  const { query, limit = 20, offset = 0 } = options;
+  
+  if (!query.trim()) {
+    return { posts: [], total: 0 };
+  }
+
+  // Use ILIKE for case-insensitive search on title and content
+  const searchPattern = `%${query.trim()}%`;
+
+  const result = await db
+    .select()
+    .from(posts)
+    .where(
+      and(
+        eq(posts.status, "published"),
+        sql`(${posts.title} ILIKE ${searchPattern} OR ${posts.content} ILIKE ${searchPattern})`
+      )
+    )
+    .orderBy(desc(posts.publishedAt))
+    .limit(limit)
+    .offset(offset);
+
+  const countResult = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(posts)
+    .where(
+      and(
+        eq(posts.status, "published"),
+        sql`(${posts.title} ILIKE ${searchPattern} OR ${posts.content} ILIKE ${searchPattern})`
+      )
+    );
+
+  const postsWithRelations = await addRelationsToPost(result);
+
+  return {
+    posts: postsWithRelations,
+    total: Number(countResult[0]?.count || 0),
+  };
+}
+
+/**
+ * Search posts and return in WPPost format
+ */
+export async function searchPostsForPage(options: {
+  query: string;
+  perPage?: number;
+  page?: number;
+}): Promise<{ posts: WPPost[]; totalPages: number; totalPosts: number }> {
+  const { query, perPage = 20, page = 1 } = options;
+  const offset = (page - 1) * perPage;
+
+  const result = await searchPosts({
+    query,
+    limit: perPage,
+    offset,
+  });
+
+  return {
+    posts: result.posts.map(toWPPost),
+    totalPages: Math.ceil(result.total / perPage),
+    totalPosts: result.total,
+  };
+}
+
+// ============================================================
+// SITEMAP DATA FUNCTIONS
+// ============================================================
+
+/**
+ * Get all posts for sitemap (minimal data)
+ */
+export async function getAllPostsForSitemap(): Promise<Array<{ slug: string; modified: Date }>> {
+  const result = await db
+    .select({
+      slug: posts.slug,
+      modified: posts.updatedAt,
+    })
+    .from(posts)
+    .where(eq(posts.status, "published"));
+
+  return result.map(r => ({
+    slug: r.slug,
+    modified: r.modified,
+  }));
+}
+
+/**
+ * Get all categories for sitemap
+ */
+export async function getAllCategoriesForSitemap(): Promise<Array<{ slug: string; count: number }>> {
+  const cats = await getCategories();
+  return cats
+    .filter(c => (c.count || 0) > 0)
+    .map(c => ({
+      slug: c.slug,
+      count: c.count || 0,
+    }));
+}

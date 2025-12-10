@@ -1,9 +1,6 @@
-'use client';
-
 import Link from 'next/link';
-import { SafeImage } from '@/components/safe-image';
-import { ArrowRight, Clock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ServerImage } from '@/components/server-image';
+import { Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { WPPost } from '@/lib/wordpress';
 import { stripHtml, formatDate, getReadingTime, getCategories_Post, getFeaturedImage } from '@/lib/wordpress';
@@ -23,25 +20,14 @@ export function HeroSection({ post }: HeroSectionProps) {
     <section className="relative py-8 md:py-12 container mx-auto px-4">
       <Link href={`/post/${post.slug}`} className="block relative group">
         <div className="aspect-[16/9] md:aspect-[21/9] overflow-hidden rounded-3xl relative bg-muted">
-          {featuredImage ? (
-            <SafeImage
-              src={featuredImage.url}
-              alt={featuredImage.alt}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              priority
-              sizes="(max-width: 768px) 100vw, 100vw"
-            />
-          ) : (
-            <SafeImage
-              src="/assets/hero.png"
-              alt="CURSED TOURS - Some boundaries aren't meant to be crossed"
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              priority
-              sizes="(max-width: 768px) 100vw, 100vw"
-            />
-          )}
+          <ServerImage
+            src={featuredImage?.url || '/assets/hero.png'}
+            alt={featuredImage?.alt || 'CURSED TOURS - Some boundaries aren\'t meant to be crossed'}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            priority
+            sizes="(max-width: 768px) 100vw, 100vw"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent rounded-3xl" />
 
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white">

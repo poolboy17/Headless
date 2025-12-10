@@ -5,7 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { BackToTop } from '@/components/back-to-top';
-import { getCategories, getPosts } from '@/lib/wordpress';
+import { getCategoriesForPage, getPostsForPage } from '@/lib/posts';
 import { SiteSchema } from '@/components/Schema';
 
 const inter = Inter({ 
@@ -67,16 +67,16 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let categories: Awaited<ReturnType<typeof getCategories>> = [];
-  let postsData: Awaited<ReturnType<typeof getPosts>> = { posts: [], totalPosts: 0, totalPages: 0 };
+  let categories: Awaited<ReturnType<typeof getCategoriesForPage>> = [];
+  let postsData: { posts: Awaited<ReturnType<typeof getPostsForPage>>['posts'] } = { posts: [] };
 
   try {
     [categories, postsData] = await Promise.all([
-      getCategories(),
-      getPosts({ perPage: 4 }),
+      getCategoriesForPage(),
+      getPostsForPage({ perPage: 4 }),
     ]);
   } catch {
-    // Fallback if WordPress API is unavailable
+    // Fallback if database is unavailable
   }
 
   return (

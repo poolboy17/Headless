@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getPosts, getCategories } from '@/lib/wordpress';
+import { searchPostsForPage, getCategoriesForPage } from '@/lib/posts';
 import { CategoryNav } from '@/components/category-nav';
 import { AnimatedPostGrid } from '@/components/animated-post-grid';
 import { NoSearchResults } from '@/components/empty-state';
@@ -49,16 +49,16 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const { q } = await searchParams;
 
-  let categories: Awaited<ReturnType<typeof getCategories>> = [];
-  let postsData: Awaited<ReturnType<typeof getPosts>> = { posts: [], totalPosts: 0, totalPages: 0 };
+  let categories: Awaited<ReturnType<typeof getCategoriesForPage>> = [];
+  let postsData: Awaited<ReturnType<typeof searchPostsForPage>> = { posts: [], totalPosts: 0, totalPages: 0 };
 
   try {
     [categories, postsData] = await Promise.all([
-      getCategories(),
-      q ? getPosts({ search: q, perPage: 20 }) : Promise.resolve({ posts: [], totalPosts: 0, totalPages: 0 }),
+      getCategoriesForPage(),
+      q ? searchPostsForPage({ query: q, perPage: 20 }) : Promise.resolve({ posts: [], totalPosts: 0, totalPages: 0 }),
     ]);
   } catch {
-    // Fallback if WordPress API is unavailable
+    // Fallback if database is unavailable
   }
 
   const { posts, totalPosts } = postsData;
