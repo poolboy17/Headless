@@ -105,9 +105,9 @@ describe('WordPress Utilities', () => {
       } as WPPost;
 
       const author = getAuthor(post);
-      expect(author?.avatar_urls?.['24']).toBe('/author-marcus-hale.png');
-      expect(author?.avatar_urls?.['48']).toBe('/author-marcus-hale.png');
-      expect(author?.avatar_urls?.['96']).toBe('/author-marcus-hale.png');
+      expect(author?.avatar_urls?.['24']).toBe('/author-marcus-hale.webp');
+      expect(author?.avatar_urls?.['48']).toBe('/author-marcus-hale.webp');
+      expect(author?.avatar_urls?.['96']).toBe('/author-marcus-hale.webp');
     });
 
     it('returns undefined when no author embedded', () => {

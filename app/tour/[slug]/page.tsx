@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getArticleBySlug, getArticleFaqs, getArticlesByDestination } from "@/lib/articles";
+import { ContentSections } from "@/components/tour/ContentSections";
+import { TourDetails } from "@/components/tour/TourDetails";
+import type { ContentSection } from "@/types/tour-content";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -175,9 +178,22 @@ export default async function TourArticlePage({ params }: PageProps) {
       </header>
 
       {/* Main Content */}
-      <div
-        className="prose prose-lg max-w-none mb-12"
-        dangerouslySetInnerHTML={{ __html: article.content }}
+      {article.contentSections ? (
+        <ContentSections sections={article.contentSections as ContentSection[]} />
+      ) : (
+        <div
+          className="prose prose-lg max-w-none mb-12"
+          dangerouslySetInnerHTML={{ __html: article.content }}
+        />
+      )}
+
+      {/* Tour Details */}
+      <TourDetails
+        inclusions={article.inclusions}
+        exclusions={article.exclusions}
+        meetingPoint={article.meetingPoint}
+        accessibility={article.accessibility}
+        duration={formatDuration(article.durationMinutes)}
       />
 
       {/* CTA Button (if booking URL exists) */}

@@ -47,9 +47,9 @@ const createMockPost = (overrides?: Partial<WPPost>): WPPost => ({
       slug: 'marcus-hale',
       link: 'https://cursedtours.com/author/marcus-hale',
       avatar_urls: {
-        '24': '/author-marcus-hale.png',
-        '48': '/author-marcus-hale.png',
-        '96': '/author-marcus-hale.png',
+        '24': '/author-marcus-hale.webp',
+        '48': '/author-marcus-hale.webp',
+        '96': '/author-marcus-hale.webp',
       },
     }],
     'wp:featuredmedia': [{

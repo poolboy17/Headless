@@ -472,6 +472,10 @@ function buildEnhancedAltText(post: WPPost, mediaAlt?: string): string {
   return `${title} - ${primaryCategory} - Cursed Tours`;
 }
 
+// Local featured image mapping (migrated from WordPress)
+import featuredImageMap from './featured-image-map.json';
+const FEATURED_IMAGE_MAP: Record<string, string> = featuredImageMap;
+
 export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' | 'large' = 'medium_large'): FeaturedImageResult {
   const title = stripHtml(post.title.rendered);
   
@@ -487,15 +491,14 @@ export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' |
     };
   }
   
-  // Priority 2: Use WordPress featured media if available
-  // Always use original source_url as WordPress resized images may be missing (404)
-  const featuredMedia = post._embedded?.['wp:featuredmedia']?.[0];
-  if (featuredMedia?.source_url) {
+  // Priority 2: Use local optimized WebP image (migrated from WordPress)
+  const localImage = FEATURED_IMAGE_MAP[post.slug];
+  if (localImage) {
     return {
-      url: featuredMedia.source_url,
-      width: featuredMedia.media_details?.width || 1200,
-      height: featuredMedia.media_details?.height || 800,
-      alt: featuredMedia.alt_text || title,
+      url: localImage,
+      width: 1200,
+      height: 800,
+      alt: title,
       isFallback: false,
     };
   }
@@ -512,8 +515,8 @@ export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' |
 }
 
 const AUTHOR_AVATARS: Record<string, string> = {
-  'marcus-hale': '/author-marcus-hale.png',
-  'marcus hale': '/author-marcus-hale.png',
+  'marcus-hale': '/author-marcus-hale.webp',
+  'marcus hale': '/author-marcus-hale.webp',
 };
 
 export function getAuthor(post: WPPost) {

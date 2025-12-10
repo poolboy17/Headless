@@ -26,7 +26,7 @@ const createMockPost = (overrides = {}): WPPost => ({
       name: 'Marcus Hale',
       slug: 'marcus-hale',
       link: 'https://cursedtours.com/author/marcus-hale',
-      avatar_urls: { '48': '/author-marcus-hale.png' },
+      avatar_urls: { '48': '/author-marcus-hale.webp' },
     }],
     'wp:featuredmedia': [{
       id: 1,

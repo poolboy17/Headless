@@ -36,6 +36,15 @@ export const articles = pgTable("articles", {
   featuredImageUrl: text("featured_image_url"),
   featuredImageAlt: text("featured_image_alt"),
 
+  // Structured content (JSON sections for consistent rendering)
+  contentSections: jsonb("content_sections"),
+
+  // Tour details
+  inclusions: text("inclusions").array(),
+  exclusions: text("exclusions").array(),
+  meetingPoint: text("meeting_point"),
+  accessibility: text("accessibility"),
+
   // Status
   status: varchar("status", { length: 20 }).default("draft").notNull(), // draft, published, archived
   articleType: varchar("article_type", { length: 30 }).default("tour").notNull(), // tour, destination, roundup
