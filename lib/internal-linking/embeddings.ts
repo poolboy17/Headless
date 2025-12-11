@@ -48,15 +48,24 @@ export async function generateEmbedding(text: string): Promise<number[]> {
  */
 export async function generateEmbeddingsBatch(texts: string[]): Promise<number[][]> {
   const openai = getOpenAI();
-  const prepared = texts.map(prepareText);
+  const prepared = texts.map(t => prepareText(t)).filter(t => t.length > 0);
   
-  const response = await openai.embeddings.create({
-    model: LINKING_CONFIG.EMBEDDING_MODEL,
-    input: prepared,
-    dimensions: LINKING_CONFIG.EMBEDDING_DIMENSIONS,
-  });
+  if (prepared.length === 0) {
+    throw new Error('No valid texts to embed');
+  }
   
-  return response.data.map(item => item.embedding);
+  // OpenAI batch limit - process one at a time for reliability
+  const embeddings: number[][] = [];
+  for (const text of prepared) {
+    const response = await openai.embeddings.create({
+      model: LINKING_CONFIG.EMBEDDING_MODEL,
+      input: text,
+      dimensions: LINKING_CONFIG.EMBEDDING_DIMENSIONS,
+    });
+    embeddings.push(response.data[0].embedding);
+  }
+  
+  return embeddings;
 }
 
 /**
