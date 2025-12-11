@@ -85,9 +85,11 @@ export default async function RootLayout({
         {/* Preload optimized hero image for LCP */}
         <link 
           rel="preload" 
-          href="/_next/image?url=%2Fassets%2Ffallbacks%2Fgothic_castle_midnight_storm.png&w=1920&q=75" 
           as="image"
           type="image/webp"
+          fetchPriority="high"
+          imageSrcSet="/_next/image?url=%2Fassets%2Ffallbacks%2Fgothic_castle_midnight_storm.png&w=640&q=75 640w, /_next/image?url=%2Fassets%2Ffallbacks%2Fgothic_castle_midnight_storm.png&w=750&q=75 750w, /_next/image?url=%2Fassets%2Ffallbacks%2Fgothic_castle_midnight_storm.png&w=828&q=75 828w, /_next/image?url=%2Fassets%2Ffallbacks%2Fgothic_castle_midnight_storm.png&w=1080&q=75 1080w, /_next/image?url=%2Fassets%2Ffallbacks%2Fgothic_castle_midnight_storm.png&w=1200&q=75 1200w, /_next/image?url=%2Fassets%2Ffallbacks%2Fgothic_castle_midnight_storm.png&w=1920&q=75 1920w, /_next/image?url=%2Fassets%2Ffallbacks%2Fgothic_castle_midnight_storm.png&w=2048&q=75 2048w, /_next/image?url=%2Fassets%2Ffallbacks%2Fgothic_castle_midnight_storm.png&w=3840&q=75 3840w"
+          imageSizes="100vw"
         />
         <link rel="dns-prefetch" href="https://wp.cursedtours.com" />
         <link rel="preconnect" href="https://wp.cursedtours.com" crossOrigin="anonymous" />
