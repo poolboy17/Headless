@@ -68,6 +68,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, debug: info });
     }
     
+    if (action === 'test_embed') {
+      // Test embedding a single post
+      const { testEmbed } = await import('@/lib/internal-linking/processor');
+      const result = await testEmbed();
+      return NextResponse.json({ success: true, result });
+    }
+    
     return NextResponse.json({ 
       error: 'Invalid action. Use process_all or process_post with postId' 
     }, { status: 400 });

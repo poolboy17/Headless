@@ -377,6 +377,81 @@ async function logAction(
 
 
 /**
+ * Test embedding a single post to debug issues
+ */
+export async function testEmbed() {
+  try {
+    // Get one post that needs embedding
+    const [post] = await db
+      .select({
+        id: posts.id,
+        title: posts.title,
+        content: posts.content,
+        excerpt: posts.excerpt,
+      })
+      .from(posts)
+      .leftJoin(postEmbeddings, eq(posts.id, postEmbeddings.postId))
+      .where(and(
+        eq(posts.status, 'published'),
+        isNull(postEmbeddings.id)
+      ))
+      .limit(1);
+    
+    if (!post) {
+      return { success: false, error: 'No posts need embedding' };
+    }
+    
+    // Try to generate embedding
+    const text = createEmbeddingText({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      excerpt: post.excerpt,
+      categories: [],
+    });
+    
+    const textPreview = text.slice(0, 200);
+    
+    // Call OpenAI
+    const embedding = await generateEmbedding(text);
+    
+    // Save to database
+    const hash = contentHash(post.content);
+    await db
+      .insert(postEmbeddings)
+      .values({
+        postId: post.id,
+        embedding: JSON.stringify(embedding),
+        contentHash: hash,
+      })
+      .onConflictDoUpdate({
+        target: postEmbeddings.postId,
+        set: {
+          embedding: JSON.stringify(embedding),
+          contentHash: hash,
+          updatedAt: new Date(),
+        },
+      });
+    
+    return {
+      success: true,
+      postId: post.id,
+      title: post.title,
+      textPreview,
+      embeddingLength: embedding.length,
+      hash,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    };
+  }
+}
+
+
+/**
  * Debug function to see what's happening
  */
 export async function debugInfo() {

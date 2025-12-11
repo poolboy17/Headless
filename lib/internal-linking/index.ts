@@ -19,5 +19,6 @@ export {
   processNewPost, 
   getLinkingStats,
   debugInfo,
+  testEmbed,
   type ProcessingResult 
 } from './processor';
