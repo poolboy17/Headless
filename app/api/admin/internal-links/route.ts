@@ -75,6 +75,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, result });
     }
     
+    if (action === 'test_batch') {
+      // Test batch embedding
+      const { testBatch } = await import('@/lib/internal-linking/processor');
+      const result = await testBatch();
+      return NextResponse.json({ success: true, result });
+    }
+    
     return NextResponse.json({ 
       error: 'Invalid action. Use process_all or process_post with postId' 
     }, { status: 400 });

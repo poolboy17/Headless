@@ -20,5 +20,6 @@ export {
   getLinkingStats,
   debugInfo,
   testEmbed,
+  testBatch,
   type ProcessingResult 
 } from './processor';

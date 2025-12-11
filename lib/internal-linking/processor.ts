@@ -377,6 +377,113 @@ async function logAction(
 
 
 /**
+ * Test batch embedding to debug issues
+ */
+export async function testBatch() {
+  const steps: string[] = [];
+  try {
+    // Get 5 posts that need embedding
+    steps.push('Fetching posts...');
+    const postsToEmbed = await db
+      .select({
+        id: posts.id,
+        title: posts.title,
+        content: posts.content,
+        excerpt: posts.excerpt,
+      })
+      .from(posts)
+      .leftJoin(postEmbeddings, eq(posts.id, postEmbeddings.postId))
+      .where(and(
+        eq(posts.status, 'published'),
+        isNull(postEmbeddings.id)
+      ))
+      .limit(5);
+    
+    steps.push(`Found ${postsToEmbed.length} posts`);
+    
+    if (postsToEmbed.length === 0) {
+      return { success: false, error: 'No posts need embedding', steps };
+    }
+    
+    // Get categories
+    steps.push('Fetching categories...');
+    const postIds = postsToEmbed.map(p => p.id);
+    const categoriesData = await db
+      .select({ postId: postCategories.postId, name: categories.name })
+      .from(postCategories)
+      .innerJoin(categories, eq(postCategories.categoryId, categories.id))
+      .where(inArray(postCategories.postId, postIds));
+    
+    steps.push(`Found ${categoriesData.length} category mappings`);
+    
+    const categoryMap = new Map<string, string[]>();
+    for (const c of categoriesData) {
+      if (!categoryMap.has(c.postId)) categoryMap.set(c.postId, []);
+      categoryMap.get(c.postId)!.push(c.name);
+    }
+    
+    // Create embedding texts
+    steps.push('Creating embedding texts...');
+    const texts = postsToEmbed.map(post => createEmbeddingText({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      excerpt: post.excerpt,
+      categories: categoryMap.get(post.id) || [],
+    }));
+    
+    steps.push(`Created ${texts.length} texts, first length: ${texts[0]?.length || 0}`);
+    
+    // Generate embeddings
+    steps.push('Calling OpenAI batch API...');
+    const embeddings = await generateEmbeddingsBatch(texts);
+    
+    steps.push(`Received ${embeddings.length} embeddings`);
+    
+    // Store embeddings
+    let count = 0;
+    for (let j = 0; j < postsToEmbed.length; j++) {
+      const post = postsToEmbed[j];
+      const embedding = embeddings[j];
+      const hash = contentHash(post.content);
+      
+      await db
+        .insert(postEmbeddings)
+        .values({
+          postId: post.id,
+          embedding: JSON.stringify(embedding),
+          contentHash: hash,
+        })
+        .onConflictDoUpdate({
+          target: postEmbeddings.postId,
+          set: {
+            embedding: JSON.stringify(embedding),
+            contentHash: hash,
+            updatedAt: new Date(),
+          },
+        });
+      count++;
+    }
+    
+    steps.push(`Saved ${count} embeddings`);
+    
+    return {
+      success: true,
+      embedded: count,
+      steps,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      steps,
+      stack: error instanceof Error ? error.stack?.split('\n').slice(0, 5) : undefined,
+    };
+  }
+}
+
+
+/**
  * Test embedding a single post to debug issues
  */
 export async function testEmbed() {
