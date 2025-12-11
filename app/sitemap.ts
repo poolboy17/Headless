@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { SITE_CONFIG } from '@/lib/seo';
 import { getAllPostsForSitemap, getAllCategoriesForSitemap } from '@/lib/posts';
+import { getAllArticleSlugs, getDestinations } from '@/lib/articles';
 
 // Static pages that exist in the app
 const STATIC_PAGES = [
@@ -22,9 +23,11 @@ const GUIDE_PAGES = [
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch data from database
-  const [posts, categories] = await Promise.all([
+  const [posts, categories, articleSlugs, destinations] = await Promise.all([
     getAllPostsForSitemap(),
     getAllCategoriesForSitemap(),
+    getAllArticleSlugs(),
+    getDestinations(),
   ]);
 
   // Static routes
@@ -65,5 +68,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...pageRoutes, ...guideRoutes, ...postRoutes, ...categoryRoutes];
+  // Tour article routes from Neon database
+  const tourRoutes: MetadataRoute.Sitemap = articleSlugs.map((slug) => ({
+    url: `${SITE_CONFIG.url}/tour/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }));
+
+  // Destination/city landing page routes
+  const destinationRoutes: MetadataRoute.Sitemap = destinations.map((dest) => ({
+    url: `${SITE_CONFIG.url}/tours/${dest.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  // Tours index page
+  const toursIndexRoute: MetadataRoute.Sitemap = [
+    { url: `${SITE_CONFIG.url}/tours`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.9 },
+  ];
+
+  return [...staticRoutes, ...pageRoutes, ...guideRoutes, ...postRoutes, ...categoryRoutes, ...toursIndexRoute, ...destinationRoutes, ...tourRoutes];
 }

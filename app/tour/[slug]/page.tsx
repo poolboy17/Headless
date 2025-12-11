@@ -73,10 +73,24 @@ export default async function TourArticlePage({ params }: PageProps) {
     return `${hours} hour${hours > 1 ? "s" : ""} ${mins} min`;
   };
 
-  // Prepare schema JSON string
-  const schemaJsonString = article.schemaJson
-    ? JSON.stringify(article.schemaJson)
-    : null;
+  // Prepare schema JSON string safely
+  let schemaJsonString: string | null = null;
+  try {
+    if (article.schemaJson && typeof article.schemaJson === 'object') {
+      schemaJsonString = JSON.stringify(article.schemaJson);
+    }
+  } catch (e) {
+    console.error('Error stringifying schemaJson:', e);
+  }
+
+  // Safely check contentSections is a valid array
+  const hasValidContentSections = 
+    Array.isArray(article.contentSections) && 
+    article.contentSections.length > 0;
+
+  // Safely check inclusions/exclusions are arrays
+  const safeInclusions = Array.isArray(article.inclusions) ? article.inclusions : null;
+  const safeExclusions = Array.isArray(article.exclusions) ? article.exclusions : null;
 
   return (
     <article className="max-w-4xl mx-auto px-4 py-8">
@@ -178,7 +192,7 @@ export default async function TourArticlePage({ params }: PageProps) {
       </header>
 
       {/* Main Content */}
-      {article.contentSections ? (
+      {hasValidContentSections ? (
         <ContentSections sections={article.contentSections as ContentSection[]} />
       ) : (
         <div
@@ -189,8 +203,8 @@ export default async function TourArticlePage({ params }: PageProps) {
 
       {/* Tour Details */}
       <TourDetails
-        inclusions={article.inclusions}
-        exclusions={article.exclusions}
+        inclusions={safeInclusions}
+        exclusions={safeExclusions}
         meetingPoint={article.meetingPoint}
         accessibility={article.accessibility}
         duration={formatDuration(article.durationMinutes)}
