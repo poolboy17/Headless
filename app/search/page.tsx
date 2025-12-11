@@ -3,6 +3,7 @@ import { searchPostsForPage, getCategoriesForPage } from '@/lib/posts';
 import { CategoryNav } from '@/components/category-nav';
 import { AnimatedPostGrid } from '@/components/animated-post-grid';
 import { NoSearchResults } from '@/components/empty-state';
+import { SITE_URL, SITE_NAME } from '@/lib/seo-config';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,14 +11,12 @@ interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cursedtours.com';
-
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
   const { q } = await searchParams;
-  const title = q ? `Search: ${q} | Cursed Tours` : 'Search | Cursed Tours';
+  const title = q ? `Search: ${q} | ${SITE_NAME}` : `Search | ${SITE_NAME}`;
   const description = q 
-    ? `Search results for "${q}" on Cursed Tours - haunted locations, ghost tours, and paranormal investigations.`
-    : 'Search Cursed Tours for haunted locations, ghost stories, paranormal investigations, and supernatural encounters.';
+    ? `Search results for "${q}" on ${SITE_NAME} - haunted locations, ghost tours, and paranormal investigations.`
+    : `Search ${SITE_NAME} for haunted locations, ghost stories, paranormal investigations, and supernatural encounters.`;
 
   const canonicalUrl = `${SITE_URL}/search${q ? `?q=${encodeURIComponent(q)}` : ''}`;
 
@@ -36,7 +35,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
       description,
       type: 'website',
       url: canonicalUrl,
-      siteName: 'Cursed Tours',
+      siteName: SITE_NAME,
     },
     twitter: {
       card: 'summary_large_image',

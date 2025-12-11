@@ -4,15 +4,20 @@ import { ArrowLeft, Radio, Mic, Camera, Thermometer, Gauge, Zap } from 'lucide-r
 import { Button } from '@/components/ui/button';
 import { getPosts } from '@/lib/wordpress';
 import { PostCard } from '@/components/post-card';
+import { SITE_URL, SITE_NAME } from '@/lib/seo-config';
 
 export const metadata: Metadata = {
-  title: 'Ghost Hunting Equipment Guide: Essential Tools for Paranormal Investigation | Cursed Tours',
+  title: `Ghost Hunting Equipment Guide: Essential Tools for Paranormal Investigation | ${SITE_NAME}`,
   description: 'Complete guide to ghost hunting equipment. Learn about EMF meters, EVP recorders, spirit boxes, thermal cameras, and more essential paranormal investigation tools.',
   keywords: ['ghost hunting equipment', 'EMF meter', 'EVP recorder', 'spirit box', 'thermal camera', 'paranormal investigation tools'],
+  alternates: {
+    canonical: `${SITE_URL}/guides/ghost-hunting-equipment`,
+  },
   openGraph: {
     title: 'Ghost Hunting Equipment Guide',
     description: 'Essential tools and technology for serious paranormal investigators.',
     type: 'article',
+    url: `${SITE_URL}/guides/ghost-hunting-equipment`,
   },
 };
 
@@ -77,8 +82,8 @@ export default async function GhostHuntingEquipmentGuidePage() {
             '@type': 'Guide',
             name: 'Ghost Hunting Equipment Guide',
             description: 'Complete guide to paranormal investigation equipment and tools.',
-            url: 'https://www.cursedtours.com/guides/ghost-hunting-equipment',
-            author: { '@type': 'Organization', name: 'Cursed Tours' },
+            url: `${SITE_URL}/guides/ghost-hunting-equipment`,
+            author: { '@type': 'Organization', name: SITE_NAME },
           }),
         }}
       />

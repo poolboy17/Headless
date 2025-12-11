@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import type { Metadata } from 'next';
 import { getPostsForPage, getCategoriesForPage } from '@/lib/posts';
 import { StaticHero } from '@/components/static-hero';
 import { Pagination } from '@/components/pagination';
@@ -7,6 +8,28 @@ import { ServerPostGrid } from '@/components/server-post-grid';
 import { ServerTrendingPosts } from '@/components/server-trending-posts';
 import { NoPostsFound } from '@/components/empty-state';
 import { HomePageSchema } from '@/components/Schema';
+import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, DEFAULT_OG_IMAGE } from '@/lib/seo-config';
+
+export const metadata: Metadata = {
+  title: `${SITE_NAME} | ${SITE_TAGLINE}`,
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    title: `${SITE_NAME} | ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    type: 'website',
+    images: [{ url: DEFAULT_OG_IMAGE }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${SITE_NAME} | ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+  },
+};
 
 // Lazy load client components for code splitting
 const ExperiencePicker = dynamic(

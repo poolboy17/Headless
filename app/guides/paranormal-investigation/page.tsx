@@ -5,15 +5,20 @@ import { Button } from '@/components/ui/button';
 import { searchPostsForPage } from '@/lib/posts';
 import { stripHtml } from '@/lib/wordpress';
 import { PostCard } from '@/components/post-card';
+import { SITE_URL, SITE_NAME } from '@/lib/seo-config';
 
 export const metadata: Metadata = {
-  title: 'Complete Guide to Paranormal Investigation | Cursed Tours',
+  title: `Complete Guide to Paranormal Investigation | ${SITE_NAME}`,
   description: 'Master paranormal investigation with our comprehensive guide. Learn ghost hunting techniques, equipment essentials, safety protocols, and evidence documentation from experienced investigators.',
   keywords: ['paranormal investigation', 'ghost hunting', 'EVP recording', 'EMF detection', 'spirit communication', 'haunted locations'],
+  alternates: {
+    canonical: `${SITE_URL}/guides/paranormal-investigation`,
+  },
   openGraph: {
     title: 'Complete Guide to Paranormal Investigation',
     description: 'Everything you need to know about investigating the paranormal - from beginner basics to advanced techniques.',
     type: 'article',
+    url: `${SITE_URL}/guides/paranormal-investigation`,
   },
 };
 
@@ -82,9 +87,9 @@ export default async function ParanormalInvestigationGuidePage() {
             '@type': 'Guide',
             name: 'Complete Guide to Paranormal Investigation',
             description: 'Comprehensive guide covering all aspects of paranormal investigation including equipment, techniques, safety, and evidence documentation.',
-            url: 'https://www.cursedtours.com/guides/paranormal-investigation',
-            author: { '@type': 'Organization', name: 'Cursed Tours' },
-            publisher: { '@type': 'Organization', name: 'Cursed Tours', url: 'https://www.cursedtours.com' },
+            url: `${SITE_URL}/guides/paranormal-investigation`,
+            author: { '@type': 'Organization', name: SITE_NAME },
+            publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
           }),
         }}
       />

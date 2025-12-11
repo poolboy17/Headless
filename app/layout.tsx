@@ -42,11 +42,15 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://cursedtours.com'),
   title: {
     default: 'CURSED TOURS | Some Boundaries Aren\'t Meant to Be Crossed',
     template: '%s | CURSED TOURS',
   },
   description: 'Some boundaries aren\'t meant to be crossed. Explore haunted places, ghost hunting techniques, and paranormal investigations with Cursed Tours.',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'CURSED TOURS | Some Boundaries Aren\'t Meant to Be Crossed',
     description: 'Some boundaries aren\'t meant to be crossed. Explore haunted places, ghost hunting techniques, and paranormal investigations.',

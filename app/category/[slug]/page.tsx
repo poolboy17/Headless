@@ -5,6 +5,7 @@ import { PostCard } from '@/components/post-card';
 import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
 import { CollectionPageSchema } from '@/components/Schema';
+import { SITE_URL, SITE_NAME } from '@/lib/seo-config';
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -24,8 +25,6 @@ interface CategoryPageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.cursedtours.com';
-
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
   const category = await getCategoryBySlugForPage(slug);
@@ -38,21 +37,21 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const description = category.description || `Explore haunted locations, paranormal investigations, and ghost stories in ${category.name}. Discover the dark history and supernatural encounters.`;
 
   return {
-    title: `${category.name} | Cursed Tours`,
+    title: `${category.name} | ${SITE_NAME}`,
     description,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: `${category.name} | Cursed Tours`,
+      title: `${category.name} | ${SITE_NAME}`,
       description,
       type: 'website',
       url: canonicalUrl,
-      siteName: 'Cursed Tours',
+      siteName: SITE_NAME,
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${category.name} | Cursed Tours`,
+      title: `${category.name} | ${SITE_NAME}`,
       description,
     },
   };

@@ -4,15 +4,20 @@ import { ArrowLeft, Building2, AlertTriangle, Camera, History, MapPin } from 'lu
 import { Button } from '@/components/ui/button';
 import { getPosts } from '@/lib/wordpress';
 import { PostCard } from '@/components/post-card';
+import { SITE_URL, SITE_NAME } from '@/lib/seo-config';
 
 export const metadata: Metadata = {
-  title: 'Abandoned Asylums & Hospitals: Complete Exploration Guide | Cursed Tours',
+  title: `Abandoned Asylums & Hospitals: Complete Exploration Guide | ${SITE_NAME}`,
   description: 'Discover the haunting world of abandoned mental institutions and hospitals. Expert guides on urban exploration, safety tips, historical context, and paranormal investigation techniques.',
   keywords: ['abandoned asylum', 'abandoned hospital', 'urban exploration', 'mental institution', 'haunted hospital', 'urbex'],
+  alternates: {
+    canonical: `${SITE_URL}/guides/abandoned-asylums`,
+  },
   openGraph: {
     title: 'Abandoned Asylums & Hospitals: Complete Exploration Guide',
     description: 'Expert guides for exploring abandoned mental institutions safely and respectfully.',
     type: 'article',
+    url: `${SITE_URL}/guides/abandoned-asylums`,
   },
 };
 
@@ -77,9 +82,9 @@ export default async function AbandonedAsylumsGuidePage() {
             '@type': 'Guide',
             name: 'Abandoned Asylums & Hospitals: Complete Exploration Guide',
             description: 'Comprehensive guide to exploring abandoned mental institutions and hospitals safely.',
-            url: 'https://www.cursedtours.com/guides/abandoned-asylums',
-            author: { '@type': 'Organization', name: 'Cursed Tours' },
-            publisher: { '@type': 'Organization', name: 'Cursed Tours', url: 'https://www.cursedtours.com' },
+            url: `${SITE_URL}/guides/abandoned-asylums`,
+            author: { '@type': 'Organization', name: SITE_NAME },
+            publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
           }),
         }}
       />
