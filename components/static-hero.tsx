@@ -1,20 +1,16 @@
 import Link from 'next/link';
-import Image from 'next/image';
 
 export function StaticHero() {
   return (
     <section className="relative">
-      {/* Static background image with priority for LCP */}
+      {/* Static background image with explicit fetchpriority for LCP */}
       <div className="relative h-[50vh] min-h-[400px] max-h-[600px] overflow-hidden">
-        <Image
+        <img
           src="/assets/fallbacks/gothic_castle_midnight_storm.png"
           alt="Gothic castle under midnight storm"
-          fill
-          priority
           fetchPriority="high"
-          loading="eager"
-          className="object-cover"
-          sizes="100vw"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover"
         />
         
         {/* Dark overlay */}
