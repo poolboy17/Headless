@@ -87,7 +87,7 @@ const nextConfig = {
       },
     ],
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 86400,
+    minimumCacheTTL: 2678400,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
@@ -117,6 +117,24 @@ const nextConfig = {
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
+          },
+        ],
+      },
+      {
+        source: '/assets/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/image/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=2678400, stale-while-revalidate=86400',
           },
         ],
       },
