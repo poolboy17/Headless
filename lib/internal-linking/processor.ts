@@ -377,6 +377,53 @@ async function logAction(
 
 
 /**
+ * Debug function to see what's happening
+ */
+export async function debugInfo() {
+  try {
+    // Check if OpenAI key exists
+    const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
+    const keyPrefix = process.env.OPENAI_API_KEY?.slice(0, 7) || 'not-set';
+    
+    // Get all posts count
+    const allPosts = await db
+      .select({
+        id: posts.id,
+        title: posts.title,
+        status: posts.status,
+        currentHash: postEmbeddings.contentHash,
+      })
+      .from(posts)
+      .leftJoin(postEmbeddings, eq(posts.id, postEmbeddings.postId))
+      .limit(5);
+    
+    // Get unique status values
+    const statuses = await db
+      .select({ status: posts.status, count: sql<number>`count(*)` })
+      .from(posts)
+      .groupBy(posts.status);
+    
+    // Check linking_log for errors
+    const recentLogs = await db
+      .select()
+      .from(linkingLog)
+      .orderBy(desc(linkingLog.processedAt))
+      .limit(10);
+    
+    return {
+      hasOpenAIKey,
+      keyPrefix,
+      samplePosts: allPosts,
+      statusCounts: statuses,
+      recentLogs,
+    };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+
+/**
  * Get linking statistics
  */
 export async function getLinkingStats() {

@@ -18,5 +18,6 @@ export {
   processAllPosts, 
   processNewPost, 
   getLinkingStats,
+  debugInfo,
   type ProcessingResult 
 } from './processor';

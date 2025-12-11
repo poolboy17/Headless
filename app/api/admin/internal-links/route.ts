@@ -61,6 +61,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, result, stats });
     }
     
+    if (action === 'debug') {
+      // Debug: check what findPostsNeedingEmbeddings returns
+      const { debugInfo } = await import('@/lib/internal-linking/processor');
+      const info = await debugInfo();
+      return NextResponse.json({ success: true, debug: info });
+    }
+    
     return NextResponse.json({ 
       error: 'Invalid action. Use process_all or process_post with postId' 
     }, { status: 400 });
