@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, Shield, AlertTriangle, HardHat, Users, Scale, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getPosts } from '@/lib/wordpress';
+import { getPostsForPage } from '@/lib/posts';
 import { PostCard } from '@/components/post-card';
 
 export const metadata: Metadata = {
@@ -95,15 +95,15 @@ const SAFETY_TOPICS = [
 ];
 
 export default async function UrbanExplorationSafetyGuidePage() {
-  // Fetch safety-related posts
-  const { posts: safetyPosts, totalPosts } = await getPosts({ 
-    tag: 'safety-tips', 
+  // Fetch safety-related posts from database (no tags table, use search or category)
+  const { posts: safetyPosts, totalPosts } = await getPostsForPage({ 
+    search: 'safety', 
     perPage: 6 
   });
 
   // Fetch urban exploration posts
-  const { posts: urbexPosts } = await getPosts({ 
-    tag: 'urban-exploration', 
+  const { posts: urbexPosts } = await getPostsForPage({ 
+    search: 'urban exploration', 
     perPage: 6 
   });
 

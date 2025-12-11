@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, Building2, AlertTriangle, Camera, History, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getPosts } from '@/lib/wordpress';
+import { getPostsForPage } from '@/lib/posts';
+import { WPPost } from '@/lib/wordpress';
 import { PostCard } from '@/components/post-card';
 import { SITE_URL, SITE_NAME } from '@/lib/seo-config';
 
@@ -54,8 +55,8 @@ const CONTENT_SECTIONS = [
 
 export default async function AbandonedAsylumsGuidePage() {
   // Fetch main category posts
-  const { posts: categoryPosts, totalPosts } = await getPosts({ 
-    category: 'abandoned-asylums-hospitals', 
+  const { posts: categoryPosts, totalPosts } = await getPostsForPage({ 
+    categorySlug: 'abandoned-asylums-hospitals', 
     perPage: 18 
   });
 
@@ -63,11 +64,11 @@ export default async function AbandonedAsylumsGuidePage() {
   const sectionData = await Promise.all(
     CONTENT_SECTIONS.map(async (section) => {
       if (section.category) {
-        const { posts } = await getPosts({ category: section.category, perPage: 6 });
+        const { posts } = await getPostsForPage({ categorySlug: section.category, perPage: 6 });
         return { ...section, posts };
       }
-      const { posts } = await getPosts({ tag: section.tag, perPage: 6 });
-      return { ...section, posts };
+      // Tags not supported in database yet, return empty for now
+      return { ...section, posts: [] as WPPost[] };
     })
   );
 

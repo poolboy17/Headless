@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, Radio, Mic, Camera, Thermometer, Gauge, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getPosts } from '@/lib/wordpress';
+import { getPostsForPage } from '@/lib/posts';
+import { WPPost } from '@/lib/wordpress';
 import { PostCard } from '@/components/post-card';
 import { SITE_URL, SITE_NAME } from '@/lib/seo-config';
 
@@ -57,17 +58,17 @@ const EQUIPMENT_CATEGORIES = [
 ];
 
 export default async function GhostHuntingEquipmentGuidePage() {
-  // Fetch posts for each equipment category
+  // Fetch posts for each equipment category (tags not supported, use category fallback)
   const sectionData = await Promise.all(
     EQUIPMENT_CATEGORIES.map(async (category) => {
-      const { posts } = await getPosts({ tag: category.tag, perPage: 4 });
-      return { ...category, posts };
+      // Tags not in database, return empty posts for now
+      return { ...category, posts: [] as WPPost[] };
     })
   );
 
-  // Get all equipment-related posts
-  const { posts: allPosts, totalPosts } = await getPosts({ 
-    tag: 'ghost-hunting', 
+  // Get all equipment-related posts from ghost-hunting-techniques-tools category
+  const { posts: allPosts, totalPosts } = await getPostsForPage({ 
+    categorySlug: 'ghost-hunting-techniques-tools', 
     perPage: 12 
   });
 

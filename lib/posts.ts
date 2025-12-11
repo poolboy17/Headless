@@ -52,8 +52,42 @@ export async function getPosts(options: {
   limit?: number;
   offset?: number;
   categorySlug?: string;
+  search?: string;
 } = {}): Promise<{ posts: PostWithRelations[]; total: number }> {
-  const { limit = 10, offset = 0, categorySlug } = options;
+  const { limit = 10, offset = 0, categorySlug, search } = options;
+
+  // Handle search queries
+  if (search && search.trim()) {
+    const searchTerm = `%${search.toLowerCase()}%`;
+    const result = await db
+      .select()
+      .from(posts)
+      .where(
+        and(
+          eq(posts.status, "published"),
+          sql`(LOWER(${posts.title}) LIKE ${searchTerm} OR LOWER(${posts.content}) LIKE ${searchTerm} OR LOWER(${posts.excerpt}) LIKE ${searchTerm})`
+        )
+      )
+      .orderBy(desc(posts.publishedAt))
+      .limit(limit)
+      .offset(offset);
+
+    const countResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(posts)
+      .where(
+        and(
+          eq(posts.status, "published"),
+          sql`(LOWER(${posts.title}) LIKE ${searchTerm} OR LOWER(${posts.content}) LIKE ${searchTerm} OR LOWER(${posts.excerpt}) LIKE ${searchTerm})`
+        )
+      );
+
+    const postsWithRelations = await addRelationsToPost(result);
+    return {
+      posts: postsWithRelations,
+      total: Number(countResult[0]?.count || 0),
+    };
+  }
 
   let query = db
     .select()
@@ -356,14 +390,16 @@ export async function getPostsForPage(options: {
   page?: number;
   perPage?: number;
   categorySlug?: string;
+  search?: string;
 } = {}): Promise<{ posts: WPPost[]; totalPages: number; totalPosts: number }> {
-  const { page = 1, perPage = 10, categorySlug } = options;
+  const { page = 1, perPage = 10, categorySlug, search } = options;
   const offset = (page - 1) * perPage;
 
   const result = await getPosts({
     limit: perPage,
     offset,
     categorySlug,
+    search,
   });
 
   return {
