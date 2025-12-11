@@ -34,6 +34,11 @@ export function getAffiliateUrl(baseUrl: string): string {
   return `${baseUrl}${separator}pid=${VIATOR_PID}`;
 }
 
+// Helper to build optimized Unsplash URL with WebP format
+function optimizedUnsplash(photoId: string, width: number = 400, height: number = 300): string {
+  return `https://images.unsplash.com/${photoId}?w=${width}&h=${height}&fit=crop&fm=webp&q=75`;
+}
+
 // Cities data - ordered by popularity
 export const cities: City[] = [
   { 
@@ -42,7 +47,7 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd675',
     description: 'The most haunted city in America, known for its voodoo history, above-ground cemeteries, and ghostly French Quarter.',
-    imageUrl: 'https://images.unsplash.com/photo-1568402102990-bc541580b59f?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1568402102990-bc541580b59f', 800, 600),
     iconPath: 'new-orleans'
   },
   { 
@@ -51,7 +56,7 @@ export const cities: City[] = [
     country: 'UK', 
     viatorDest: 'd737',
     description: 'From Jack the Ripper to the Tower of London, experience centuries of dark history and paranormal activity.',
-    imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1513635269975-59663e0ac1ad', 800, 600),
     iconPath: 'london'
   },
   { 
@@ -60,7 +65,7 @@ export const cities: City[] = [
     country: 'UK', 
     viatorDest: 'd739',
     description: 'Explore the underground vaults, haunted closes, and centuries-old graveyards of Scotland\'s capital.',
-    imageUrl: 'https://images.unsplash.com/photo-1594732832278-abd644401426?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1594732832278-abd644401426', 800, 600),
     iconPath: 'edinburgh'
   },
   { 
@@ -69,7 +74,7 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd4283',
     description: 'America\'s most haunted city with Spanish moss-draped squares and historic homes with resident spirits.',
-    imageUrl: 'https://images.unsplash.com/photo-1596394723269-b2cbca4e6313?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1596394723269-b2cbca4e6313', 800, 600),
     iconPath: 'savannah'
   },
   { 
@@ -78,7 +83,7 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd50249',
     description: 'Site of the infamous witch trials, this historic city embraces its dark past year-round.',
-    imageUrl: 'https://images.unsplash.com/photo-1509557965875-b88c97052f0e?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1509557965875-b88c97052f0e', 800, 600),
     iconPath: 'salem'
   },
   { 
@@ -87,7 +92,7 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd673',
     description: 'Gangster ghosts, haunted theaters, and paranormal hot spots throughout the Windy City.',
-    imageUrl: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1494522855154-9297ac14b55f', 800, 600),
     iconPath: 'chicago'
   },
   { 
@@ -96,7 +101,7 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd687',
     description: 'Haunted hotels, ghostly Greenwich Village, and centuries of dark history in the Big Apple.',
-    imageUrl: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1496442226666-8d4d0e62e6e9', 800, 600),
     iconPath: 'new-york'
   },
   { 
@@ -105,7 +110,7 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd678',
     description: 'Revolutionary ghosts, haunted burial grounds, and centuries of American history come alive after dark.',
-    imageUrl: 'https://images.unsplash.com/photo-1501979376754-1d09c6d5deef?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1501979376754-1d09c6d5deef', 800, 600),
     iconPath: 'boston'
   },
   { 
@@ -114,7 +119,7 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd22093',
     description: 'One of the most paranormally active battlefields in the world, where Civil War spirits linger.',
-    imageUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1568605114967-8130f3a36994', 800, 600),
     iconPath: 'gettysburg'
   },
   { 
@@ -123,7 +128,7 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd4282',
     description: 'America\'s oldest city with 450 years of history, hauntings, and paranormal encounters.',
-    imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1564013799919-ab600027ffc6', 800, 600),
     iconPath: 'st-augustine'
   },
   { 
@@ -132,7 +137,7 @@ export const cities: City[] = [
     country: 'USA', 
     viatorDest: 'd4384',
     description: 'Southern charm meets supernatural with haunted plantations and ghostly graveyards.',
-    imageUrl: 'https://images.unsplash.com/photo-1569025743873-ea3a9ber956?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1569025743873-ea3a9ber956', 800, 600),
     iconPath: 'charleston'
   },
   { 
@@ -141,7 +146,7 @@ export const cities: City[] = [
     country: 'Ireland', 
     viatorDest: 'd503',
     description: 'Celtic legends, haunted pubs, and centuries of ghostly tales in Ireland\'s capital.',
-    imageUrl: 'https://images.unsplash.com/photo-1549918864-48ac978761a4?w=800&h=600&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1549918864-48ac978761a4', 800, 600),
     iconPath: 'dublin'
   },
 ];
@@ -182,7 +187,7 @@ export const tours: Tour[] = [
     reviewCount: 2450,
     duration: '2 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1568402102990-bc541580b59f?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1568402102990-bc541580b59f'),
     viatorUrl: buildViatorSearchUrl('675', 'french quarter haunted walking tour'),
     description: 'Explore the haunted streets of the French Quarter with expert guides sharing tales of voodoo and ghosts.',
   },
@@ -196,7 +201,7 @@ export const tours: Tour[] = [
     reviewCount: 1890,
     duration: '2.5 hours',
     groupSize: 'Group tour',
-    imageUrl: 'https://images.unsplash.com/photo-1509128841709-6c13b25058a3?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1509128841709-6c13b25058a3'),
     viatorUrl: buildViatorSearchUrl('675', 'ghost bus tour new orleans'),
     description: 'Cover more haunted ground in comfort on this comprehensive bus tour of New Orleans\' most paranormal locations.',
   },
@@ -210,7 +215,7 @@ export const tours: Tour[] = [
     reviewCount: 1567,
     duration: '2 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1509475826633-fed577a2c71b?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1509475826633-fed577a2c71b'),
     viatorUrl: buildViatorSearchUrl('675', 'cemetery voodoo walking tour'),
     description: 'Visit the famous above-ground cemeteries and learn about New Orleans\' voodoo traditions.',
   },
@@ -224,7 +229,7 @@ export const tours: Tour[] = [
     reviewCount: 3200,
     duration: '1.5 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1596394723269-b2cbca4e6313?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1596394723269-b2cbca4e6313'),
     viatorUrl: buildViatorSearchUrl('4283', 'ghost walking tour savannah'),
     description: 'Discover why Savannah is considered America\'s most haunted city on this spine-chilling walking tour.',
   },
@@ -238,7 +243,7 @@ export const tours: Tour[] = [
     reviewCount: 1234,
     duration: '2 hours',
     groupSize: 'Group tour',
-    imageUrl: 'https://images.unsplash.com/photo-1596394516628-96fe4c559c23?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1596394516628-96fe4c559c23'),
     viatorUrl: buildViatorSearchUrl('4283', 'trolley ghost tour savannah'),
     description: 'Ride through Savannah\'s haunted squares and historic districts on an old-fashioned trolley.',
   },
@@ -252,7 +257,7 @@ export const tours: Tour[] = [
     reviewCount: 1567,
     duration: '1.5 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1509557965875-b88c97052f0e?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1509557965875-b88c97052f0e'),
     viatorUrl: buildViatorSearchUrl('50249', 'salem witch walking tour'),
     description: 'Walk the streets where the infamous witch trials took place and hear the real stories.',
   },
@@ -266,7 +271,7 @@ export const tours: Tour[] = [
     reviewCount: 890,
     duration: '2 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1509557965875-b88c97052f0e?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1509557965875-b88c97052f0e'),
     viatorUrl: buildViatorSearchUrl('50249', 'ghost hunt night tour salem'),
     description: 'Use paranormal investigation equipment to hunt for spirits in Salem\'s most haunted locations.',
   },
@@ -280,7 +285,7 @@ export const tours: Tour[] = [
     reviewCount: 2890,
     duration: '1.5 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1594732832278-abd644401426?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1594732832278-abd644401426'),
     viatorUrl: buildViatorSearchUrl('739', 'underground vaults ghost tour edinburgh'),
     description: 'Descend into the haunted underground vaults beneath Edinburgh\'s Royal Mile.',
   },
@@ -294,7 +299,7 @@ export const tours: Tour[] = [
     reviewCount: 1456,
     duration: '1.5 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1594732832278-abd644401426?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1594732832278-abd644401426'),
     viatorUrl: buildViatorSearchUrl('739', 'graveyard night ghost tour edinburgh'),
     description: 'Visit the famous Greyfriars Kirkyard and other haunted burial grounds after dark.',
   },
@@ -308,7 +313,7 @@ export const tours: Tour[] = [
     reviewCount: 4560,
     duration: '2 hours',
     groupSize: 'Group tour',
-    imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1513635269975-59663e0ac1ad'),
     viatorUrl: buildViatorSearchUrl('737', 'jack the ripper walking tour london'),
     description: 'Follow in the footsteps of history\'s most infamous serial killer through Whitechapel.',
   },
@@ -322,7 +327,7 @@ export const tours: Tour[] = [
     reviewCount: 2345,
     duration: '2 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1513635269975-59663e0ac1ad'),
     viatorUrl: buildViatorSearchUrl('737', 'tower of london ghost tour'),
     description: 'Explore the Tower of London and hear tales of its many ghostly residents.',
   },
@@ -336,7 +341,7 @@ export const tours: Tour[] = [
     reviewCount: 1234,
     duration: '2 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1568605114967-8130f3a36994'),
     viatorUrl: buildViatorSearchUrl('22093', 'battlefield ghost tour gettysburg'),
     description: 'Visit the most paranormally active Civil War battlefield in America after dark.',
   },
@@ -350,7 +355,7 @@ export const tours: Tour[] = [
     reviewCount: 567,
     duration: '3 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1568605114967-8130f3a36994'),
     viatorUrl: buildViatorSearchUrl('22093', 'ghost hunt paranormal gettysburg'),
     description: 'Use professional paranormal equipment to investigate Gettysburg\'s most haunted locations.',
   },
@@ -364,7 +369,7 @@ export const tours: Tour[] = [
     reviewCount: 987,
     duration: '1.5 hours',
     groupSize: 'Group tour',
-    imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1564013799919-ab600027ffc6'),
     viatorUrl: buildViatorSearchUrl('4282', 'ghost trolley tour st augustine'),
     description: 'Tour America\'s oldest city and its most haunted locations by trolley.',
   },
@@ -378,7 +383,7 @@ export const tours: Tour[] = [
     reviewCount: 1123,
     duration: '1.5 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1564013799919-ab600027ffc6'),
     viatorUrl: buildViatorSearchUrl('4282', 'ghost walking tour st augustine'),
     description: 'Walk through 450 years of history and hauntings in America\'s oldest city.',
   },
@@ -392,7 +397,7 @@ export const tours: Tour[] = [
     reviewCount: 1567,
     duration: '2.5 hours',
     groupSize: 'Group tour',
-    imageUrl: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1494522855154-9297ac14b55f'),
     viatorUrl: buildViatorSearchUrl('673', 'gangster ghost bus tour chicago'),
     description: 'Explore Chicago\'s dark history of gangsters, ghosts, and unsolved mysteries.',
   },
@@ -406,7 +411,7 @@ export const tours: Tour[] = [
     reviewCount: 890,
     duration: '2 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1494522855154-9297ac14b55f'),
     viatorUrl: buildViatorSearchUrl('673', 'haunted pub crawl ghost tour chicago'),
     description: 'Visit Chicago\'s most haunted bars and pubs while enjoying local spirits.',
   },
@@ -420,7 +425,7 @@ export const tours: Tour[] = [
     reviewCount: 2345,
     duration: '2 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1496442226666-8d4d0e62e6e9'),
     viatorUrl: buildViatorSearchUrl('687', 'greenwich village ghost walking tour'),
     description: 'Explore the haunted history of Greenwich Village on this atmospheric walking tour.',
   },
@@ -434,7 +439,7 @@ export const tours: Tour[] = [
     reviewCount: 1234,
     duration: '1.5 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1501979376754-1d09c6d5deef?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1501979376754-1d09c6d5deef'),
     viatorUrl: buildViatorSearchUrl('678', 'freedom trail ghost tour boston'),
     description: 'Walk the Freedom Trail after dark and encounter revolutionary ghosts.',
   },
@@ -448,7 +453,7 @@ export const tours: Tour[] = [
     reviewCount: 1567,
     duration: '1.5 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1569025743873-ea3a9ber956?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1569025743873-ea3a9ber956'),
     viatorUrl: buildViatorSearchUrl('4384', 'ghost graveyard walking tour charleston'),
     description: 'Explore Charleston\'s haunted streets and historic graveyards after dark.',
   },
@@ -462,7 +467,7 @@ export const tours: Tour[] = [
     reviewCount: 890,
     duration: '2 hours',
     groupSize: 'Small group',
-    imageUrl: 'https://images.unsplash.com/photo-1549918864-48ac978761a4?w=400&h=300&fit=crop',
+    imageUrl: optimizedUnsplash('photo-1549918864-48ac978761a4'),
     viatorUrl: buildViatorSearchUrl('503', 'haunted pub ghost tour dublin'),
     description: 'Visit Dublin\'s most haunted pubs and hear tales of ghostly encounters.',
   },
