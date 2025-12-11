@@ -8,18 +8,16 @@ import { ServerTrendingPosts } from '@/components/server-trending-posts';
 import { NoPostsFound } from '@/components/empty-state';
 import { HomePageSchema } from '@/components/Schema';
 
-// Lazy load client components to prevent blocking LCP
+// Lazy load client components for code splitting
 const ExperiencePicker = dynamic(
   () => import('@/components/experience-picker').then(mod => mod.ExperiencePicker),
-  { ssr: false, loading: () => <ExperiencePickerSkeleton /> }
+  { loading: () => <ExperiencePickerSkeleton /> }
 );
 const CategoryNav = dynamic(
-  () => import('@/components/category-nav').then(mod => mod.CategoryNav),
-  { ssr: true }
+  () => import('@/components/category-nav').then(mod => mod.CategoryNav)
 );
 const NewsletterCTA = dynamic(
-  () => import('@/components/newsletter-cta').then(mod => mod.NewsletterCTA),
-  { ssr: false }
+  () => import('@/components/newsletter-cta').then(mod => mod.NewsletterCTA)
 );
 
 // Lightweight skeleton for ExperiencePicker
