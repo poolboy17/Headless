@@ -1,16 +1,19 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export function StaticHero() {
   return (
     <section className="relative">
-      {/* Static background image with explicit fetchpriority for LCP */}
+      {/* Static background image - Next.js Image optimizes the large PNG */}
       <div className="relative h-[50vh] min-h-[400px] max-h-[600px] overflow-hidden">
-        <img
+        <Image
           src="/assets/fallbacks/gothic_castle_midnight_storm.png"
           alt="Gothic castle under midnight storm"
-          fetchPriority="high"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover"
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
+          quality={75}
         />
         
         {/* Dark overlay */}
