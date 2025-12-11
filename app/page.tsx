@@ -1,14 +1,47 @@
 import { redirect } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { getPostsForPage, getCategoriesForPage } from '@/lib/posts';
 import { HeroSection } from '@/components/hero-section';
-import { CategoryNav } from '@/components/category-nav';
 import { Pagination } from '@/components/pagination';
-import { NewsletterCTA } from '@/components/newsletter-cta';
 import { ServerPostGrid } from '@/components/server-post-grid';
 import { ServerTrendingPosts } from '@/components/server-trending-posts';
 import { NoPostsFound } from '@/components/empty-state';
-import { ExperiencePicker } from '@/components/experience-picker';
 import { HomePageSchema } from '@/components/Schema';
+
+// Lazy load client components to prevent blocking LCP
+const ExperiencePicker = dynamic(
+  () => import('@/components/experience-picker').then(mod => mod.ExperiencePicker),
+  { ssr: false, loading: () => <ExperiencePickerSkeleton /> }
+);
+const CategoryNav = dynamic(
+  () => import('@/components/category-nav').then(mod => mod.CategoryNav),
+  { ssr: true }
+);
+const NewsletterCTA = dynamic(
+  () => import('@/components/newsletter-cta').then(mod => mod.NewsletterCTA),
+  { ssr: false }
+);
+
+// Lightweight skeleton for ExperiencePicker
+function ExperiencePickerSkeleton() {
+  return (
+    <section className="py-12 md:py-16">
+      <div className="text-center mb-10">
+        <div className="h-6 w-32 bg-muted rounded mx-auto mb-4" />
+        <div className="h-10 w-80 bg-muted rounded mx-auto mb-3" />
+        <div className="h-5 w-96 bg-muted rounded mx-auto" />
+      </div>
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 mb-12">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div key={i} className="flex flex-col items-center p-4 rounded-xl border-2 border-border bg-card">
+            <div className="w-14 h-14 rounded-full bg-muted mb-2" />
+            <div className="h-4 w-16 bg-muted rounded" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 // Use ISR with 5-minute revalidation for optimal caching
 export const revalidate = 300;
