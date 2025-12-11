@@ -17,19 +17,29 @@ export function CategoryNav({ categories, className }: CategoryNavProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
+  const rafRef = useRef<number>(0);
 
   const checkScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setShowLeftFade(scrollLeft > 10);
-      setShowRightFade(scrollLeft < scrollWidth - clientWidth - 10);
-    }
+    // Cancel any pending RAF to avoid stacking
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    
+    // Batch layout reads in RAF to avoid forced reflows
+    rafRef.current = requestAnimationFrame(() => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        setShowLeftFade(scrollLeft > 10);
+        setShowRightFade(scrollLeft < scrollWidth - clientWidth - 10);
+      }
+    });
   };
 
   useEffect(() => {
     checkScroll();
-    window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
+    window.addEventListener('resize', checkScroll, { passive: true });
+    return () => {
+      window.removeEventListener('resize', checkScroll);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [categories]);
 
   const scroll = (direction: 'left' | 'right') => {
