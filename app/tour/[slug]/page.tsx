@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { getArticleBySlug, getArticleFaqs, getArticlesByDestination } from "@/lib/articles";
 import { ContentSections } from "@/components/tour/ContentSections";
 import { TourDetails } from "@/components/tour/TourDetails";
@@ -136,12 +135,11 @@ export default async function TourArticlePage({ params }: PageProps) {
       {/* Featured Image */}
       {article.featuredImageUrl && (
         <div className="relative w-full h-[400px] mb-8 rounded-xl overflow-hidden">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={article.featuredImageUrl}
             alt={article.featuredImageAlt || article.title}
-            fill
-            className="object-cover"
-            priority
+            className="w-full h-full object-cover"
           />
         </div>
       )}
@@ -273,12 +271,12 @@ export default async function TourArticlePage({ params }: PageProps) {
                 className="group block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
               >
                 {related.featuredImageUrl && (
-                  <div className="relative h-40">
-                    <Image
+                  <div className="relative h-40 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={related.featuredImageUrl}
                       alt={related.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />
                   </div>
                 )}
