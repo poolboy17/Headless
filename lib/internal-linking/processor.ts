@@ -5,7 +5,7 @@
 
 import { db } from '@/lib/db';
 import { posts, postEmbeddings, internalLinks, linkingLog, postCategories, categories } from '@/shared/schema';
-import { eq, sql, and, isNull, desc } from 'drizzle-orm';
+import { eq, sql, and, isNull, desc, inArray } from 'drizzle-orm';
 import { 
   generateEmbedding, 
   generateEmbeddingsBatch, 
@@ -170,7 +170,7 @@ async function generateAllEmbeddings(
         .select({ postId: postCategories.postId, name: categories.name })
         .from(postCategories)
         .innerJoin(categories, eq(postCategories.categoryId, categories.id))
-        .where(sql`${postCategories.postId} IN ${postIds}`);
+        .where(inArray(postCategories.postId, postIds));
       
       const categoryMap = new Map<string, string[]>();
       for (const c of categoriesData) {
@@ -219,7 +219,9 @@ async function generateAllEmbeddings(
       
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Embedding batch failed';
+      console.error('[Internal Linking] Embedding error:', msg);
       await logAction(null, 'embed_batch', 'error', msg);
+      // Continue with next batch instead of stopping entirely
     }
   }
   
