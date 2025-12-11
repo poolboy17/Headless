@@ -410,12 +410,38 @@ export async function debugInfo() {
       .orderBy(desc(linkingLog.processedAt))
       .limit(10);
     
+    // Test findPostsNeedingEmbeddings logic inline
+    const testPosts = await db
+      .select({
+        id: posts.id,
+        title: posts.title,
+        content: posts.content,
+        currentHash: postEmbeddings.contentHash,
+      })
+      .from(posts)
+      .leftJoin(postEmbeddings, eq(posts.id, postEmbeddings.postId))
+      .where(eq(posts.status, 'published'))
+      .limit(3);
+    
+    const postsNeedingEmbed = testPosts.filter(post => {
+      const newHash = contentHash(post.content);
+      return !post.currentHash || post.currentHash !== newHash;
+    });
+    
     return {
       hasOpenAIKey,
       keyPrefix,
       samplePosts: allPosts,
       statusCounts: statuses,
       recentLogs,
+      testPostsCount: testPosts.length,
+      postsNeedingEmbeddings: postsNeedingEmbed.length,
+      firstPostNeedingEmbed: postsNeedingEmbed[0] ? { 
+        id: postsNeedingEmbed[0].id, 
+        title: postsNeedingEmbed[0].title,
+        hasHash: !!postsNeedingEmbed[0].currentHash,
+        newHash: contentHash(postsNeedingEmbed[0].content).slice(0, 8),
+      } : null,
     };
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'Unknown error' };
