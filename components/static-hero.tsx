@@ -11,6 +11,8 @@ export function StaticHero() {
           alt="Gothic castle under midnight storm"
           fill
           priority
+          fetchPriority="high"
+          loading="eager"
           className="object-cover"
           sizes="100vw"
         />

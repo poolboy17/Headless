@@ -82,6 +82,13 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Preload hero image for instant LCP */}
+        <link 
+          rel="preload" 
+          href="/assets/fallbacks/gothic_castle_midnight_storm.png" 
+          as="image"
+          fetchPriority="high"
+        />
         <link rel="dns-prefetch" href="https://wp.cursedtours.com" />
         <link rel="preconnect" href="https://wp.cursedtours.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
