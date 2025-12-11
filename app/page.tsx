@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { getPostsForPage, getCategoriesForPage } from '@/lib/posts';
-import { HeroSection } from '@/components/hero-section';
+import { StaticHero } from '@/components/static-hero';
 import { Pagination } from '@/components/pagination';
 import { ServerPostGrid } from '@/components/server-post-grid';
 import { ServerTrendingPosts } from '@/components/server-trending-posts';
@@ -71,17 +71,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   if (requestedPage > totalPages && totalPages > 0) {
     redirect(totalPages === 1 ? '/' : `/?page=${totalPages}`);
   }
-  const featuredPost = currentPage === 1 ? posts[0] : null;
-  const gridPosts = currentPage === 1 ? posts.slice(1) : posts;
-  // Use posts 2-5 as "trending" on first page
-  const trendingPosts = currentPage === 1 ? posts.slice(1, 5) : [];
+  // All posts go to grid now (static hero doesn't use a post)
+  const gridPosts = posts;
+  // Use first 4 posts as "trending" on first page
+  const trendingPosts = currentPage === 1 ? posts.slice(0, 4) : [];
 
   return (
     <div className="min-h-screen">
       {currentPage === 1 && posts.length > 0 && (
         <HomePageSchema featuredPosts={posts.slice(0, 5)} />
       )}
-      {featuredPost && <HeroSection post={featuredPost} />}
+      {currentPage === 1 && <StaticHero />}
 
       {/* Experience Picker - only show on first page */}
       {currentPage === 1 && (
