@@ -394,15 +394,6 @@ export default async function PostPage({ params }: PostPageProps) {
           <OptimizedContent 
             html={finalContent}
             className="wp-content"
-<<<<<<< HEAD
-=======
-            dangerouslySetInnerHTML={{ 
-              __html: insertInlineImages(
-                sanitizeContent(enhancedContent),
-                2
-              )
-            }}
->>>>>>> 38effdd (Add automatic internal linking via Cloudflare Worker)
           />
 
           {tags.length > 0 && (
