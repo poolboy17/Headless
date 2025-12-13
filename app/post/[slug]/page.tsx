@@ -10,6 +10,7 @@ import { stripHtml, formatDate, getReadingTime, getFeaturedImage, getAuthor, get
 import { sanitizeContent } from '@/lib/sanitize-content';
 import { checkAndFixSpelling } from '@/lib/spell-checker';
 import { OptimizedContent } from '@/components/optimized-content';
+import { enhanceContentWithLinks } from '@/lib/enhance-content';
 import { PostCard } from '@/components/post-card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -300,12 +301,17 @@ export default async function PostPage({ params }: PostPageProps) {
   const title = stripHtml(post.title.rendered);
   const readingTime = getReadingTime(post.content.rendered);
 
-  const processedContent = sanitizeContent(
-    injectViatorCTAs(post.content.rendered, post.meta?.viator_tour)
+  // Content processing pipeline: CTAs → Spell Check → Internal Links → Inline Images
+  const contentWithCTAs = injectViatorCTAs(post.content.rendered, post.meta?.viator_tour);
+  const sanitizedContent = sanitizeContent(contentWithCTAs);
+  const { correctedText: spellCheckedContent } = await checkAndFixSpelling(sanitizedContent);
+  const { content: enhancedContent } = await enhanceContentWithLinks(
+    spellCheckedContent,
+    post.id,
+    5  // max 5 internal links
   );
-  const { correctedText: spellCheckedContent } = await checkAndFixSpelling(processedContent);
   const categorySlug = categories.length > 0 ? categories[0].slug : undefined;
-  const finalContent = insertInlineImages(spellCheckedContent, categorySlug, 2);
+  const finalContent = insertInlineImages(enhancedContent, categorySlug, 2);
 
   const shareUrl = `https://cursedtours.com/post/${post.slug}`;
   const shareText = encodeURIComponent(title);
@@ -388,6 +394,15 @@ export default async function PostPage({ params }: PostPageProps) {
           <OptimizedContent 
             html={finalContent}
             className="wp-content"
+<<<<<<< HEAD
+=======
+            dangerouslySetInnerHTML={{ 
+              __html: insertInlineImages(
+                sanitizeContent(enhancedContent),
+                2
+              )
+            }}
+>>>>>>> 38effdd (Add automatic internal linking via Cloudflare Worker)
           />
 
           {tags.length > 0 && (

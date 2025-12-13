@@ -252,6 +252,31 @@
   margin-top: 0.75rem;
 }
 
+/* Internal link styling - dark tourism theme */
+.wp-content a.internal-link {
+  color: hsl(270 70% 55%);
+  text-decoration: none;
+  border-bottom: 1px dotted hsl(270 70% 55% / 0.5);
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.wp-content a.internal-link:hover {
+  color: hsl(270 80% 65%);
+  border-bottom-color: hsl(270 80% 65%);
+  border-bottom-style: solid;
+}
+
+.dark .wp-content a.internal-link {
+  color: hsl(270 70% 65%);
+  border-bottom-color: hsl(270 70% 65% / 0.4);
+}
+
+.dark .wp-content a.internal-link:hover {
+  color: hsl(270 80% 75%);
+  border-bottom-color: hsl(270 80% 75%);
+}
+
 @layer utilities {
   input[type="search"]::-webkit-search-cancel-button {
     @apply hidden;
