@@ -109,8 +109,8 @@ export function Header({ categories }: HeaderProps) {
 
           <div className="hidden items-center gap-x-3 sm:gap-x-8 lg:flex">
             <Link href="/" className="flex flex-col shrink-0" data-testid="link-home">
-              <span className="font-bold text-xl text-primary tracking-tight">CURSED TOURS</span>
-              <span className="text-[9px] text-muted-foreground tracking-widest uppercase -mt-0.5">Some boundaries aren&apos;t meant to be crossed</span>
+              <span className="font-bold text-2xl lg:text-3xl text-primary tracking-tight">CURSED TOURS</span>
+              <span className="text-[10px] lg:text-xs text-muted-foreground tracking-widest uppercase -mt-0.5">Some boundaries aren&apos;t meant to be crossed</span>
             </Link>
 
             <div className="hidden h-8 border-s border-neutral-200 dark:border-neutral-700 md:block" />
@@ -135,8 +135,8 @@ export function Header({ categories }: HeaderProps) {
             className="flex flex-col items-center justify-center lg:hidden" 
             data-testid="link-home-mobile"
           >
-            <span className="font-bold text-lg text-primary tracking-tight">CURSED TOURS</span>
-            <span className="text-[8px] text-muted-foreground tracking-widest uppercase -mt-0.5">Some boundaries aren&apos;t meant to be crossed</span>
+            <span className="font-bold text-xl sm:text-2xl text-primary tracking-tight">CURSED TOURS</span>
+            <span className="text-[9px] sm:text-[10px] text-muted-foreground tracking-widest uppercase -mt-0.5">Some boundaries aren&apos;t meant to be crossed</span>
           </Link>
 
           <div className="flex flex-1 justify-end items-center gap-1">
