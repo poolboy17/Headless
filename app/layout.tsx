@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Lora, JetBrains_Mono } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Header } from '@/components/header';
@@ -121,6 +122,7 @@ export default async function RootLayout({
             <BackToTop />
           </div>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
