@@ -503,7 +503,23 @@ export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' |
     };
   }
   
-  // Priority 3: Fall back to category-specific images for consistent, high-quality paranormal imagery
+  // Priority 3: Use WordPress embedded featured media
+  const media = post._embedded?.['wp:featuredmedia']?.[0];
+  if (media?.source_url) {
+    const sizes = media.media_details?.sizes;
+    const selectedSize = sizes?.[size] || sizes?.large || sizes?.medium_large || sizes?.full;
+    const imageUrl = transformImageUrl(selectedSize?.source_url || media.source_url);
+    
+    return {
+      url: imageUrl,
+      width: selectedSize?.width || media.media_details?.width || 1200,
+      height: selectedSize?.height || media.media_details?.height || 800,
+      alt: media.alt_text || title,
+      isFallback: false,
+    };
+  }
+  
+  // Priority 4: Fall back to category-specific images for consistent, high-quality paranormal imagery
   const fallback = getCategoryFallbackImage(post);
   return {
     url: fallback.url,
@@ -513,7 +529,6 @@ export function getFeaturedImage(post: WPPost, size: 'medium' | 'medium_large' |
     isFallback: true,
   };
 }
-
 const AUTHOR_AVATARS: Record<string, string> = {
   'marcus-hale': '/author-marcus-hale.webp',
   'marcus hale': '/author-marcus-hale.webp',
