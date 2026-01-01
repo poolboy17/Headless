@@ -110,6 +110,22 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: '/',
+          has: [
+            {
+              type: 'query',
+              key: 'p',
+            },
+          ],
+          destination: '/api/legacy-redirect',
+        },
+      ],
+    };
+  },
   async headers() {
     return [
       {

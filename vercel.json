@@ -2,19 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "crons": [],
-  "rewrites": [
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "query",
-          "key": "p",
-          "value": "(?<postId>.*)"
-        }
-      ],
-      "destination": "/api/legacy-redirect?p=:postId"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
