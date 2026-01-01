@@ -7,7 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/admin/', '/_next/', '/search?', '/*.json$'],
+        disallow: ['/api/', '/wp-json/', '/admin/', '/_next/', '/search?', '/*.json$'],
       },
       {
         userAgent: 'GPTBot',
