@@ -8,10 +8,11 @@
       "has": [
         {
           "type": "query",
-          "key": "p"
+          "key": "p",
+          "value": "(?<postId>.*)"
         }
       ],
-      "destination": "/api/legacy-redirect?p=:p"
+      "destination": "/api/legacy-redirect?p=:postId"
     }
   ],
   "headers": [
