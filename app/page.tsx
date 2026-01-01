@@ -68,11 +68,32 @@ function ExperiencePickerSkeleton() {
 export const revalidate = 300;
 
 interface HomePageProps {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; p?: string }>;
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {
-  const { page } = await searchParams;
+  const { page, p } = await searchParams;
+  
+  // Handle legacy ?p=ID WordPress URLs - redirect to clean URL
+  if (p) {
+    try {
+      const response = await fetch(
+        `https://wp.cursedtours.com/wp-json/wp/v2/posts/${p}?_fields=slug`,
+        { next: { revalidate: 86400 } }
+      );
+      if (response.ok) {
+        const post = await response.json();
+        if (post.slug) {
+          redirect(`/${post.slug}/`);
+        }
+      }
+    } catch {
+      // Fall through to homepage if lookup fails
+    }
+    // If post not found, redirect to homepage without ?p=
+    redirect('/');
+  }
+  
   const requestedPage = Math.max(1, parseInt(page || '1', 10));
   const postsPerPage = 10;
 
