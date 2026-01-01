@@ -11,8 +11,7 @@ export async function middleware(request: NextRequest) {
     try {
       // Look up the post in WordPress to get the slug
       const response = await fetch(
-        `https://wp.cursedtours.com/wp-json/wp/v2/posts/${postId}?_fields=slug`,
-        { next: { revalidate: 3600 } } // Cache for 1 hour
+        `https://wp.cursedtours.com/wp-json/wp/v2/posts/${postId}?_fields=slug`
       );
       
       if (response.ok) {
@@ -40,7 +39,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // Only run on homepage with query params
-    '/',
+    /*
+     * Match all request paths except:
+     * - _next/static (static files)
+     * - _next/image (image optimization)
+     * - favicon.ico (favicon file)
+     * - public folder files
+     */
+    '/((?!_next/static|_next/image|favicon.ico|favicons|images|.*\\.png$|.*\\.jpg$|.*\\.svg$|.*\\.ico$).*)',
   ],
 };
