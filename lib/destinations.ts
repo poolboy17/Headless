@@ -12,6 +12,7 @@ export interface Destination {
   longDescription: string;
   country: string;
   city: string;
+  citySlug: string; // Maps to lib/tours.ts city for fetching products
   imageUrl: string;
   viatorSearchQuery: string;
   viatorDestId: string; // Viator destination ID for the city/region
@@ -37,6 +38,7 @@ export const destinations: Destination[] = [
 Today, the castle serves as a museum showcasing medieval artifacts, secret passages, and the dark history of the region. Ghost tours and night visits offer spine-chilling experiences as you explore the castle's shadowy corridors and learn about the real horrors of Vlad's brutal reign.`,
     country: 'Romania',
     city: 'Bran, Transylvania',
+    citySlug: '', // No matching city in our system - will use Viator search
     imageUrl: unsplash('photo-1580394693539-2eb89614e3f5', 1200, 800),
     viatorSearchQuery: 'dracula castle bran transylvania',
     viatorDestId: '22413', // Bucharest region
@@ -66,6 +68,7 @@ Today, the castle serves as a museum showcasing medieval artifacts, secret passa
 Today, Salem embraces its dark past with world-class museums, haunted walking tours, and preserved historic sites. The Salem Witch Museum, the Witch House, and the Witch Trials Memorial offer sobering reminders of this tragic chapter. Ghost tours reveal the restless spirits said to still wander the streets, while psychic readings and occult shops line Essex Street.`,
     country: 'USA',
     city: 'Salem, Massachusetts',
+    citySlug: 'salem', // Maps to lib/tours.ts
     imageUrl: unsplash('photo-1509557965875-b88c97052f0e', 1200, 800),
     viatorSearchQuery: 'salem witch trials ghost tour',
     viatorDestId: '50249', // Salem
@@ -95,6 +98,7 @@ Today, Salem embraces its dark past with world-class museums, haunted walking to
 The Tower is considered one of Britain's most haunted locations. Guards and visitors have reported seeing the headless ghost of Anne Boleyn, the White Lady in the White Tower, and the ghostly figures of the murdered princes. Night tours offer the chance to explore after dark, when the ancient stones seem to whisper secrets of those who suffered within.`,
     country: 'UK',
     city: 'London',
+    citySlug: 'london', // Maps to lib/tours.ts
     imageUrl: unsplash('photo-1513635269975-59663e0ac1ad', 1200, 800),
     viatorSearchQuery: 'tower of london ghost tour',
     viatorDestId: '737', // London
