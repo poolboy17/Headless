@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Clock, Star, ExternalLink, Loader2, Ghost, CheckCircle } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import { Clock, Star, ExternalLink, Loader2, Ghost, CheckCircle, Filter } from 'lucide-react';
 import { getProductsByCity, formatPrice, formatLastVerified, type ViatorProduct } from '@/lib/viator-products';
-import { tours as staticTours, getAffiliateUrl, type Tour } from '@/lib/tours';
+import { tours as staticTours, tourTypes, getAffiliateUrl, type Tour } from '@/lib/tours';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,19 +15,21 @@ interface DestinationToursIslandProps {
 }
 
 const VIATOR_PID = 'P00166886';
+const TOURS_PER_PAGE = 6;
 
 export function DestinationToursIsland({ destination, viatorUrl }: DestinationToursIslandProps) {
   const [liveProducts, setLiveProducts] = useState<ViatorProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [visibleCount, setVisibleCount] = useState(TOURS_PER_PAGE);
 
   // Get static tours for this destination's city
   const cityStaticTours = destination.citySlug 
-    ? staticTours.filter(t => t.cityId === destination.citySlug).slice(0, 6)
+    ? staticTours.filter(t => t.cityId === destination.citySlug)
     : [];
 
   useEffect(() => {
     async function fetchProducts() {
-      // Only fetch if we have a citySlug that maps to our system
       if (!destination.citySlug) {
         setLoading(false);
         return;
@@ -35,7 +37,8 @@ export function DestinationToursIsland({ destination, viatorUrl }: DestinationTo
 
       try {
         setLoading(true);
-        const response = await getProductsByCity(destination.citySlug, { perPage: 6 });
+        // Fetch more products to enable filtering
+        const response = await getProductsByCity(destination.citySlug, { perPage: 50 });
         setLiveProducts(response.products);
       } catch (err) {
         console.error('Error fetching tours:', err);
@@ -46,6 +49,38 @@ export function DestinationToursIsland({ destination, viatorUrl }: DestinationTo
 
     fetchProducts();
   }, [destination.citySlug]);
+
+  // Extract unique categories from live products
+  const categories = useMemo(() => {
+    if (liveProducts.length === 0) return [];
+    
+    const categoryMap = new Map<string, number>();
+    liveProducts.forEach(p => {
+      if (p.category) {
+        categoryMap.set(p.category, (categoryMap.get(p.category) || 0) + 1);
+      }
+    });
+    
+    // Sort by count descending
+    return Array.from(categoryMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, count]) => ({ name, count }));
+  }, [liveProducts]);
+
+  // Filter products by selected category
+  const filteredProducts = useMemo(() => {
+    if (selectedCategory === 'all') return liveProducts;
+    return liveProducts.filter(p => p.category === selectedCategory);
+  }, [liveProducts, selectedCategory]);
+
+  // Products to display (with pagination)
+  const displayedProducts = filteredProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredProducts.length;
+
+  // Reset visible count when category changes
+  useEffect(() => {
+    setVisibleCount(TOURS_PER_PAGE);
+  }, [selectedCategory]);
 
   const hasLiveProducts = liveProducts.length > 0;
   const hasStaticTours = cityStaticTours.length > 0;
@@ -69,9 +104,11 @@ export function DestinationToursIsland({ destination, viatorUrl }: DestinationTo
         <div>
           <h2 className="text-2xl font-bold mb-1">Available Tours</h2>
           <p className="text-muted-foreground text-sm">
-            {hasAnyTours 
-              ? `${hasLiveProducts ? liveProducts.length : cityStaticTours.length} tours for ${destination.name}`
-              : 'Browse tours on Viator'}
+            {hasLiveProducts 
+              ? `${filteredProducts.length} of ${liveProducts.length} tours${selectedCategory !== 'all' ? ` in ${selectedCategory}` : ''}`
+              : hasStaticTours 
+                ? `${cityStaticTours.length} tours available`
+                : 'Browse tours on Viator'}
           </p>
         </div>
         <a
@@ -86,22 +123,85 @@ export function DestinationToursIsland({ destination, viatorUrl }: DestinationTo
         </a>
       </div>
 
-      {/* Live Products (if available) */}
-      {hasLiveProducts && (
-        <div className="mb-8">
-          <p className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-500" />
-            Live availability from Viator
-          </p>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {liveProducts.map((product) => (
-              <LiveProductCard key={product.productCode} product={product} />
+      {/* Category Filter Tabs */}
+      {hasLiveProducts && categories.length > 1 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-muted-foreground">Filter by type</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={selectedCategory === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory('all')}
+              className="text-xs"
+            >
+              All ({liveProducts.length})
+            </Button>
+            {categories.map(({ name, count }) => (
+              <Button
+                key={name}
+                variant={selectedCategory === name ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedCategory(name)}
+                className="text-xs"
+              >
+                {name} ({count})
+              </Button>
             ))}
           </div>
         </div>
       )}
 
-      {/* Static Tours (fallback or additional) */}
+      {/* Live Products */}
+      {hasLiveProducts && (
+        <div className="mb-8">
+          {selectedCategory === 'all' && (
+            <p className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-500" />
+              Live availability from Viator
+            </p>
+          )}
+          
+          {filteredProducts.length === 0 ? (
+            <Card className="border-border/50">
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">No tours in this category.</p>
+                <Button 
+                  variant="link" 
+                  onClick={() => setSelectedCategory('all')}
+                  className="mt-2"
+                >
+                  Show all tours
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {displayedProducts.map((product) => (
+                  <LiveProductCard key={product.productCode} product={product} />
+                ))}
+              </div>
+              
+              {/* Show More Button */}
+              {hasMore && (
+                <div className="text-center mt-8">
+                  <Button
+                    variant="outline"
+                    onClick={() => setVisibleCount(prev => prev + TOURS_PER_PAGE)}
+                  >
+                    Show More ({filteredProducts.length - visibleCount} remaining)
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Static Tours (fallback) */}
       {!hasLiveProducts && hasStaticTours && (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {cityStaticTours.map((tour) => (
@@ -146,7 +246,7 @@ function LiveProductCard({ product }: { product: ViatorProduct }) {
       rel="noopener noreferrer sponsored"
       className="block group"
     >
-      <Card className="overflow-hidden h-full transition-all duration-300 hover:shadow-xl border-border/50 hover:border-primary/30 ring-2 ring-green-500/20">
+      <Card className="overflow-hidden h-full transition-all duration-300 hover:shadow-xl border-border/50 hover:border-primary/30">
         <div className="relative aspect-[4/3] bg-muted overflow-hidden">
           {product.thumbnailUrl ? (
             <img
@@ -168,13 +268,18 @@ function LiveProductCard({ product }: { product: ViatorProduct }) {
             </Badge>
           </div>
 
-          {product.hasFreeCancellation && (
-            <div className="absolute bottom-3 left-3">
+          <div className="absolute bottom-3 left-3 flex gap-2">
+            {product.hasFreeCancellation && (
               <Badge className="bg-green-600/90 text-white border-0 text-[10px] uppercase tracking-wider">
                 Free Cancellation
               </Badge>
-            </div>
-          )}
+            )}
+            {product.category && (
+              <Badge className="bg-primary/80 text-primary-foreground border-0 text-[10px] uppercase tracking-wider">
+                {product.category}
+              </Badge>
+            )}
+          </div>
         </div>
 
         <CardContent className="p-4">
@@ -215,6 +320,7 @@ function LiveProductCard({ product }: { product: ViatorProduct }) {
 // Static tour card (from lib/tours.ts)
 function StaticTourCard({ tour }: { tour: Tour }) {
   const affiliateUrl = getAffiliateUrl(tour.viatorUrl);
+  const tourType = tourTypes.find(t => t.id === tour.type);
 
   return (
     <a
@@ -238,6 +344,14 @@ function StaticTourCard({ tour }: { tour: Tour }) {
               From {tour.price}
             </Badge>
           </div>
+
+          {tourType && (
+            <div className="absolute bottom-3 left-3">
+              <Badge className="bg-primary/80 text-primary-foreground border-0 text-[10px] uppercase tracking-wider">
+                {tourType.label}
+              </Badge>
+            </div>
+          )}
         </div>
 
         <CardContent className="p-4">
