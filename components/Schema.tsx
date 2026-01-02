@@ -415,16 +415,11 @@ export function SiteSchema() {
 }
 
 // Homepage Schema with featured posts
+// NOTE: Only adds ItemListSchema - Organization & WebSite schemas come from SiteSchema in layout.tsx
 export function HomePageSchema({ featuredPosts }: { featuredPosts?: WPPostSEO[] }) {
-  return (
-    <>
-      <OrganizationSchema />
-      <WebSiteSchema />
-      {featuredPosts && featuredPosts.length > 0 && (
-        <ItemListSchema name="Featured Articles" posts={featuredPosts} />
-      )}
-    </>
-  );
+  if (!featuredPosts || featuredPosts.length === 0) return null;
+  
+  return <ItemListSchema name="Featured Articles" posts={featuredPosts} />;
 }
 
 // ============================================

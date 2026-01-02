@@ -5,8 +5,48 @@ const WORDPRESS_URL = process.env.NEXT_PUBLIC_WORDPRESS_URL || 'https://wp.curse
 
 const apiKeySchema = z.string().min(1, 'API key is required');
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const destination = searchParams.get('destination');
+    const query = searchParams.get('query');
+    const limit = searchParams.get('limit') || '12';
+
+    // If destination or query params provided, fetch products
+    if (destination || query) {
+      const params = new URLSearchParams({
+        active_only: 'true',
+        per_page: limit,
+      });
+      
+      if (destination) {
+        params.set('destination', destination);
+      }
+
+      const response = await fetch(
+        `${WORDPRESS_URL}/wp-json/viator-sync/v1/products?${params}`,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          next: { revalidate: 300 },
+        }
+      );
+
+      if (!response.ok) {
+        // 404 means plugin not installed - return empty
+        if (response.status === 404) {
+          return NextResponse.json({ products: [], pagination: { total: 0 } });
+        }
+        return NextResponse.json(
+          { error: 'Failed to fetch products', status: response.status },
+          { status: response.status }
+        );
+      }
+
+      const data = await response.json();
+      return NextResponse.json(data);
+    }
+
+    // Default: return sync status
     const response = await fetch(
       `${WORDPRESS_URL}/wp-json/viator-sync/v1/status`,
       {
