@@ -201,12 +201,17 @@ export function DestinationToursIsland({ destination, viatorUrl }: DestinationTo
         </div>
       )}
 
-      {/* Static Tours (fallback) */}
-      {!hasLiveProducts && hasStaticTours && (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {cityStaticTours.map((tour) => (
-            <StaticTourCard key={tour.id} tour={tour} />
-          ))}
+      {/* Static Tours - always show when available */}
+      {hasStaticTours && (
+        <div className={hasLiveProducts ? "mt-12" : ""}>
+          {hasLiveProducts && (
+            <h3 className="text-xl font-bold mb-4">Curated Tour Picks</h3>
+          )}
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {cityStaticTours.map((tour) => (
+              <StaticTourCard key={tour.id} tour={tour} />
+            ))}
+          </div>
         </div>
       )}
 
