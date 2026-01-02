@@ -74,6 +74,7 @@ export const DESTINATION_MAP: Record<string, string> = {
   '4177': 'san-antonio',
   '684': 'paris',
   '503': 'dublin',
+  '22413': 'transylvania',
 };
 
 // City slug to destination ID mapping

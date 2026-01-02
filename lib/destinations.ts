@@ -38,7 +38,7 @@ export const destinations: Destination[] = [
 Today, the castle serves as a museum showcasing medieval artifacts, secret passages, and the dark history of the region. Ghost tours and night visits offer spine-chilling experiences as you explore the castle's shadowy corridors and learn about the real horrors of Vlad's brutal reign.`,
     country: 'Romania',
     city: 'Bran, Transylvania',
-    citySlug: '', // No matching city in our system - will use Viator search
+    citySlug: 'transylvania', // Maps to lib/tours.ts
     imageUrl: unsplash('photo-1580394693539-2eb89614e3f5', 1200, 800),
     viatorSearchQuery: 'dracula castle bran transylvania',
     viatorDestId: '22413', // Bucharest region
