@@ -120,10 +120,10 @@ function transformPostContent(content: string): string {
     `href="${SITE_URL}/category/$2"`
   );
 
-  // Fix relative /articles/ links to /post/
+  // Fix relative /articles/ links - remove /articles/ prefix
   transformed = transformed.replace(
     /href="\/articles\/([a-z0-9-]+)\/?"/gi,
-    'href="/post/$1"'
+    'href="/$1/"'
   );
 
   // STEP 5: Transform image URLs
