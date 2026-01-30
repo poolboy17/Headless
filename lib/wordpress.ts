@@ -120,6 +120,12 @@ function transformPostContent(content: string): string {
     `href="${SITE_URL}/category/$2"`
   );
 
+  // Fix relative /articles/ links to /post/
+  transformed = transformed.replace(
+    /href="\/articles\/([a-z0-9-]+)\/?"/gi,
+    'href="/post/$1"'
+  );
+
   // STEP 5: Transform image URLs
   transformed = transformed.replace(
     /https?:\/\/(www\.)?cursedtours\.com\/wp-content\/uploads/g,
